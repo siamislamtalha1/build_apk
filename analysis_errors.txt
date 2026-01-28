@@ -1,0 +1,433 @@
+﻿Analyzing BoomBox...                                            
+
+   info - The imported package 'bloc' isn't a dependency of the importing package - lib\blocs\add_to_playlist\cubit\add_to_playlist_cubit.dart:2:8 - depend_on_referenced_packages
+   info - The imported package 'bloc' isn't a dependency of the importing package - lib\blocs\album_view\album_cubit.dart:10:8 - depend_on_referenced_packages
+   info - The imported package 'bloc' isn't a dependency of the importing package - lib\blocs\artist_view\artist_cubit.dart:11:8 - depend_on_referenced_packages
+   info - The imported package 'bloc' isn't a dependency of the importing package - lib\blocs\auth\auth_cubit.dart:1:8 - depend_on_referenced_packages
+   info - The imported package 'path' isn't a dependency of the importing package - lib\blocs\downloader\cubit\downloader_cubit.dart:10:8 - depend_on_referenced_packages
+   info - The imported package 'bloc' isn't a dependency of the importing package - lib\blocs\downloader\cubit\downloader_cubit.dart:16:8 - depend_on_referenced_packages
+   info - The imported package 'bloc' isn't a dependency of the importing package - lib\blocs\global_events\global_events_cubit.dart:3:8 - depend_on_referenced_packages
+   info - The imported package 'bloc' isn't a dependency of the importing package - lib\blocs\history\cubit\history_cubit.dart:4:8 - depend_on_referenced_packages
+   info - The imported package 'bloc' isn't a dependency of the importing package - lib\blocs\internet_connectivity\cubit\connectivity_cubit.dart:3:8 - depend_on_referenced_packages
+   info - The imported package 'bloc' isn't a dependency of the importing package - lib\blocs\lastdotfm\lastdotfm_cubit.dart:12:8 - depend_on_referenced_packages
+   info - The imported package 'bloc' isn't a dependency of the importing package - lib\blocs\library\search_cubit\library_search_cubit.dart:2:8 - depend_on_referenced_packages
+   info - The imported package 'bloc' isn't a dependency of the importing package - lib\blocs\lyrics\lyrics_cubit.dart:10:8 - depend_on_referenced_packages
+   info - The imported package 'bloc' isn't a dependency of the importing package - lib\blocs\mediaPlayer\bloomee_player_cubit.dart:2:8 - depend_on_referenced_packages
+   info - The imported package 'bloc' isn't a dependency of the importing package - lib\blocs\mini_player\mini_player_bloc.dart:5:8 - depend_on_referenced_packages
+   info - Empty catch block - lib\blocs\mini_player\mini_player_bloc.dart:91:23 - empty_catches
+   info - Empty catch block - lib\blocs\mini_player\mini_player_bloc.dart:100:23 - empty_catches
+   info - Empty catch block - lib\blocs\mini_player\mini_player_bloc.dart:105:23 - empty_catches
+   info - The imported package 'bloc' isn't a dependency of the importing package - lib\blocs\notification\notification_cubit.dart:5:8 - depend_on_referenced_packages
+   info - Unnecessary override - lib\blocs\notification\notification_cubit.dart:31:16 - unnecessary_overrides
+   info - The imported package 'bloc' isn't a dependency of the importing package - lib\blocs\playlist_view\online_playlist_cubit.dart:12:8 - depend_on_referenced_packages
+   info - The imported package 'bloc' isn't a dependency of the importing package - lib\blocs\search\fetch_search_results.dart:5:8 - depend_on_referenced_packages
+   info - Field overrides a field inherited from 'FetchSearchResultsState' - lib\blocs\search\fetch_search_results.dart:109:21 - overridden_fields
+   info - Field overrides a field inherited from 'FetchSearchResultsState' - lib\blocs\search\fetch_search_results.dart:125:21 - overridden_fields
+   info - The variable name 'last_YTM_search' isn't a lowerCamelCase identifier - lib\blocs\search\fetch_search_results.dart:145:14 - non_constant_identifier_names
+   info - The variable name 'last_YTV_search' isn't a lowerCamelCase identifier - lib\blocs\search\fetch_search_results.dart:147:14 - non_constant_identifier_names
+   info - The variable name 'last_JIS_search' isn't a lowerCamelCase identifier - lib\blocs\search\fetch_search_results.dart:149:14 - non_constant_identifier_names
+warning - This default clause is covered by the previous cases - lib\blocs\search\fetch_search_results.dart:404:7 - unreachable_switch_default
+   info - The imported package 'bloc' isn't a dependency of the importing package - lib\blocs\search_suggestions\search_suggestion_bloc.dart:4:8 - depend_on_referenced_packages
+warning - This class (or a class that this class inherits from) is marked as '@immutable', but one or more of its instance fields aren't final: SettingsState.autoUpdateNotify, SettingsState.autoSlideCharts, SettingsState.downPath, SettingsState.downQuality, SettingsState.ytDownQuality, SettingsState.strmQuality, SettingsState.ytStrmQuality, SettingsState.backupPath, SettingsState.autoBackup, SettingsState.historyClearTime, SettingsState.autoGetCountry, SettingsState.lFMPicks, SettingsState.lastFMScrobble, SettingsState.autoSaveLyrics, SettingsState.autoPlay, SettingsState.countryCode, SettingsState.sourceEngineSwitches, SettingsState.chartMap, SettingsState.audioDecoderMode, SettingsState.hardwareOffloadEnabled, SettingsState.gaplessOffloadEnabled, SettingsState.tabletUiEnabled, SettingsState.persistentQueueEnabled, SettingsState.maxSavedQueues, SettingsState.keepAliveEnabled, SettingsState.stopOnTaskClear - lib\blocs\settings_cubit\cubit\settings_state.dart:4:7 - must_be_immutable
+warning - This class (or a class that this class inherits from) is marked as '@immutable', but one or more of its instance fields aren't final: SettingsState.autoUpdateNotify, SettingsState.autoSlideCharts, SettingsState.downPath, SettingsState.downQuality, SettingsState.ytDownQuality, SettingsState.strmQuality, SettingsState.ytStrmQuality, SettingsState.backupPath, SettingsState.autoBackup, SettingsState.historyClearTime, SettingsState.autoGetCountry, SettingsState.lFMPicks, SettingsState.lastFMScrobble, SettingsState.autoSaveLyrics, SettingsState.autoPlay, SettingsState.countryCode, SettingsState.sourceEngineSwitches, SettingsState.chartMap, SettingsState.audioDecoderMode, SettingsState.hardwareOffloadEnabled, SettingsState.gaplessOffloadEnabled, SettingsState.tabletUiEnabled, SettingsState.persistentQueueEnabled, SettingsState.maxSavedQueues, SettingsState.keepAliveEnabled, SettingsState.stopOnTaskClear - lib\blocs\settings_cubit\cubit\settings_state.dart:154:7 - must_be_immutable
+   info - The imported package 'bloc' isn't a dependency of the importing package - lib\blocs\timer\timer_bloc.dart:7:8 - depend_on_referenced_packages
+  error - Target of URI doesn't exist: 'package:flutter_gen/gen_l10n/app_localizations.dart' - lib\main.dart:49:8 - uri_does_not_exist
+   info - Don't invoke 'print' in production code - lib\main.dart:241:7 - avoid_print
+  error - The values in a const list literal must be constants - lib\main.dart:379:21 - non_constant_list_element
+  error - Undefined name 'AppLocalizations' - lib\main.dart:379:21 - undefined_identifier
+  error - Undefined name 'AppLocalizations' - lib\main.dart:384:37 - undefined_identifier
+   info - The file name 'MediaPlaylistModel.dart' isn't a lower_case_with_underscores identifier - lib\model\MediaPlaylistModel.dart:1:1 - file_names
+   info - Don't invoke 'print' in production code - lib\model\album_onl_model.dart:127:7 - avoid_print
+   info - The file name 'saavnModel.dart' isn't a lower_case_with_underscores identifier - lib\model\saavnModel.dart:1:1 - file_names
+   info - The file name 'songModel.dart' isn't a lower_case_with_underscores identifier - lib\model\songModel.dart:1:1 - file_names
+   info - Field overrides a field inherited from 'MediaItem' - lib\model\songModel.dart:8:15 - overridden_fields
+   info - Field overrides a field inherited from 'MediaItem' - lib\model\songModel.dart:10:15 - overridden_fields
+   info - Field overrides a field inherited from 'MediaItem' - lib\model\songModel.dart:12:11 - overridden_fields
+   info - Field overrides a field inherited from 'MediaItem' - lib\model\songModel.dart:14:8 - overridden_fields
+   info - Field overrides a field inherited from 'MediaItem' - lib\model\songModel.dart:16:11 - overridden_fields
+   info - Field overrides a field inherited from 'MediaItem' - lib\model\songModel.dart:18:25 - overridden_fields
+   info - Field overrides a field inherited from 'MediaItem' - lib\model\songModel.dart:20:11 - overridden_fields
+   info - Field overrides a field inherited from 'MediaItem' - lib\model\songModel.dart:22:13 - overridden_fields
+   info - The variable name 'MediaItem2MediaItemDB' isn't a lowerCamelCase identifier - lib\model\songModel.dart:81:13 - non_constant_identifier_names
+   info - The variable name 'MediaItemDB2MediaItem' isn't a lowerCamelCase identifier - lib\model\songModel.dart:97:16 - non_constant_identifier_names
+   info - The constant name 'eng_JIS' isn't a lowerCamelCase identifier - lib\model\source_engines.dart:5:3 - constant_identifier_names
+   info - The constant name 'eng_YTM' isn't a lowerCamelCase identifier - lib\model\source_engines.dart:6:3 - constant_identifier_names
+   info - The constant name 'eng_YTV' isn't a lowerCamelCase identifier - lib\model\source_engines.dart:7:3 - constant_identifier_names
+   info - The constant name 'HOT_100' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:19:23 - constant_identifier_names
+   info - The constant name 'BILLBOARD_200' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:20:23 - constant_identifier_names
+   info - The constant name 'SOCIAL_50' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:22:23 - constant_identifier_names
+   info - The constant name 'STREAMING_SONGS' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:23:23 - constant_identifier_names
+   info - The constant name 'DIGITAL_SONG_SALES' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:25:23 - constant_identifier_names
+   info - The constant name 'RADIO_SONGS' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:27:23 - constant_identifier_names
+   info - The constant name 'TOP_ALBUM_SALES' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:29:23 - constant_identifier_names
+   info - The constant name 'CURRENT_ALBUMS' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:31:23 - constant_identifier_names
+   info - The constant name 'INDEPENDENT_ALBUMS' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:33:23 - constant_identifier_names
+   info - The constant name 'CATALOG_ALBUMS' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:35:23 - constant_identifier_names
+   info - The constant name 'SOUNDTRACKS' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:37:23 - constant_identifier_names
+   info - The constant name 'VINYL_ALBUMS' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:39:23 - constant_identifier_names
+   info - The constant name 'HEATSEEKERS_ALBUMS' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:41:23 - constant_identifier_names
+   info - The constant name 'WORLD_ALBUMS' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:43:23 - constant_identifier_names
+   info - The constant name 'CANADIAN_HOT_100' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:45:23 - constant_identifier_names
+   info - The constant name 'JAPAN_HOT_100' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:47:23 - constant_identifier_names
+   info - The constant name 'KOREA_100' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:49:23 - constant_identifier_names
+   info - The constant name 'INDIA_SONGS' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:51:23 - constant_identifier_names
+   info - The constant name 'BILLBOARD_GLOBAL_200' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:53:23 - constant_identifier_names
+   info - The variable name 'HOT_100' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:58:25 - non_constant_identifier_names
+   info - The variable name 'BILLBOARD_200' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:60:25 - non_constant_identifier_names
+   info - The variable name 'SOCIAL_50' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:62:25 - non_constant_identifier_names
+   info - The variable name 'STREAMING_SONGS' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:64:25 - non_constant_identifier_names
+   info - The variable name 'DIGITAL_SONG_SALES' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:67:25 - non_constant_identifier_names
+   info - The variable name 'RADIO_SONGS' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:70:25 - non_constant_identifier_names
+   info - The variable name 'TOP_ALBUM_SALES' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:72:25 - non_constant_identifier_names
+   info - The variable name 'CURRENT_ALBUMS' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:75:25 - non_constant_identifier_names
+   info - The variable name 'INDEPENDENT_ALBUMS' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:78:25 - non_constant_identifier_names
+   info - The variable name 'CATALOG_ALBUMS' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:81:25 - non_constant_identifier_names
+   info - The variable name 'SOUNDTRACKS' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:84:25 - non_constant_identifier_names
+   info - The variable name 'VINYL_ALBUMS' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:86:25 - non_constant_identifier_names
+   info - The variable name 'HEATSEEKERS_ALBUMS' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:88:25 - non_constant_identifier_names
+   info - The variable name 'WORLD_ALBUMS' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:91:25 - non_constant_identifier_names
+   info - The variable name 'CANADIAN_HOT_100' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:93:25 - non_constant_identifier_names
+   info - The variable name 'JAPAN_HOT_100' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:96:25 - non_constant_identifier_names
+   info - The variable name 'KOREA_100' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:99:25 - non_constant_identifier_names
+   info - The variable name 'INDIA_SONGS' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:101:25 - non_constant_identifier_names
+   info - The variable name 'BILLBOARD_GLOBAL_200' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:103:25 - non_constant_identifier_names
+   info - The constant name 'NEW' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:108:15 - constant_identifier_names
+   info - The constant name 'UP' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:108:20 - constant_identifier_names
+   info - The constant name 'DOWN' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:108:24 - constant_identifier_names
+   info - The constant name 'SAME' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:108:30 - constant_identifier_names
+   info - The constant name 'REENTRY' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:108:36 - constant_identifier_names
+   info - The constant name 'ERROR' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\billboard_charts.dart:108:45 - constant_identifier_names
+   info - The constant name 'LASTFM_TOP_20' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\last_dot_fm_charts.dart:14:14 - constant_identifier_names
+   info - The variable name 'TOP_TRACKS' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\last_dot_fm_charts.dart:19:25 - non_constant_identifier_names
+   info - The constant name 'TOP_100' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\melon_charts.dart:22:23 - constant_identifier_names
+   info - The constant name 'HOT_100' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\melon_charts.dart:23:23 - constant_identifier_names
+   info - The constant name 'GENREOMICS_DAILY' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\melon_charts.dart:24:23 - constant_identifier_names
+   info - The constant name 'DOMESTIC_DAILY' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\melon_charts.dart:26:23 - constant_identifier_names
+   info - The constant name 'OVERSEAS_DAILY' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\melon_charts.dart:28:23 - constant_identifier_names
+   info - The constant name 'GENREOMICS_WEEKLY' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\melon_charts.dart:30:23 - constant_identifier_names
+   info - The constant name 'DOMESTIC_WEEKLY' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\melon_charts.dart:32:23 - constant_identifier_names
+   info - The constant name 'OVERSEAS_WEEKLY' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\melon_charts.dart:34:23 - constant_identifier_names
+   info - The constant name 'GENREOMICS_MONTHLY' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\melon_charts.dart:36:23 - constant_identifier_names
+   info - The constant name 'DOMESTIC_MONTHLY' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\melon_charts.dart:38:23 - constant_identifier_names
+   info - The constant name 'OVERSEAS_MONTHLY' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\melon_charts.dart:40:23 - constant_identifier_names
+   info - The variable name 'TOP_100' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\melon_charts.dart:45:25 - non_constant_identifier_names
+   info - The variable name 'HOT_100' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\melon_charts.dart:47:25 - non_constant_identifier_names
+   info - The variable name 'GENREOMICS_DAILY' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\melon_charts.dart:49:25 - non_constant_identifier_names
+   info - The variable name 'DOMESTIC_DAILY' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\melon_charts.dart:51:25 - non_constant_identifier_names
+   info - The variable name 'OVERSEAS_DAILY' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\melon_charts.dart:53:25 - non_constant_identifier_names
+   info - The variable name 'GENREOMICS_WEEKLY' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\melon_charts.dart:55:25 - non_constant_identifier_names
+   info - The variable name 'DOMESTIC_WEEKLY' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\melon_charts.dart:58:25 - non_constant_identifier_names
+   info - The variable name 'OVERSEAS_WEEKLY' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\melon_charts.dart:60:25 - non_constant_identifier_names
+   info - The variable name 'GENREOMICS_MONTHLY' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\melon_charts.dart:62:25 - non_constant_identifier_names
+   info - The variable name 'DOMESTIC_MONTHLY' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\melon_charts.dart:65:25 - non_constant_identifier_names
+   info - The variable name 'OVERSEAS_MONTHLY' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\melon_charts.dart:67:25 - non_constant_identifier_names
+   info - The constant name 'TOP_50' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\spotify_top50_chart.dart:17:23 - constant_identifier_names
+   info - The variable name 'TOP_50' isn't a lowerCamelCase identifier - lib\plugins\ext_charts\spotify_top50_chart.dart:22:25 - non_constant_identifier_names
+   info - An uninitialized variable should have an explicit type annotation - lib\repository\MixedAPI\mixed_api.dart:97:9 - prefer_typing_uninitialized_variables
+   info - An uninitialized variable should have an explicit type annotation - lib\repository\MixedAPI\mixed_api.dart:98:9 - prefer_typing_uninitialized_variables
+  error - The non-nullable local variable 'response' must be assigned before it can be used - lib\repository\Spotify\spotify_api.dart:56:9 - not_assigned_potentially_non_nullable_local_variable
+  error - The non-nullable local variable 'response' must be assigned before it can be used - lib\repository\Spotify\spotify_api.dart:57:40 - not_assigned_potentially_non_nullable_local_variable
+   info - The imported package 'logging' isn't a dependency of the importing package - lib\repository\Youtube\yt_music_api.dart:5:8 - depend_on_referenced_packages
+   info - Don't invoke 'print' in production code - lib\repository\Youtube\ytm\mixins\browsing.dart:134:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\repository\Youtube\ytm\mixins\browsing.dart:396:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\repository\Youtube\ytm\mixins\browsing.dart:399:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\repository\Youtube\ytm\mixins\browsing.dart:401:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\repository\Youtube\ytm\mixins\browsing.dart:405:7 - avoid_print
+   info - The constant name 'ChartScreen' isn't a lowerCamelCase identifier - lib\routes_and_consts\global_str_consts.dart:11:23 - constant_identifier_names
+  error - The getter 'ImportMediaFromPlatforms' isn't defined for the type 'GlobalStrConsts' - lib\routes_and_consts\routes.dart:175:47 - undefined_getter
+  error - The getter 'ImportMediaFromPlatforms' isn't defined for the type 'GlobalStrConsts' - lib\routes_and_consts\routes.dart:176:47 - undefined_getter
+   info - Use 'const' with the constructor to improve performance - lib\screens\screen\ai_playlist_screen.dart:80:19 - prefer_const_constructors
+warning - The operand can't be 'null', so the condition is always 'true' - lib\screens\screen\ai_playlist_screen.dart:293:32 - unnecessary_null_comparison
+warning - The '!' will have no effect because the receiver can't be null - lib\screens\screen\ai_playlist_screen.dart:295:52 - unnecessary_non_null_assertion
+warning - The operand can't be 'null', so the condition is always 'false' - lib\screens\screen\ai_playlist_screen.dart:301:30 - unnecessary_null_comparison
+   info - Use 'const' with the constructor to improve performance - lib\screens\screen\ai_playlist_screen.dart:302:17 - prefer_const_constructors
+warning - The left operand can't be null, so the right operand is never executed - lib\screens\screen\ai_playlist_screen.dart:309:25 - dead_null_aware_expression
+warning - The left operand can't be null, so the right operand is never executed - lib\screens\screen\ai_playlist_screen.dart:320:26 - dead_null_aware_expression
+   info - An uninitialized field should have an explicit type annotation - lib\screens\screen\chart\chart_widget.dart:55:14 - prefer_typing_uninitialized_variables
+   info - Don't use 'BuildContext's across async gaps - lib\screens\screen\common_views\changelog_reader.dart:243:28 - use_build_context_synchronously
+   info - Invalid use of a private type in a public API - lib\screens\screen\common_views\changelog_reader.dart:410:3 - library_private_types_in_public_api
+  error - The name 'LibraryItemsCubit' isn't a type, so it can't be used as a type argument - lib\screens\screen\discover_weekly_screen.dart:34:41 - non_type_as_type_argument
+  error - The name 'LibraryLoaded' isn't defined, so it can't be used in an 'is' expression - lib\screens\screen\discover_weekly_screen.dart:35:42 - type_test_with_undefined_name
+   info - Don't invoke 'print' in production code - lib\screens\screen\discover_weekly_screen.dart:51:7 - avoid_print
+warning - The operand can't be 'null', so the condition is always 'true' - lib\screens\screen\discover_weekly_screen.dart:230:32 - unnecessary_null_comparison
+warning - The '!' will have no effect because the receiver can't be null - lib\screens\screen\discover_weekly_screen.dart:232:52 - unnecessary_non_null_assertion
+warning - The operand can't be 'null', so the condition is always 'false' - lib\screens\screen\discover_weekly_screen.dart:238:30 - unnecessary_null_comparison
+   info - Use 'const' with the constructor to improve performance - lib\screens\screen\discover_weekly_screen.dart:239:17 - prefer_const_constructors
+warning - The left operand can't be null, so the right operand is never executed - lib\screens\screen\discover_weekly_screen.dart:246:25 - dead_null_aware_expression
+warning - The left operand can't be null, so the right operand is never executed - lib\screens\screen\discover_weekly_screen.dart:257:26 - dead_null_aware_expression
+  error - Expected to find ']' - lib\screens\screen\home_views\setting_view.dart:107:19 - expected_token
+  error - Expected a class member - lib\screens\screen\home_views\setting_view.dart:109:16 - expected_class_member
+  error - Expected a class member - lib\screens\screen\home_views\setting_view.dart:109:17 - expected_class_member
+  error - Named parameters must be enclosed in curly braces ('{' and '}') - lib\screens\screen\home_views\setting_view.dart:111:21 - named_parameter_outside_group
+  error - Named parameters must be enclosed in curly braces ('{' and '}') - lib\screens\screen\home_views\setting_view.dart:112:24 - named_parameter_outside_group
+  error - Named parameters must be enclosed in curly braces ('{' and '}') - lib\screens\screen\home_views\setting_view.dart:113:20 - named_parameter_outside_group
+  error - The getter 'settings_2_fill' isn't defined for the type 'EvaIcons' - lib\screens\screen\home_views\setting_view.dart:113:31 - undefined_getter
+  error - Named parameters must be enclosed in curly braces ('{' and '}') - lib\screens\screen\home_views\setting_view.dart:114:21 - named_parameter_outside_group
+  error - The default value of an optional parameter must be constant - lib\screens\screen\home_views\setting_view.dart:114:23 - non_constant_default_value
+  error - Undefined name 'context' - lib\screens\screen\home_views\setting_view.dart:116:19 - undefined_identifier
+  error - A function body must be provided - lib\screens\screen\home_views\setting_view.dart:121:17 - missing_function_body
+  error - Expected a class member - lib\screens\screen\home_views\setting_view.dart:121:17 - expected_class_member
+  error - The name 'settingListTile' is already defined - lib\screens\screen\home_views\setting_view.dart:122:11 - duplicate_definition
+  error - Named parameters must be enclosed in curly braces ('{' and '}') - lib\screens\screen\home_views\setting_view.dart:123:21 - named_parameter_outside_group
+  error - Named parameters must be enclosed in curly braces ('{' and '}') - lib\screens\screen\home_views\setting_view.dart:124:24 - named_parameter_outside_group
+  error - Named parameters must be enclosed in curly braces ('{' and '}') - lib\screens\screen\home_views\setting_view.dart:125:20 - named_parameter_outside_group
+  error - The getter 'code_fill' isn't defined for the type 'EvaIcons' - lib\screens\screen\home_views\setting_view.dart:125:31 - undefined_getter
+  error - Named parameters must be enclosed in curly braces ('{' and '}') - lib\screens\screen\home_views\setting_view.dart:126:21 - named_parameter_outside_group
+  error - The default value of an optional parameter must be constant - lib\screens\screen\home_views\setting_view.dart:126:23 - non_constant_default_value
+  error - Undefined name 'context' - lib\screens\screen\home_views\setting_view.dart:128:19 - undefined_identifier
+  error - A function body must be provided - lib\screens\screen\home_views\setting_view.dart:133:17 - missing_function_body
+  error - Expected a class member - lib\screens\screen\home_views\setting_view.dart:133:17 - expected_class_member
+  error - The name 'settingListTile' is already defined - lib\screens\screen\home_views\setting_view.dart:134:11 - duplicate_definition
+  error - Named parameters must be enclosed in curly braces ('{' and '}') - lib\screens\screen\home_views\setting_view.dart:135:21 - named_parameter_outside_group
+  error - Named parameters must be enclosed in curly braces ('{' and '}') - lib\screens\screen\home_views\setting_view.dart:136:24 - named_parameter_outside_group
+  error - Named parameters must be enclosed in curly braces ('{' and '}') - lib\screens\screen\home_views\setting_view.dart:137:20 - named_parameter_outside_group
+  error - Named parameters must be enclosed in curly braces ('{' and '}') - lib\screens\screen\home_views\setting_view.dart:138:21 - named_parameter_outside_group
+  error - The default value of an optional parameter must be constant - lib\screens\screen\home_views\setting_view.dart:138:23 - non_constant_default_value
+  error - Undefined name 'context' - lib\screens\screen\home_views\setting_view.dart:140:19 - undefined_identifier
+  error - A function body must be provided - lib\screens\screen\home_views\setting_view.dart:145:17 - missing_function_body
+  error - Expected a class member - lib\screens\screen\home_views\setting_view.dart:145:17 - expected_class_member
+  error - The name 'settingListTile' is already defined - lib\screens\screen\home_views\setting_view.dart:146:11 - duplicate_definition
+  error - Named parameters must be enclosed in curly braces ('{' and '}') - lib\screens\screen\home_views\setting_view.dart:147:21 - named_parameter_outside_group
+  error - Named parameters must be enclosed in curly braces ('{' and '}') - lib\screens\screen\home_views\setting_view.dart:148:24 - named_parameter_outside_group
+  error - Named parameters must be enclosed in curly braces ('{' and '}') - lib\screens\screen\home_views\setting_view.dart:149:20 - named_parameter_outside_group
+  error - Named parameters must be enclosed in curly braces ('{' and '}') - lib\screens\screen\home_views\setting_view.dart:150:21 - named_parameter_outside_group
+  error - The default value of an optional parameter must be constant - lib\screens\screen\home_views\setting_view.dart:150:23 - non_constant_default_value
+  error - Undefined name 'context' - lib\screens\screen\home_views\setting_view.dart:152:19 - undefined_identifier
+  error - A function body must be provided - lib\screens\screen\home_views\setting_view.dart:157:17 - missing_function_body
+  error - Expected a class member - lib\screens\screen\home_views\setting_view.dart:157:17 - expected_class_member
+  error - Expected a class member - lib\screens\screen\home_views\setting_view.dart:158:9 - expected_class_member
+  error - Expected a class member - lib\screens\screen\home_views\setting_view.dart:158:10 - expected_class_member
+  error - Expected a class member - lib\screens\screen\home_views\setting_view.dart:159:7 - expected_class_member
+  error - Expected a class member - lib\screens\screen\home_views\setting_view.dart:159:8 - expected_class_member
+  error - Expected a class member - lib\screens\screen\home_views\setting_view.dart:160:5 - expected_class_member
+  error - Expected a class member - lib\screens\screen\home_views\setting_view.dart:160:6 - expected_class_member
+  error - Expected a method, getter, setter or operator declaration - lib\screens\screen\home_views\setting_view.dart:193:1 - expected_executable
+   info - Don't use 'BuildContext's across async gaps - lib\screens\screen\home_views\setting_views\appui_setting.dart:80:25 - use_build_context_synchronously
+warning - Unused import: 'package:Bloomee/services/bloomeeUpdaterTools.dart' - lib\screens\screen\home_views\setting_views\check_update_view.dart:1:8 - unused_import
+  error - The method 'getLatestVersion' isn't defined for the type 'CheckUpdateView' - lib\screens\screen\home_views\setting_views\check_update_view.dart:26:19 - undefined_method
+  error - The operator '[]' isn't defined for the type 'Object' - lib\screens\screen\home_views\setting_views\check_update_view.dart:29:34 - undefined_operator
+  error - The operator '[]' isn't defined for the type 'Object' - lib\screens\screen\home_views\setting_views\check_update_view.dart:74:59 - undefined_operator
+  error - The operator '[]' isn't defined for the type 'Object' - lib\screens\screen\home_views\setting_views\check_update_view.dart:74:90 - undefined_operator
+  error - The operator '[]' isn't defined for the type 'Object' - lib\screens\screen\home_views\setting_views\check_update_view.dart:99:51 - undefined_operator
+  error - The operator '[]' isn't defined for the type 'Object' - lib\screens\screen\home_views\setting_views\check_update_view.dart:99:80 - undefined_operator
+  error - The operator '[]' isn't defined for the type 'Object' - lib\screens\screen\home_views\setting_views\check_update_view.dart:136:59 - undefined_operator
+  error - The operator '[]' isn't defined for the type 'Object' - lib\screens\screen\home_views\setting_views\check_update_view.dart:136:90 - undefined_operator
+   info - Don't use 'BuildContext's across async gaps - lib\screens\screen\home_views\setting_views\download_setting.dart:151:29 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\screen\home_views\setting_views\lastfm_setting.dart:111:25 - use_build_context_synchronously
+warning - This 'onError' handler must return a value assignable to 'ShareResult', but ends without returning a value - lib\screens\screen\home_views\setting_views\storage_setting.dart:169:47 - body_might_complete_normally_catch_error
+   info - Don't use 'BuildContext's across async gaps - lib\screens\screen\home_views\setting_views\storage_setting.dart:330:7 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\screen\home_views\setting_views\storage_setting.dart:456:7 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\screen\home_views\setting_views\storage_setting.dart:502:7 - use_build_context_synchronously
+   info - 'WillPopScope' is deprecated and shouldn't be used. Use PopScope instead. The Android predictive back feature will not work with WillPopScope. This feature was deprecated after v3.12.0-1.0.pre - lib\screens\screen\home_views\setting_views\storage_setting.dart:506:16 - deprecated_member_use
+   info - Don't use 'BuildContext's across async gaps - lib\screens\screen\home_views\setting_views\storage_setting.dart:552:28 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\screen\home_views\setting_views\storage_setting.dart:553:26 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\screen\home_views\setting_views\storage_setting.dart:561:28 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\screen\home_views\setting_views\storage_setting.dart:562:26 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\screen\home_views\setting_views\storage_setting.dart:582:29 - use_build_context_synchronously
+warning - This case is covered by the previous cases - lib\screens\screen\home_views\timer_view.dart:196:19 - unreachable_switch_case
+   info - 'Share' is deprecated and shouldn't be used. Use SharePlus instead - lib\screens\screen\home_views\youtube_views\playlist.dart:143:47 - deprecated_member_use
+   info - 'share' is deprecated and shouldn't be used. Use SharePlus.instance.share() instead - lib\screens\screen\home_views\youtube_views\playlist.dart:143:53 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\screen\library_screen.dart:187:64 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\screen\library_screen.dart:231:46 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\screen\library_screen.dart:249:52 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\screen\library_screen.dart:255:50 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\screen\library_screen.dart:269:64 - deprecated_member_use
+  error - The getter 'ImportMediaFromPlatforms' isn't defined for the type 'GlobalStrConsts' - lib\screens\screen\library_screen.dart:472:51 - undefined_getter
+   info - The imported package 'bloc' isn't a dependency of the importing package - lib\screens\screen\library_views\cubit\current_playlist_cubit.dart:3:8 - depend_on_referenced_packages
+   info - Constructors in '@immutable' classes should be declared as 'const' - lib\screens\screen\library_views\cubit\current_playlist_state.dart:34:3 - prefer_const_constructors_in_immutables
+   info - Constructors in '@immutable' classes should be declared as 'const' - lib\screens\screen\library_views\cubit\current_playlist_state.dart:41:3 - prefer_const_constructors_in_immutables
+   info - The imported package 'bloc' isn't a dependency of the importing package - lib\screens\screen\library_views\cubit\import_playlist_cubit.dart:1:8 - depend_on_referenced_packages
+   info - The variable name 'BloomeeDBCubit' isn't a lowerCamelCase identifier - lib\screens\screen\library_views\cubit\import_playlist_cubit.dart:80:20 - non_constant_identifier_names
+   info - Don't invoke 'print' in production code - lib\screens\screen\library_views\cubit\import_playlist_cubit.dart:85:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\screens\screen\library_views\cubit\import_playlist_cubit.dart:87:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\screens\screen\library_views\cubit\import_playlist_cubit.dart:89:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\screens\screen\library_views\cubit\import_playlist_cubit.dart:91:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\screens\screen\library_views\cubit\import_playlist_cubit.dart:92:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\screens\screen\library_views\cubit\import_playlist_cubit.dart:101:9 - avoid_print
+   info - 'Share' is deprecated and shouldn't be used. Use SharePlus instead - lib\screens\screen\library_views\more_opts_sheet.dart:80:29 - deprecated_member_use
+   info - 'shareXFiles' is deprecated and shouldn't be used. Use SharePlus.instance.share() instead - lib\screens\screen\library_views\more_opts_sheet.dart:80:35 - deprecated_member_use
+   info - Don't use 'BuildContext's across async gaps - lib\screens\screen\library_views\more_opts_sheet.dart:151:25 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\screen\library_views\more_opts_sheet.dart:172:25 - use_build_context_synchronously
+   info - 'Share' is deprecated and shouldn't be used. Use SharePlus instead - lib\screens\screen\library_views\more_opts_sheet.dart:191:29 - deprecated_member_use
+   info - 'shareXFiles' is deprecated and shouldn't be used. Use SharePlus.instance.share() instead - lib\screens\screen\library_views\more_opts_sheet.dart:191:35 - deprecated_member_use
+   info - Don't use 'BuildContext's across async gaps - lib\screens\screen\library_views\playlist_screen.dart:444:49 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\screen\library_views\playlist_screen.dart:690:15 - use_build_context_synchronously
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\screen\moods_genres_screen.dart:47:28 - deprecated_member_use
+   info - The import of 'dart:ui' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' - lib\screens\screen\player_screen.dart:1:8 - unnecessary_import
+   info - Don't use 'BuildContext's across async gaps - lib\screens\screen\player_screen.dart:738:34 - use_build_context_synchronously
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\screen\player_views\lyrics_widget.dart:300:49 - deprecated_member_use
+   info - Use 'const' with the constructor to improve performance - lib\screens\screen\profile_screen.dart:264:23 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\screens\screen\profile_screen.dart:511:22 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\screens\screen\profile_screen.dart:513:24 - prefer_const_constructors
+   info - Use 'const' literals as arguments to constructors of '@immutable' classes - lib\screens\screen\profile_screen.dart:515:29 - prefer_const_literals_to_create_immutables
+   info - Use 'const' with the constructor to improve performance - lib\screens\screen\profile_screen_old.dart:250:11 - prefer_const_constructors
+warning - Unused import: 'package:Bloomee/routes_and_consts/global_str_consts.dart' - lib\screens\screen\settings_views\settings_screen.dart:2:8 - unused_import
+  error - Target of URI doesn't exist: 'package:flutter_gen/gen_l10n/app_localizations.dart' - lib\screens\screen\settings_views\settings_screen.dart:8:8 - uri_does_not_exist
+   info - Use 'const' with the constructor to improve performance - lib\screens\screen\settings_views\settings_screen.dart:44:24 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\screens\screen\settings_views\settings_screen.dart:53:24 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\screens\screen\settings_views\settings_screen.dart:61:15 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\screens\screen\settings_views\settings_screen.dart:64:24 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\screens\screen\settings_views\settings_screen.dart:66:21 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\screens\screen\settings_views\settings_screen.dart:80:16 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\screens\screen\settings_views\settings_screen.dart:94:14 - prefer_const_constructors
+  error - The getter 'locale' isn't defined for the type 'SettingsState' - lib\screens\screen\settings_views\settings_screen.dart:96:22 - undefined_getter
+  error - The method 'setLocale' isn't defined for the type 'SettingsCubit' - lib\screens\screen\settings_views\settings_screen.dart:114:19 - undefined_method
+warning - Unused import: 'package:cached_network_image/cached_network_image.dart' - lib\screens\screen\statistics_screen.dart:4:8 - unused_import
+  error - The name 'LibraryLoaded' isn't defined, so it can't be used in an 'is' expression - lib\screens\widgets\ai_recommendations_widget.dart:38:42 - type_test_with_undefined_name
+   info - Don't invoke 'print' in production code - lib\screens\widgets\ai_recommendations_widget.dart:54:7 - avoid_print
+   info - Use 'const' with the constructor to improve performance - lib\screens\widgets\ai_recommendations_widget.dart:71:19 - prefer_const_constructors
+warning - The operand can't be 'null', so the condition is always 'true' - lib\screens\widgets\ai_recommendations_widget.dart:176:36 - unnecessary_null_comparison
+warning - The '!' will have no effect because the receiver can't be null - lib\screens\widgets\ai_recommendations_widget.dart:178:56 - unnecessary_non_null_assertion
+warning - The operand can't be 'null', so the condition is always 'false' - lib\screens\widgets\ai_recommendations_widget.dart:184:34 - unnecessary_null_comparison
+   info - Use 'const' with the constructor to improve performance - lib\screens\widgets\ai_recommendations_widget.dart:185:21 - prefer_const_constructors
+warning - The left operand can't be null, so the right operand is never executed - lib\screens\widgets\ai_recommendations_widget.dart:195:29 - dead_null_aware_expression
+warning - The left operand can't be null, so the right operand is never executed - lib\screens\widgets\ai_recommendations_widget.dart:209:30 - dead_null_aware_expression
+  error - The name 'LibraryLoaded' isn't defined, so it can't be used in an 'is' expression - lib\screens\widgets\ai_recommendations_widget.dart:261:42 - type_test_with_undefined_name
+   info - Don't invoke 'print' in production code - lib\screens\widgets\ai_recommendations_widget.dart:277:7 - avoid_print
+   info - Use 'const' with the constructor to improve performance - lib\screens\widgets\ai_recommendations_widget.dart:349:15 - prefer_const_constructors
+   info - Don't use 'BuildContext's across async gaps - lib\screens\widgets\chart_list_tile.dart:54:15 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\widgets\chart_list_tile.dart:63:11 - use_build_context_synchronously
+   info - The file name 'createPlaylist_bottomsheet.dart' isn't a lower_case_with_underscores identifier - lib\screens\widgets\createPlaylist_bottomsheet.dart:1:1 - file_names
+   info - The import of 'package:flutter/cupertino.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' - lib\screens\widgets\createPlaylist_bottomsheet.dart:1:8 - unnecessary_import
+warning - Unused import: 'package:google_nav_bar/google_nav_bar.dart' - lib\screens\widgets\global_footer.dart:6:8 - unused_import
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\widgets\gradient_progress_bar.dart:419:31 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\widgets\gradient_progress_bar.dart:517:28 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\widgets\gradient_progress_bar.dart:518:28 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\widgets\gradient_progress_bar.dart:641:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\widgets\gradient_progress_bar.dart:649:30 - deprecated_member_use
+   info - Don't use 'BuildContext's across async gaps - lib\screens\widgets\horizontal_card_view.dart:101:43 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\widgets\import_playlist.dart:30:22 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\widgets\import_playlist.dart:37:22 - use_build_context_synchronously
+   info - 'Share' is deprecated and shouldn't be used. Use SharePlus instead - lib\screens\widgets\more_bottom_sheet.dart:218:37 - deprecated_member_use
+   info - 'shareXFiles' is deprecated and shouldn't be used. Use SharePlus.instance.share() instead - lib\screens\widgets\more_bottom_sheet.dart:218:43 - deprecated_member_use
+   info - 'tolerance' is deprecated and shouldn't be used. Call toleranceFor instead. This feature was deprecated after v3.7.0-13.0.pre - lib\screens\widgets\paging_scroll.dart:47:38 - deprecated_member_use
+   info - The file name 'playPause_widget.dart' isn't a lower_case_with_underscores identifier - lib\screens\widgets\playPause_widget.dart:1:1 - file_names
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\widgets\playPause_widget.dart:55:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\widgets\playPause_widget.dart:56:39 - deprecated_member_use
+   info - The file name 'tabList_widget.dart' isn't a lower_case_with_underscores identifier - lib\screens\widgets\tabList_widget.dart:1:1 - file_names
+   info - Invalid use of a private type in a public API - lib\screens\widgets\toogle_btn.dart:18:3 - library_private_types_in_public_api
+   info - Invalid use of a private type in a public API - lib\screens\widgets\volume_slider.dart:14:3 - library_private_types_in_public_api
+   info - Don't invoke 'print' in production code - lib\services\ai_service.dart:23:13 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\ai_service.dart:58:7 - avoid_print
+warning - The left operand can't be null, so the right operand is never executed - lib\services\ai_service.dart:72:38 - dead_null_aware_expression
+   info - Don't invoke 'print' in production code - lib\services\ai_service.dart:80:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\ai_service.dart:99:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\ai_service.dart:117:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\ai_service.dart:140:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\ai_service.dart:155:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\ai_service.dart:174:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\ai_service.dart:193:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\ai_service.dart:214:7 - avoid_print
+warning - The operand can't be 'null', so the condition is always 'true' - lib\services\ai_service.dart:247:26 - unnecessary_null_comparison
+warning - The '!' will have no effect because the receiver can't be null - lib\services\ai_service.dart:248:35 - unnecessary_non_null_assertion
+   info - Don't invoke 'print' in production code - lib\services\ai_service.dart:254:7 - avoid_print
+   info - The file name 'bloomeePlayer.dart' isn't a lower_case_with_underscores identifier - lib\services\bloomeePlayer.dart:1:1 - file_names
+   info - The file name 'bloomeeUpdaterTools.dart' isn't a lower_case_with_underscores identifier - lib\services\bloomeeUpdaterTools.dart:1:1 - file_names
+   info - The file name 'GlobalDB.dart' isn't a lower_case_with_underscores identifier - lib\services\db\GlobalDB.dart:1:1 - file_names
+   info - The file name 'GlobalDB.dart' isn't a lower_case_with_underscores identifier - lib\services\db\GlobalDB.g.dart:1:1 - file_names
+   info - The imported package 'path' isn't a dependency of the importing package - lib\services\db\bloomee_db_service.dart:14:8 - depend_on_referenced_packages
+   info - The local variable '_db' starts with an underscore - lib\services\db\bloomee_db_service.dart:106:15 - no_leading_underscores_for_local_identifiers
+   info - The local variable '_searchHistoryDB' starts with an underscore - lib\services\db\bloomee_db_service.dart:333:22 - no_leading_underscores_for_local_identifiers
+   info - The local variable '_mediaitem' starts with an underscore - lib\services\db\bloomee_db_service.dart:415:18 - no_leading_underscores_for_local_identifiers
+   info - The local variable '_mediaPlaylistDB' starts with an underscore - lib\services\db\bloomee_db_service.dart:421:22 - no_leading_underscores_for_local_identifiers
+   info - The local variable '_list' starts with an underscore - lib\services\db\bloomee_db_service.dart:458:17 - no_leading_underscores_for_local_identifiers
+   info - The local variable '_res' starts with an underscore - lib\services\db\bloomee_db_service.dart:471:10 - no_leading_underscores_for_local_identifiers
+   info - The local variable '_mediaitem' starts with an underscore - lib\services\db\bloomee_db_service.dart:508:18 - no_leading_underscores_for_local_identifiers
+   info - The local variable '_mediaPlaylistDB' starts with an underscore - lib\services\db\bloomee_db_service.dart:513:22 - no_leading_underscores_for_local_identifiers
+   info - The local variable '_list' starts with an underscore - lib\services\db\bloomee_db_service.dart:529:21 - no_leading_underscores_for_local_identifiers
+   info - The local variable '_mediaPlaylist' starts with an underscore - lib\services\db\bloomee_db_service.dart:550:22 - no_leading_underscores_for_local_identifiers
+   info - The local variable '_res' starts with an underscore - lib\services\db\bloomee_db_service.dart:622:10 - no_leading_underscores_for_local_identifiers
+   info - The local variable '_mediaPlaylistDB' starts with an underscore - lib\services\db\bloomee_db_service.dart:624:22 - no_leading_underscores_for_local_identifiers
+   info - The local variable '_mediaPlaylistDB' starts with an underscore - lib\services\db\bloomee_db_service.dart:674:22 - no_leading_underscores_for_local_identifiers
+   info - The local variable '_mediaItem' starts with an underscore - lib\services\db\bloomee_db_service.dart:948:18 - no_leading_underscores_for_local_identifiers
+   info - The variable name 'old_idx' isn't a lowerCamelCase identifier - lib\services\db\bloomee_db_service.dart:963:44 - non_constant_identifier_names
+   info - The variable name 'new_idx' isn't a lowerCamelCase identifier - lib\services\db\bloomee_db_service.dart:963:57 - non_constant_identifier_names
+   info - The local variable '_mediaPlaylistDB' starts with an underscore - lib\services\db\bloomee_db_service.dart:965:22 - no_leading_underscores_for_local_identifiers
+   info - The local variable '_rankList' starts with an underscore - lib\services\db\bloomee_db_service.dart:973:19 - no_leading_underscores_for_local_identifiers
+   info - The local variable '_element' starts with an underscore - lib\services\db\bloomee_db_service.dart:975:13 - no_leading_underscores_for_local_identifiers
+   info - The local variable '_mediaItemDB' starts with an underscore - lib\services\db\bloomee_db_service.dart:986:18 - no_leading_underscores_for_local_identifiers
+   info - The local variable '_mediaItemDB' starts with an underscore - lib\services\db\bloomee_db_service.dart:1145:18 - no_leading_underscores_for_local_identifiers
+   info - The local variable '_recentlyPlayed' starts with an underscore - lib\services\db\bloomee_db_service.dart:1149:25 - no_leading_underscores_for_local_identifiers
+   info - The local variable '_recentlyPlayed' starts with an underscore - lib\services\db\bloomee_db_service.dart:1173:28 - no_leading_underscores_for_local_identifiers
+   info - The local variable '_id' starts with an underscore - lib\services\db\bloomee_db_service.dart:1226:10 - no_leading_underscores_for_local_identifiers
+   info - The local variable '_downloadDB' starts with an underscore - lib\services\db\bloomee_db_service.dart:1314:17 - no_leading_underscores_for_local_identifiers
+   info - The local variable '_downloadedSongs' starts with an underscore - lib\services\db\bloomee_db_service.dart:1376:22 - no_leading_underscores_for_local_identifiers
+   info - The local variable '_mediaItems' starts with an underscore - lib\services\db\bloomee_db_service.dart:1388:26 - no_leading_underscores_for_local_identifiers
+   info - The local variable '_savedCollections' starts with an underscore - lib\services\db\bloomee_db_service.dart:1484:10 - no_leading_underscores_for_local_identifiers
+   info - The imported package 'bloc' isn't a dependency of the importing package - lib\services\db\cubit\bloomee_db_cubit.dart:5:8 - depend_on_referenced_packages
+  error - The argument type 'String?' can't be assigned to the parameter type 'String'.  - lib\services\db\statistics_db_service.dart:35:17 - argument_type_not_assignable
+  error - Undefined name 'collection' used as an annotation - lib\services\db\temp_notification_db.dart:1:1 - undefined_annotation
+  error - Undefined class 'Id' - lib\services\db\temp_notification_db.dart:3:3 - undefined_class
+  error - Undefined name 'Isar' - lib\services\db\temp_notification_db.dart:3:12 - undefined_identifier
+   info - Don't invoke 'print' in production code - lib\services\firebase\auth_service.dart:45:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\auth_service.dart:48:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\auth_service.dart:63:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\auth_service.dart:66:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\auth_service.dart:82:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\auth_service.dart:110:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\auth_service.dart:113:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\auth_service.dart:147:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\auth_service.dart:151:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\auth_service.dart:162:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\auth_service.dart:165:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\auth_service.dart:187:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\auth_service.dart:190:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\auth_service.dart:201:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\auth_service.dart:203:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\auth_service.dart:220:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\auth_service.dart:222:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\auth_service.dart:238:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\auth_service.dart:240:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\firebase_service.dart:37:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\firebase_service.dart:39:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\firestore_service.dart:35:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\firestore_service.dart:37:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\firestore_service.dart:49:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\firestore_service.dart:73:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\firestore_service.dart:75:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\firestore_service.dart:87:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\firestore_service.dart:116:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\firestore_service.dart:118:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\firestore_service.dart:130:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\firestore_service.dart:147:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\firestore_service.dart:149:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\firestore_service.dart:160:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\firestore_service.dart:175:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\firestore_service.dart:177:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\firebase\firestore_service.dart:191:7 - avoid_print
+warning - The value of the field '_authSubscription' isn't used - lib\services\sync\sync_service.dart:14:23 - unused_field
+   info - Don't invoke 'print' in production code - lib\services\sync\sync_service.dart:42:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\sync\sync_service.dart:60:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\sync\sync_service.dart:85:11 - avoid_print
+warning - The value of the local variable 'playlists' isn't used - lib\services\sync\sync_service.dart:104:11 - unused_local_variable
+   info - The imported package 'async' isn't a dependency of the importing package - lib\services\ytbg_service.dart:6:8 - depend_on_referenced_packages
+   info - The type name 'Default_Theme' isn't an UpperCamelCase identifier - lib\theme_data\default.dart:3:7 - camel_case_types
+   info - 'value' is deprecated and shouldn't be used. Use component accessors like .r or .g, or toARGB32 for an explicit conversion - lib\theme_data\default.dart:40:22 - deprecated_member_use
+   info - Use 'const' with the constructor to improve performance - lib\theme_data\default.dart:115:23 - prefer_const_constructors
+   info - The imported package 'path' isn't a dependency of the importing package - lib\utils\audio_tagger.dart:8:8 - depend_on_referenced_packages
+   info - Don't invoke 'print' in production code - lib\utils\audio_tagger.dart:66:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\utils\audio_tagger.dart:68:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\utils\audio_tagger.dart:78:9 - avoid_print
+   info - The imported package 'path' isn't a dependency of the importing package - lib\utils\cache_audiosource.dart:6:8 - depend_on_referenced_packages
+   info - The imported package 'path' isn't a dependency of the importing package - lib\utils\dload.dart:8:8 - depend_on_referenced_packages
+   info - The file name 'load_Image.dart' isn't a lower_case_with_underscores identifier - lib\utils\load_Image.dart:1:1 - file_names
+warning - The left operand can't be null, so the right operand is never executed - lib\utils\media_item_converter.dart:7:29 - dead_null_aware_expression
+warning - The left operand can't be null, so the right operand is never executed - lib\utils\media_item_converter.dart:8:30 - dead_null_aware_expression
+warning - The left operand can't be null, so the right operand is never executed - lib\utils\media_item_converter.dart:9:30 - dead_null_aware_expression
+warning - The left operand can't be null, so the right operand is never executed - lib\utils\media_item_converter.dart:10:32 - dead_null_aware_expression
+warning - The operand can't be 'null', so the condition is always 'true' - lib\utils\media_item_converter.dart:11:29 - unnecessary_null_comparison
+warning - The '!' will have no effect because the receiver can't be null - lib\utils\media_item_converter.dart:11:62 - unnecessary_non_null_assertion
+   info - The variable name 'launch_Url' isn't a lowerCamelCase identifier - lib\utils\url_launcher.dart:5:14 - non_constant_identifier_names
+  error - The named parameter 'start' isn't defined - lib\utils\ytstream_source.dart:64:9 - undefined_named_parameter
+  error - The named parameter 'end' isn't defined - lib\utils\ytstream_source.dart:65:9 - undefined_named_parameter
+   info - The package name 'Bloomee' isn't a lower_case_with_underscores identifier - pubspec.yaml:1:7 - package_names
+  error - The method 'getDateRange' isn't defined for the type 'TimePeriodHelper' - test\unit\time_period_test.dart:14:40 - undefined_method
+  error - The method 'getDateRange' isn't defined for the type 'TimePeriodHelper' - test\unit\time_period_test.dart:19:41 - undefined_method
+
+flutter : 423 issues found. (ran in 14.2s)
+At line:1 char:1
++ flutter analyze 2>&1 | Out-File -FilePath "analysis_errors.txt" -Enco ...
++ ~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (423 issues found. (ran in 14.2s):String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
