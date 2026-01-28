@@ -15,10 +15,15 @@ import 'package:equatable/equatable.dart';
 part 'online_playlist_state.dart';
 
 class OnlPlaylistCubit extends Cubit<OnlPlaylistState> {
-  PlaylistOnlModel playlist;
+  final PlaylistOnlModel playlist;
+
+  /// ✅ FIX: this field was missing
+  late final SourceEngine sourceEngine;
+
   OnlPlaylistCubit({
     required this.playlist,
   }) : super(OnlPlaylistInitial()) {
+    // Determine source engine
     if (playlist.source == 'JioSaavn' || playlist.source == 'saavn') {
       sourceEngine = SourceEngine.eng_JIS;
     } else if (playlist.source == 'YT Video') {
@@ -26,8 +31,10 @@ class OnlPlaylistCubit extends Cubit<OnlPlaylistState> {
     } else {
       sourceEngine = SourceEngine.eng_YTM;
     }
+
     emit(OnlPlaylistLoading(playlist: playlist));
     checkIsSaved();
+
     switch (sourceEngine) {
       case SourceEngine.eng_JIS:
         SaavnAPI()
@@ -44,7 +51,9 @@ class OnlPlaylistCubit extends Cubit<OnlPlaylistState> {
             artists: value['playlistDetails']['artist'] ?? 'Various Artists',
             language: value['playlistDetails']['language'],
           );
+
           final songs = fromSaavnSongMapList2MediaItemList(value['songs']);
+
           emit(OnlPlaylistLoaded(
             playlist: playlist.copyWith(
               name: plst.name,
@@ -60,23 +69,23 @@ class OnlPlaylistCubit extends Cubit<OnlPlaylistState> {
           ));
         });
         break;
+
       case SourceEngine.eng_YTM:
         YTMusic()
             .getPlaylistFull(playlist.sourceId.replaceAll("youtubeVL", ""))
-            .then(
-          (value) {
-            if (value != null && value['songs'] != null) {
-              final songs = ytmMapList2MediaItemList(value['songs']);
-              emit(OnlPlaylistLoaded(
-                playlist: playlist.copyWith(
-                  songs: List<MediaItemModel>.from(songs),
-                ),
-                isSavedCollection: state.isSavedCollection,
-              ));
-            }
-          },
-        );
+            .then((value) {
+          if (value != null && value['songs'] != null) {
+            final songs = ytmMapList2MediaItemList(value['songs']);
+            emit(OnlPlaylistLoaded(
+              playlist: playlist.copyWith(
+                songs: List<MediaItemModel>.from(songs),
+              ),
+              isSavedCollection: state.isSavedCollection,
+            ));
+          }
+        });
         break;
+
       case SourceEngine.eng_YTV:
         YouTubeServices().fetchPlaylistItems(playlist.sourceId).then((value) {
           final songs = fromYtVidSongMapList2MediaItemList(value[0]['items']);
@@ -93,12 +102,10 @@ class OnlPlaylistCubit extends Cubit<OnlPlaylistState> {
   }
 
   Future<void> checkIsSaved() async {
-    bool isSaved =
+    final bool isSaved =
         await BloomeeDBService.isInSavedCollections(playlist.sourceId);
     if (state.isSavedCollection != isSaved) {
-      emit(
-        state.copyWith(isSavedCollection: isSaved),
-      );
+      emit(state.copyWith(isSavedCollection: isSaved));
     }
   }
 
