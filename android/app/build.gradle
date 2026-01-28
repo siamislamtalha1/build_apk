@@ -15,12 +15,12 @@ def flutterVersionCode = localProperties.getProperty('flutter.versionCode') ?: '
 def flutterVersionName = localProperties.getProperty('flutter.versionName') ?: '1.0'
 
 android {
-    namespace "com.example.boombox"
+    namespace "com.musiclyco.musicly"
     compileSdk 34
     ndkVersion flutter.ndkVersion
 
     defaultConfig {
-        applicationId "com.example.boombox"
+        applicationId "com.musiclyco.musicly"
         minSdkVersion flutter.minSdkVersion
         targetSdkVersion 34
         versionCode flutterVersionCode.toInteger()
