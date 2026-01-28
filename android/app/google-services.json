@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "612505906312",
+    "project_id": "musicly-6bcc1",
+    "storage_bucket": "musicly-6bcc1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:612505906312:android:806ef94d1737bffaa1833d",
+        "android_client_info": {
+          "package_name": "com.musiclyco.musicly"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "612505906312-6fhigd9mi64k7nkqvdh8m68sdqshjopn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBagOn_faUl6cDVdrXL77qWJMkSGAdfI6A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "612505906312-6fhigd9mi64k7nkqvdh8m68sdqshjopn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
