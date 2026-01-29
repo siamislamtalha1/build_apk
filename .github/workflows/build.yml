@@ -5,23 +5,26 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  build-android:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        platform: [android, windows]
-
+    
     steps:
       # 1️⃣ Checkout the repo
       - uses: actions/checkout@v4
 
-      # 2️⃣ Setup Flutter
+      # 2️⃣ Setup Java 17 (required for Android builds)
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # 3️⃣ Setup Flutter
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: 3.35.4
+          flutter-version: '3.24.5'
           channel: stable
 
-      # 3️⃣ Cache Flutter Pub packages
+      # 4️⃣ Cache Flutter Pub packages
       - name: Cache Flutter Pub
         uses: actions/cache@v3
         with:
@@ -30,35 +33,52 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pub-
 
+      # 5️⃣ Install dependencies
+      - run: flutter pub get
+
+      # 6️⃣ Build Android APK
+      - name: Build Android APK
+        run: flutter build apk --release --build-number ${{ github.run_number }}
+
+      # 7️⃣ Upload APK artifact
+      - name: Upload Android APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk-${{ github.run_number }}
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+      # 1️⃣ Checkout the repo
+      - uses: actions/checkout@v4
+
+      # 2️⃣ Setup Flutter
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.5'
+          channel: stable
+
+      # 3️⃣ Cache Flutter Pub packages
+      - name: Cache Flutter Pub
+        uses: actions/cache@v3
+        with:
+          path: ~\AppData\Local\Pub\Cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
       # 4️⃣ Install dependencies
       - run: flutter pub get
 
-      # 5️⃣ Clean previous builds
-      - run: flutter clean
+      # 5️⃣ Build Windows EXE
+      - name: Build Windows EXE
+        run: flutter build windows --release
 
-      # 6️⃣ Build based on platform
-      - name: Build Target
-        shell: bash
-        run: |
-          if [ "${{ matrix.platform }}" == "android" ]; then
-            echo "Building Android APK..."
-            flutter build apk --release --build-number 5
-          elif [ "${{ matrix.platform }}" == "windows" ]; then
-            echo "Building Windows EXE..."
-            flutter build windows --release
-          fi
-
-      # 7️⃣ Upload artifacts
-      - name: Upload Artifact
-        if: ${{ matrix.platform == 'android' }}
+      # 6️⃣ Upload Windows artifact
+      - name: Upload Windows EXE
         uses: actions/upload-artifact@v4
         with:
-          name: android-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
-
-      - name: Upload Artifact
-        if: ${{ matrix.platform == 'windows' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-exe
-          path: build/windows/runner/Release/*.exe
+          name: windows-exe-${{ github.run_number }}
+          path: build/windows/x64/runner/Release/
