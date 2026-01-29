@@ -166,14 +166,14 @@ class VerticalNavBar extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(24),
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
           child: Container(
             decoration: BoxDecoration(
-              color: Default_Theme.themeColor.withValues(alpha: 0.15),
+              color: Colors.black.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: Colors.white.withValues(alpha: 0.15),
-                width: 1.5,
+                color: Colors.white.withValues(alpha: 0.1),
+                width: 1.0,
               ),
             ),
             child: NavigationRail(
@@ -225,14 +225,15 @@ class HorizontalNavBar extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(30),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
         child: Container(
-          decoration: BoxDecoration(
+            decoration: BoxDecoration(
+            // Pure glassmorphic - transparent background like mini player
             color: Default_Theme.themeColor.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(30),
             border: Border.all(
-              color: Colors.white.withValues(alpha: 0.15),
-              width: 1.5,
+              color: Colors.white.withValues(alpha: 0.1),
+              width: 1.0,
             ),
             boxShadow: [
               BoxShadow(

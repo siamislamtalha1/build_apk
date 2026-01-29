@@ -296,7 +296,7 @@ class BloomeeMusicPlayer extends BaseAudioHandler
     // Trigger skipToNext when the current song ends.
     // Windows needs a larger buffer for YouTube streams to prevent crashes
     final endingOffset =
-        Platform.isWindows ? 1000 : (Platform.isLinux ? 700 : 200);
+        Platform.isWindows ? 1000 : (Platform.isLinux ? 700 : 800);
     _positionSubscription = audioPlayer.positionStream.listen((event) {
       try {
         //check if the current queue is empty and if it is, add related songs

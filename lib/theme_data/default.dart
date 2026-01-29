@@ -112,7 +112,86 @@ class Default_Theme {
       cardTheme: const CardThemeData(
         color: themeColor,
         surfaceTintColor: Colors.transparent,
-      ), dialogTheme: const DialogThemeData(backgroundColor: themeColor),
+      ),
+      dialogTheme: const DialogThemeData(backgroundColor: themeColor),
+    );
+  }
+
+  ThemeData get lightThemeData {
+    // Light Theme Colors
+    const lightBackgroundColor = Color(0xFFF2F2F7);
+    const lightSurfaceColor = Colors.white;
+    const lightTextColor = Color(0xFF1C1C1E);
+    const lightAccentColor = Color(0xFF0EA5E0); // accentColor1
+    const lightSecondaryColor = Color(0xFFFE385E); // accentColor2
+
+    const lightScheme = ColorScheme.light(
+      primary: lightAccentColor,
+      secondary: lightSecondaryColor,
+      surface: lightBackgroundColor,
+      onPrimary: Colors.white,
+      onSecondary: Colors.white,
+      onSurface: lightTextColor,
+    );
+
+    return ThemeData(
+      useMaterial3: true,
+      scaffoldBackgroundColor: lightBackgroundColor,
+      primaryColor: lightAccentColor,
+      colorScheme: lightScheme,
+      iconTheme: const IconThemeData(color: lightTextColor),
+      // Text Theme
+      textTheme: const TextTheme(
+        bodyLarge: TextStyle(color: lightTextColor, fontFamily: "Gilroy"),
+        bodyMedium: TextStyle(color: lightTextColor, fontFamily: "Gilroy"),
+        titleLarge: TextStyle(
+            color: lightTextColor, fontFamily: "Fjalla", fontSize: 22),
+      ),
+      scrollbarTheme: ScrollbarThemeData(
+        thumbColor: WidgetStateProperty.all(lightAccentColor),
+        interactive: true,
+        radius: const Radius.circular(10),
+        thickness: WidgetStateProperty.all(5),
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: lightBackgroundColor,
+        foregroundColor: lightTextColor,
+        surfaceTintColor: lightBackgroundColor,
+        iconTheme: IconThemeData(color: lightTextColor),
+        elevation: 0,
+      ),
+      progressIndicatorTheme:
+          const ProgressIndicatorThemeData(color: lightAccentColor),
+      textSelectionTheme: const TextSelectionThemeData(
+        cursorColor: lightAccentColor,
+        selectionColor: lightAccentColor,
+        selectionHandleColor: lightAccentColor,
+      ),
+      brightness: Brightness.light,
+      switchTheme: SwitchThemeData(
+        thumbColor: const WidgetStatePropertyAll(Colors.white),
+        trackColor: WidgetStateProperty.resolveWith((states) =>
+            states.contains(WidgetState.selected)
+                ? lightAccentColor
+                : Colors.grey.shade300),
+      ),
+      searchBarTheme: const SearchBarThemeData(
+        backgroundColor: WidgetStatePropertyAll(lightSurfaceColor),
+      ),
+      // Popup & Menus
+      popupMenuTheme: const PopupMenuThemeData(
+        color: lightSurfaceColor,
+        textStyle: TextStyle(color: lightTextColor),
+      ),
+      cardTheme: const CardThemeData(
+        color: lightSurfaceColor,
+        surfaceTintColor: Colors.transparent,
+        elevation: 2,
+      ),
+      dialogTheme: const DialogThemeData(
+        backgroundColor: lightSurfaceColor,
+        titleTextStyle: TextStyle(color: lightTextColor, fontSize: 20),
+      ),
     );
   }
 }

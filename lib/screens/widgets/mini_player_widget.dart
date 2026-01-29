@@ -87,15 +87,15 @@ class MiniPlayerCard extends StatelessWidget {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(30),
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+            filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
             child: Container(
               height: 70,
               decoration: BoxDecoration(
-                color: Default_Theme.themeColor.withValues(alpha: 0.15),
+                color: Colors.black.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(30),
                 border: Border.all(
                   color: Colors.white.withValues(alpha: 0.1),
-                  width: 1.5,
+                  width: 1.0,
                 ),
                 boxShadow: [
                   BoxShadow(
@@ -108,32 +108,12 @@ class MiniPlayerCard extends StatelessWidget {
               child: Stack(
                 clipBehavior: Clip.hardEdge,
                 children: [
-                  // Background image with blur
-                  Positioned.fill(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(30),
-                      child: ImageFiltered(
-                        imageFilter: ImageFilter.blur(
-                          sigmaX: 25,
-                          sigmaY: 25,
-                          tileMode: TileMode.decal,
-                        ),
-                        child: Container(
-                          color: Default_Theme.themeColor,
-                          child: LoadImageCached(
-                            imageUrl: formatImgURL(
-                                state.song.artUri.toString(), ImageQuality.low),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  // Lighter overlay for better glassmorphism
+                  // Pure glassmorphic overlay - no background image
                   Positioned.fill(
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.15),
+                        // Very subtle tint for better readability
+                        color: Default_Theme.themeColor.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),

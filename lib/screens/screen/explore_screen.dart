@@ -12,7 +12,7 @@ import 'package:Bloomee/screens/screen/home_views/setting_views/about.dart';
 import 'package:Bloomee/screens/widgets/more_bottom_sheet.dart';
 import 'package:Bloomee/screens/widgets/sign_board_widget.dart';
 import 'package:Bloomee/screens/widgets/song_tile.dart';
-import 'package:Bloomee/screens/widgets/notification_banner_widget.dart';
+
 import 'package:flutter/material.dart';
 import 'package:Bloomee/screens/screen/home_views/notification_view.dart';
 import 'package:Bloomee/screens/screen/home_views/setting_view.dart';
@@ -92,8 +92,6 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 SliverList(
                   delegate: SliverChildListDelegate(
                     [
-                      // Notification Banner
-                      const NotificationBannerWidget(),
                       CaraouselWidget(),
                       Padding(
                         padding: const EdgeInsets.only(top: 15.0),

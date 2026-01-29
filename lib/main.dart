@@ -360,49 +360,58 @@ class _MyAppState extends State<MyApp> {
           lazy: false,
         ),
       ],
-      child: BlocBuilder<BloomeePlayerCubit, BloomeePlayerState>(
-        builder: (context, state) {
-          if (state is BloomeePlayerInitial) {
-            return const Center(
-              child: SizedBox(
-                width: 50,
-                height: 50,
-                child: CircularProgressIndicator(),
-              ),
-            );
-          } else {
-            return KeyboardShortcutsHandler(
-              child: ShortcutIndicatorOverlay(
-                child: MaterialApp.router(
-                  localizationsDelegates: const [
-                    AppLocalizations.delegate,
-                    GlobalMaterialLocalizations.delegate,
-                    GlobalWidgetsLocalizations.delegate,
-                    GlobalCupertinoLocalizations.delegate,
-                  ],
-                  supportedLocales: AppLocalizations.supportedLocales,
-                  builder: (context, child) => ResponsiveBreakpoints.builder(
-                    breakpoints: [
-                      const Breakpoint(start: 0, end: 450, name: MOBILE),
-                      const Breakpoint(start: 451, end: 800, name: TABLET),
-                      const Breakpoint(start: 801, end: 1920, name: DESKTOP),
-                      const Breakpoint(
-                          start: 1921, end: double.infinity, name: '4K'),
-                    ],
-                    child: GlobalEventListener(
-                      navigatorKey: GlobalRoutes.globalRouterKey,
-                      child: child!,
+      child: BlocBuilder<SettingsCubit, SettingsState>(
+        builder: (context, settingsState) {
+          return BlocBuilder<BloomeePlayerCubit, BloomeePlayerState>(
+            builder: (context, state) {
+              if (state is BloomeePlayerInitial) {
+                return const Center(
+                  child: SizedBox(
+                    width: 50,
+                    height: 50,
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              } else {
+                return KeyboardShortcutsHandler(
+                  child: ShortcutIndicatorOverlay(
+                    child: MaterialApp.router(
+                      localizationsDelegates: const [
+                        AppLocalizations.delegate,
+                        GlobalMaterialLocalizations.delegate,
+                        GlobalWidgetsLocalizations.delegate,
+                        GlobalCupertinoLocalizations.delegate,
+                      ],
+                      supportedLocales: AppLocalizations.supportedLocales,
+                      builder: (context, child) =>
+                          ResponsiveBreakpoints.builder(
+                        breakpoints: [
+                          const Breakpoint(start: 0, end: 450, name: MOBILE),
+                          const Breakpoint(start: 451, end: 800, name: TABLET),
+                          const Breakpoint(
+                              start: 801, end: 1920, name: DESKTOP),
+                          const Breakpoint(
+                              start: 1921, end: double.infinity, name: '4K'),
+                        ],
+                        child: GlobalEventListener(
+                          navigatorKey: GlobalRoutes.globalRouterKey,
+                          child: child!,
+                        ),
+                      ),
+                      scaffoldMessengerKey: SnackbarService.messengerKey,
+                      routerConfig: _router,
+                      // Theming connection
+                      themeMode: settingsState.themeMode,
+                      theme: Default_Theme().lightThemeData,
+                      darkTheme: Default_Theme().defaultThemeData,
+                      scrollBehavior: CustomScrollBehavior(),
+                      debugShowCheckedModeBanner: false,
                     ),
                   ),
-                  scaffoldMessengerKey: SnackbarService.messengerKey,
-                  routerConfig: _router,
-                  theme: Default_Theme().defaultThemeData,
-                  scrollBehavior: CustomScrollBehavior(),
-                  debugShowCheckedModeBanner: false,
-                ),
-              ),
-            );
-          }
+                );
+              }
+            },
+          );
         },
       ),
     );
