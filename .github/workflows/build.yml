@@ -1,4 +1,4 @@
-name: Build APK
+name: Multi-Platform Build
 
 on:
   push:
@@ -6,24 +6,55 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        platform: [android, windows]
 
     steps:
+      # 1️⃣ Checkout the repo
       - uses: actions/checkout@v4
 
+      # 2️⃣ Setup Java 17 (required for Android)
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
+      # 3️⃣ Setup Flutter 3.35.4 stable
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: stable
+          flutter-version: 3.35.4
+          channel: stable
 
-      - run: flutter pub get
-      - run: flutter build apk --release
-
-      - uses: actions/upload-artifact@v4
+      # 4️⃣ Cache Flutter Pub packages
+      - name: Cache Flutter Pub
+        uses: actions/cache@v3
         with:
-          name: APK
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      # 5️⃣ Install dependencies
+      - run: flutter pub get
+
+      # 6️⃣ Clean previous builds
+      - run: flutter clean
+
+      # 7️⃣ Build based on platform
+      - name: Build Target
+        run: |
+          if [ "${{ matrix.platform }}" == "android" ]; then
+            flutter build apk --release --build-number 5
+          elif [ "${{ matrix.platform }}" == "windows" ]; then
+            flutter build windows --release
+          fi
+
+      # 8️⃣ Upload artifacts
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform }}-build
+          path: |
+            ${{ matrix.platform == 'android' && 'build/app/outputs/flutter-apk/app-release.apk' || 'build/windows/runner/Release/*.exe' }}
