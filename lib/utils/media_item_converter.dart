@@ -8,7 +8,7 @@ class MediaItemConverter {
       album: dbItem.album ?? '',
       title: dbItem.title ?? '',
       artist: dbItem.artist ?? '',
-      artUri: dbItem.artURL != null ? Uri.parse(dbItem.artURL!) : null,
+      artUri: Uri.parse(dbItem.artURL!),
       duration:
           dbItem.duration != null ? Duration(seconds: dbItem.duration!) : null,
       extras: {

@@ -1,17 +1,17 @@
 plugins {
-    id "com.android.application"
-    id "org.jetbrains.kotlin.android"
-    id "dev.flutter.flutter-gradle-plugin"
-    id "com.google.gms.google-services"
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'dev.flutter.flutter-gradle-plugin'
+    id 'com.google.gms.google-services'
 }
 
 android {
-    namespace "com.musiclyco.musicly"
+    namespace 'com.musiclyco.musicly'
     compileSdk 34
     ndkVersion flutter.ndkVersion
 
     defaultConfig {
-        applicationId "com.musiclyco.musicly"
+        applicationId 'com.musiclyco.musicly'
         minSdk flutter.minSdkVersion
         targetSdk 34
         versionCode flutter.versionCode
@@ -21,8 +21,10 @@ android {
 
     buildTypes {
         release {
-            // ⚠️ Replace with real keystore for Play Store
+            // ⚠️ Replace with real Play Store keystore when publishing
             signingConfig signingConfigs.debug
+            minifyEnabled false
+            shrinkResources false
         }
     }
 
@@ -32,14 +34,14 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = '17'
     }
 }
 
 flutter {
-    source "../.."
+    source '../..'
 }
 
 dependencies {
-    implementation "androidx.multidex:multidex:2.0.1"
+    implementation 'androidx.multidex:multidex:2.0.1'
 }

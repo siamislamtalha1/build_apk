@@ -105,7 +105,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 title: Text(AppLocalizations.of(context)!.version,
                     style: Default_Theme.primaryTextStyle), // Localize
                 subtitle:
-                    Text("1.0.0", style: Default_Theme.secondoryTextStyle),
+                    const Text("1.0.0", style: Default_Theme.secondoryTextStyle),
               ),
             ],
           );
@@ -119,7 +119,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
       child: Text(
         title,
-        style: TextStyle(
+        style: const TextStyle(
           color: Default_Theme.accentColor2,
           fontWeight: FontWeight.bold,
           fontSize: 14,
@@ -133,7 +133,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return ListTile(
       leading: const Icon(MingCute.translate_line,
           color: Default_Theme.primaryColor1),
-      title: Text("Language", style: Default_Theme.primaryTextStyle),
+      title: const Text("Language", style: Default_Theme.primaryTextStyle),
       trailing: DropdownButton<String>(
         value: state.locale ?? 'en',
         dropdownColor: Default_Theme.themeColor,
@@ -164,7 +164,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return ListTile(
       leading: const Icon(MingCute.download_2_line,
           color: Default_Theme.primaryColor1),
-      title: Text("Auto-Update Notifications",
+      title: const Text("Auto-Update Notifications",
           style: Default_Theme.primaryTextStyle),
       subtitle: Text(
         "Get notified when new updates are available",
@@ -175,7 +175,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       trailing: Switch(
         value: _autoUpdateEnabled,
         onChanged: _toggleAutoUpdate,
-        activeColor: Default_Theme.accentColor2,
+        activeThumbColor: Default_Theme.accentColor2,
       ),
     );
   }

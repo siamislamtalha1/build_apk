@@ -244,10 +244,8 @@ class AIService {
       // Remove duplicates and return
       final uniqueSongs = <String, MediaItemDB>{};
       for (var song in recommendations) {
-        if (song.mediaID != null) {
-          uniqueSongs[song.mediaID!] = song;
-        }
-      }
+        uniqueSongs[song.mediaID!] = song;
+            }
 
       return uniqueSongs.values.take(limit).toList();
     } catch (e) {

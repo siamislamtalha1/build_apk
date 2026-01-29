@@ -261,7 +261,7 @@ class ProfileScreen extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(MingCute.cloud_fill,
+                      const Icon(MingCute.cloud_fill,
                           color: Default_Theme.accentColor2, size: 24),
                       const SizedBox(width: 12),
                       const Text(
@@ -508,15 +508,15 @@ class ProfileScreen extends StatelessWidget {
             child: InkWell(
               onTap: () => context.push('/Login'),
               borderRadius: BorderRadius.circular(16),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16),
+              child: const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(MingCute.user_add_fill,
+                    Icon(MingCute.user_add_fill,
                         color: Colors.white, size: 24),
-                    const SizedBox(width: 12),
-                    const Text(
+                    SizedBox(width: 12),
+                    Text(
                       'Sign In to Sync',
                       style: TextStyle(
                         fontSize: 18,

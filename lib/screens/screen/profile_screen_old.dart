@@ -247,7 +247,7 @@ class ProfileScreen extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(
+          const Icon(
             MingCute.information_line,
             color: Default_Theme.accentColor2,
             size: 24,
