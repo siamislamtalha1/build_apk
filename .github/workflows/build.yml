@@ -18,13 +18,15 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      # 3️⃣ Setup Flutter
+      # 3️⃣ Setup Flutter (using master channel for Dart 3.6+)
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.5'
-          channel: stable
+          channel: master
 
-      # 4️⃣ Cache Flutter Pub packages
+      # 4️⃣ Disable analytics
+      - run: flutter config --no-analytics
+
+      # 5️⃣ Cache Flutter Pub packages
       - name: Cache Flutter Pub
         uses: actions/cache@v3
         with:
@@ -33,14 +35,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pub-
 
-      # 5️⃣ Install dependencies
+      # 6️⃣ Install dependencies
       - run: flutter pub get
 
-      # 6️⃣ Build Android APK
+      # 7️⃣ Build Android APK
       - name: Build Android APK
         run: flutter build apk --release --build-number ${{ github.run_number }}
 
-      # 7️⃣ Upload APK artifact
+      # 8️⃣ Upload APK artifact
       - name: Upload Android APK
         uses: actions/upload-artifact@v4
         with:
@@ -54,13 +56,15 @@ jobs:
       # 1️⃣ Checkout the repo
       - uses: actions/checkout@v4
 
-      # 2️⃣ Setup Flutter
+      # 2️⃣ Setup Flutter (using master channel for Dart 3.6+)
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.5'
-          channel: stable
+          channel: master
 
-      # 3️⃣ Cache Flutter Pub packages
+      # 3️⃣ Disable analytics
+      - run: flutter config --no-analytics
+
+      # 4️⃣ Cache Flutter Pub packages
       - name: Cache Flutter Pub
         uses: actions/cache@v3
         with:
@@ -69,14 +73,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pub-
 
-      # 4️⃣ Install dependencies
+      # 5️⃣ Install dependencies
       - run: flutter pub get
 
-      # 5️⃣ Build Windows EXE
+      # 6️⃣ Build Windows EXE
       - name: Build Windows EXE
         run: flutter build windows --release
 
-      # 6️⃣ Upload Windows artifact
+      # 7️⃣ Upload Windows artifact
       - name: Upload Windows EXE
         uses: actions/upload-artifact@v4
         with:
