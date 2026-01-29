@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         platform: [android, windows]
@@ -15,19 +15,13 @@ jobs:
       # 1️⃣ Checkout the repo
       - uses: actions/checkout@v4
 
-      # 2️⃣ Setup Java 17 (required for Android)
-      - uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      # 3️⃣ Setup Flutter 3.35.4 stable
+      # 2️⃣ Setup Flutter
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: 3.35.4
           channel: stable
 
-      # 4️⃣ Cache Flutter Pub packages
+      # 3️⃣ Cache Flutter Pub packages
       - name: Cache Flutter Pub
         uses: actions/cache@v3
         with:
@@ -36,25 +30,35 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pub-
 
-      # 5️⃣ Install dependencies
+      # 4️⃣ Install dependencies
       - run: flutter pub get
 
-      # 6️⃣ Clean previous builds
+      # 5️⃣ Clean previous builds
       - run: flutter clean
 
-      # 7️⃣ Build based on platform
+      # 6️⃣ Build based on platform
       - name: Build Target
+        shell: bash
         run: |
           if [ "${{ matrix.platform }}" == "android" ]; then
+            echo "Building Android APK..."
             flutter build apk --release --build-number 5
           elif [ "${{ matrix.platform }}" == "windows" ]; then
+            echo "Building Windows EXE..."
             flutter build windows --release
           fi
 
-      # 8️⃣ Upload artifacts
+      # 7️⃣ Upload artifacts
       - name: Upload Artifact
+        if: ${{ matrix.platform == 'android' }}
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.platform }}-build
-          path: |
-            ${{ matrix.platform == 'android' && 'build/app/outputs/flutter-apk/app-release.apk' || 'build/windows/runner/Release/*.exe' }}
+          name: android-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Upload Artifact
+        if: ${{ matrix.platform == 'windows' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-exe
+          path: build/windows/runner/Release/*.exe
