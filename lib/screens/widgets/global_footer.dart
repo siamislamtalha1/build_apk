@@ -169,10 +169,10 @@ class VerticalNavBar extends StatelessWidget {
           filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
           child: Container(
             decoration: BoxDecoration(
-              color: Default_Theme.themeColor.withValues(alpha: 0.3),
+              color: Default_Theme.themeColor.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: Colors.white.withValues(alpha: 0.1),
+                color: Colors.white.withValues(alpha: 0.15),
                 width: 1.5,
               ),
             ),
@@ -228,10 +228,10 @@ class HorizontalNavBar extends StatelessWidget {
         filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
         child: Container(
           decoration: BoxDecoration(
-            color: Default_Theme.themeColor.withValues(alpha: 0.3),
+            color: Default_Theme.themeColor.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(30),
             border: Border.all(
-              color: Colors.white.withValues(alpha: 0.1),
+              color: Colors.white.withValues(alpha: 0.15),
               width: 1.5,
             ),
             boxShadow: [

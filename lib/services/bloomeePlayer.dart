@@ -40,6 +40,14 @@ class BloomeeMusicPlayer extends BaseAudioHandler
   BehaviorSubject<LoopMode> loopMode =
       BehaviorSubject<LoopMode>.seeded(LoopMode.off);
 
+  // Audio Enhancement Streams
+  BehaviorSubject<double> speed = BehaviorSubject<double>.seeded(1.0);
+  BehaviorSubject<double> pitch = BehaviorSubject<double>.seeded(1.0);
+  BehaviorSubject<bool> skipSilenceEnabled =
+      BehaviorSubject<bool>.seeded(false);
+  BehaviorSubject<bool> volumeNormalizationEnabled =
+      BehaviorSubject<bool>.seeded(false);
+
   // Flag to track if player is disposed
   bool _isDisposed = false;
 
@@ -286,21 +294,27 @@ class BloomeeMusicPlayer extends BaseAudioHandler
     });
 
     // Trigger skipToNext when the current song ends.
+    // Windows needs a larger buffer for YouTube streams to prevent crashes
     final endingOffset =
-        Platform.isWindows ? 200 : (Platform.isLinux ? 700 : 200);
+        Platform.isWindows ? 1000 : (Platform.isLinux ? 700 : 200);
     _positionSubscription = audioPlayer.positionStream.listen((event) {
-      //check if the current queue is empty and if it is, add related songs
-      EasyThrottle.throttle('loadRelatedSongs', const Duration(seconds: 5),
-          () async => check4RelatedSongs());
-      if (((audioPlayer.duration != null &&
-              audioPlayer.duration?.inSeconds != 0 &&
-              event.inMilliseconds >
-                  audioPlayer.duration!.inMilliseconds - endingOffset)) &&
-          loopMode.value != LoopMode.one &&
-          _queueManager.queue.value.isNotEmpty) {
-        // Add safety check for queue
-        EasyThrottle.throttle('skipNext', const Duration(milliseconds: 2000),
-            () async => skipToNext());
+      try {
+        //check if the current queue is empty and if it is, add related songs
+        EasyThrottle.throttle('loadRelatedSongs', const Duration(seconds: 5),
+            () async => check4RelatedSongs());
+        if (((audioPlayer.duration != null &&
+                audioPlayer.duration?.inSeconds != 0 &&
+                event.inMilliseconds >
+                    audioPlayer.duration!.inMilliseconds - endingOffset)) &&
+            loopMode.value != LoopMode.one &&
+            _queueManager.queue.value.isNotEmpty) {
+          // Add safety check for queue
+          EasyThrottle.throttle('skipNext', const Duration(milliseconds: 2000),
+              () async => skipToNext());
+        }
+      } catch (e) {
+        log('Error in position stream listener: $e', name: 'bloomeePlayer');
+        // Don't crash, just log the error
       }
     });
 
@@ -759,5 +773,43 @@ class BloomeeMusicPlayer extends BaseAudioHandler
 
   Future<void> moveQueueItem(int oldIndex, int newIndex) async {
     await _queueManager.moveQueueItem(oldIndex, newIndex);
+  }
+
+  // --- Audio Enhancement Suite ---
+
+  /// Sets the playback speed (0.5x to 2.0x standard range)
+  Future<void> setSpeed(double value) async {
+    final clampedValue = value.clamp(0.25, 4.0);
+    speed.add(clampedValue);
+    await audioPlayer.setSpeed(clampedValue);
+  }
+
+  /// Sets the playback pitch (1.0 is normal)
+  Future<void> setPitch(double value) async {
+    final clampedValue = value.clamp(0.5, 2.0);
+    pitch.add(clampedValue);
+    await audioPlayer.setPitch(clampedValue);
+  }
+
+  /// Enables or disables skipping of silent parts (intros/outros)
+  Future<void> setSkipSilenceEnabled(bool enabled) async {
+    skipSilenceEnabled.add(enabled);
+    await audioPlayer.setSkipSilenceEnabled(enabled);
+  }
+
+  /// Enables volume normalization (placeholder for future advanced implementation)
+  Future<void> setVolumeNormalization(bool enabled) async {
+    volumeNormalizationEnabled.add(enabled);
+    if (enabled) {
+      // Stub for future normalization logic
+    }
+  }
+
+  /// Resets all audio effects to default
+  Future<void> resetAudioEffects() async {
+    await setSpeed(1.0);
+    await setPitch(1.0);
+    await setSkipSilenceEnabled(false);
+    await setVolumeNormalization(false);
   }
 }

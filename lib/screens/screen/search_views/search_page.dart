@@ -1,4 +1,4 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:Bloomee/model/search_filter_model.dart';
 import 'package:Bloomee/blocs/search_suggestions/search_suggestion_bloc.dart';
 import 'package:Bloomee/screens/widgets/sign_board_widget.dart';
 import 'package:Bloomee/services/db/bloomee_db_service.dart';
@@ -11,9 +11,11 @@ import 'package:icons_plus/icons_plus.dart';
 class SearchPageDelegate extends SearchDelegate {
   List<String> searchList = [];
   ResultTypes resultType = ResultTypes.songs;
+  SearchFilter? filter;
   SearchPageDelegate(
-    this.resultType,
-  );
+    this.resultType, {
+    this.filter,
+  });
   @override
   String? get searchFieldLabel => "Explore the world of music...";
 
@@ -42,10 +44,12 @@ class SearchPageDelegate extends SearchDelegate {
   @override
   void showResults(BuildContext context) {
     if (query.replaceAll(' ', '').isNotEmpty) {
-      // Use unified search across all sources
-      context
-          .read<FetchSearchResultsCubit>()
-          .searchAllSources(query, resultType: resultType);
+      // Use unified search across all sources with filter
+      context.read<FetchSearchResultsCubit>().searchAllSources(
+            query,
+            resultType: resultType,
+            filter: filter,
+          );
       BloomeeDBService.putSearchHistory(query);
     }
     close(context, query);

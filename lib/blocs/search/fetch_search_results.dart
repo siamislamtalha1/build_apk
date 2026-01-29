@@ -1,5 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:developer';
+import 'dart:math' hide log;
+import 'package:Bloomee/model/search_filter_model.dart';
 import 'package:Bloomee/model/playlist_onl_model.dart';
 import 'package:Bloomee/repository/Youtube/ytm/ytmusic.dart';
 import 'package:bloc/bloc.dart';
@@ -415,18 +417,33 @@ class FetchSearchResultsCubit extends Cubit<FetchSearchResultsState> {
   Future<void> searchAllSources(
     String query, {
     ResultTypes resultType = ResultTypes.songs,
+    SearchFilter? filter,
   }) async {
     if (query.isEmpty) return;
 
-    log("Unified Search across all sources", name: "FetchSearchRes");
+    log("Unified Search across all sources with filter: ${filter?.includeJioSaavn}, ${filter?.includeYTMusic}, ${filter?.includeYTVideo}",
+        name: "FetchSearchRes");
     emit(FetchSearchResultsLoading(resultType: resultType));
 
     try {
-      // Search all sources concurrently
+      final emptyResults = {
+        'songs': <MediaItemModel>[],
+        'albums': <AlbumModel>[],
+        'playlists': <PlaylistOnlModel>[],
+        'artists': <ArtistModel>[],
+      };
+
+      // Search all sources concurrently based on filter
       final results = await Future.wait([
-        _searchJISWithFallback(query, resultType),
-        _searchYTMWithFallback(query, resultType),
-        _searchYTVWithFallback(query, resultType),
+        (filter?.includeJioSaavn ?? true)
+            ? _searchJISWithFallback(query, resultType)
+            : Future.value(emptyResults),
+        (filter?.includeYTMusic ?? true)
+            ? _searchYTMWithFallback(query, resultType)
+            : Future.value(emptyResults),
+        (filter?.includeYTVideo ?? true)
+            ? _searchYTVWithFallback(query, resultType)
+            : Future.value(emptyResults),
       ]);
 
       final jisResults = results[0];
@@ -435,12 +452,12 @@ class FetchSearchResultsCubit extends Cubit<FetchSearchResultsState> {
 
       switch (resultType) {
         case ResultTypes.songs:
-          // Merge all song results
-          final allSongs = <MediaItemModel>[
-            ...jisResults['songs'] as List<MediaItemModel>,
-            ...ytmResults['songs'] as List<MediaItemModel>,
-            ...ytvResults['songs'] as List<MediaItemModel>,
-          ];
+          // Apply intelligent interleaving for better diversity
+          final allSongs = _intelligentInterleave(
+            jisResults['songs'] as List<MediaItemModel>,
+            ytmResults['songs'] as List<MediaItemModel>,
+            ytvResults['songs'] as List<MediaItemModel>,
+          );
 
           emit(state.copyWith(
             mediaItems: allSongs,
@@ -450,7 +467,7 @@ class FetchSearchResultsCubit extends Cubit<FetchSearchResultsState> {
             sourceEngine: null, // No specific source for unified search
           ));
 
-          log("Unified search complete: ${allSongs.length} songs",
+          log("Unified search complete: ${allSongs.length} songs (intelligently interleaved)",
               name: "FetchSearchRes");
           break;
 
@@ -698,6 +715,82 @@ class FetchSearchResultsCubit extends Cubit<FetchSearchResultsState> {
         'playlists': <PlaylistOnlModel>[],
         'artists': <ArtistModel>[],
       };
+    }
+  }
+
+  /// Intelligent interleaving of search results from multiple sources
+  ///
+  /// Strategy:
+  /// 1. Prioritize diversity (Round Robin)
+  /// 2. Prioritize quality (YTM > JIS > YTV)
+  /// 3. Heuristic deduplication (remove exact title matches unless remix/live)
+  List<MediaItemModel> _intelligentInterleave(
+    List<MediaItemModel> jis,
+    List<MediaItemModel> ytm,
+    List<MediaItemModel> ytv,
+  ) {
+    List<MediaItemModel> interleaved = [];
+
+    // Find the maximum length among all lists
+    int maxLen = 0;
+    if (jis.length > maxLen) maxLen = jis.length;
+    if (ytm.length > maxLen) maxLen = ytm.length;
+    if (ytv.length > maxLen) maxLen = ytv.length;
+
+    // To track duplicates
+    Set<String> addedTitles = {};
+
+    for (int i = 0; i < maxLen; i++) {
+      // Priority Order:
+      // 1. YouTube Music (Generally unmatched audio quality & metadata)
+      // 2. JioSaavn (Good regional content, 320kbps)
+      // 3. YouTube Video (Fallback, video audio)
+
+      // 1. Try add YT Music
+      if (i < ytm.length) {
+        _addIfUniqueAndRelevant(ytm[i], interleaved, addedTitles);
+      }
+
+      // 2. Try add JioSaavn
+      if (i < jis.length) {
+        _addIfUniqueAndRelevant(jis[i], interleaved, addedTitles);
+      }
+
+      // 3. Try add YT Video
+      if (i < ytv.length) {
+        _addIfUniqueAndRelevant(ytv[i], interleaved, addedTitles);
+      }
+    }
+
+    return interleaved;
+  }
+
+  void _addIfUniqueAndRelevant(
+    MediaItemModel item,
+    List<MediaItemModel> list,
+    Set<String> titles,
+  ) {
+    // Basic normalization for fuzzy matching
+    // e.g. "Song Name" == "song name"
+    String cleanTitle = item.title.toLowerCase().trim();
+
+    // Check if we strictly already have this song
+    bool isDuplicate = titles.contains(cleanTitle);
+
+    // Heuristics to keep duplicates if they are interesting
+    bool isInteresting = cleanTitle.contains("remix") ||
+        cleanTitle.contains("live") ||
+        cleanTitle.contains("cover") ||
+        cleanTitle.contains("acoustic") ||
+        cleanTitle.contains("slowed") ||
+        cleanTitle.contains("reverb");
+
+    if (!isDuplicate || isInteresting) {
+      list.add(item);
+      // Only mark as "seen" if it's a standard track to allow variations
+      if (!isInteresting) {
+        titles.add(cleanTitle);
+      }
     }
   }
 }

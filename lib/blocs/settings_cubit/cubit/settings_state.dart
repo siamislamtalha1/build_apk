@@ -21,6 +21,7 @@ class SettingsState extends Equatable {
   List<bool> sourceEngineSwitches;
   Map chartMap;
   String locale;
+  ThemeMode themeMode;
   // Advanced Settings
   String audioDecoderMode;
   bool hardwareOffloadEnabled;
@@ -50,6 +51,7 @@ class SettingsState extends Equatable {
     required this.chartMap,
     required this.locale,
     required this.autoPlay,
+    required this.themeMode,
     required this.audioDecoderMode,
     required this.hardwareOffloadEnabled,
     required this.gaplessOffloadEnabled,
@@ -80,6 +82,7 @@ class SettingsState extends Equatable {
     String? locale,
     bool? autoSaveLyrics,
     bool? autoPlay,
+    ThemeMode? themeMode,
     String? audioDecoderMode,
     bool? hardwareOffloadEnabled,
     bool? gaplessOffloadEnabled,
@@ -110,6 +113,7 @@ class SettingsState extends Equatable {
       locale: locale ?? this.locale,
       autoSaveLyrics: autoSaveLyrics ?? this.autoSaveLyrics,
       autoPlay: autoPlay ?? this.autoPlay,
+      themeMode: themeMode ?? this.themeMode,
       audioDecoderMode: audioDecoderMode ?? this.audioDecoderMode,
       hardwareOffloadEnabled:
           hardwareOffloadEnabled ?? this.hardwareOffloadEnabled,
@@ -145,6 +149,7 @@ class SettingsState extends Equatable {
         lastFMScrobble,
         autoSaveLyrics,
         autoPlay,
+        themeMode,
         audioDecoderMode,
         hardwareOffloadEnabled,
         gaplessOffloadEnabled,
@@ -178,6 +183,7 @@ class SettingsInitial extends SettingsState {
           lastFMScrobble: true,
           autoSaveLyrics: false,
           autoPlay: true,
+          themeMode: ThemeMode.dark,
           // New advanced settings
           audioDecoderMode: "system",
           hardwareOffloadEnabled: false,

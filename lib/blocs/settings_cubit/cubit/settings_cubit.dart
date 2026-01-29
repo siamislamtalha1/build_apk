@@ -4,6 +4,7 @@ import 'package:Bloomee/model/source_engines.dart';
 import 'package:Bloomee/routes_and_consts/global_str_consts.dart';
 import 'package:Bloomee/services/db/bloomee_db_service.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 part 'settings_state.dart';
@@ -167,6 +168,25 @@ class SettingsCubit extends Cubit<SettingsState> {
         .then((value) {
       emit(state.copyWith(stopOnTaskClear: value ?? false));
     });
+
+    // Theme Mode Init
+    BloomeeDBService.getSettingStr('theme_mode').then((value) {
+      ThemeMode themeMode;
+      switch (value) {
+        case 'light':
+          themeMode = ThemeMode.light;
+          break;
+        case 'dark':
+          themeMode = ThemeMode.dark;
+          break;
+        case 'system':
+          themeMode = ThemeMode.system;
+          break;
+        default:
+          themeMode = ThemeMode.dark;
+      }
+      emit(state.copyWith(themeMode: themeMode));
+    });
   }
 
   void setChartShow(String title, bool value) {
@@ -203,6 +223,23 @@ class SettingsCubit extends Cubit<SettingsState> {
   void setAutoSaveLyrics(bool value) {
     BloomeeDBService.putSettingBool(GlobalStrConsts.autoSaveLyrics, value);
     emit(state.copyWith(autoSaveLyrics: value));
+  }
+
+  void setThemeMode(ThemeMode value) {
+    String themeModeStr;
+    switch (value) {
+      case ThemeMode.light:
+        themeModeStr = 'light';
+        break;
+      case ThemeMode.dark:
+        themeModeStr = 'dark';
+        break;
+      case ThemeMode.system:
+        themeModeStr = 'system';
+        break;
+    }
+    BloomeeDBService.putSettingStr('theme_mode', themeModeStr);
+    emit(state.copyWith(themeMode: value));
   }
 
   void setLastFMScrobble(bool value) {

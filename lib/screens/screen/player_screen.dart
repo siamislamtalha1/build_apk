@@ -25,6 +25,7 @@ import '../../blocs/mediaPlayer/bloomee_player_cubit.dart';
 import '../../blocs/mini_player/mini_player_bloc.dart';
 import 'player_views/fullscreen_lyrics_view.dart';
 import 'player_views/lyrics_widget.dart';
+import 'package:Bloomee/screens/widgets/audio_settings_bottom_sheet.dart';
 
 class AudioPlayerView extends StatefulWidget {
   const AudioPlayerView({super.key});
@@ -601,7 +602,7 @@ class _PlayerControlsRow extends StatelessWidget {
             icon: const Icon(MingCute.skip_forward_fill,
                 color: Default_Theme.primaryColor1, size: 30),
           ),
-          bottomWidget: null,
+          bottomWidget: const _AudioSettingsControl(),
         ),
         _buildControlColumn(
           topWidget: const _ShuffleControl(),
@@ -798,14 +799,35 @@ class _PlayPauseButton extends StatelessWidget {
               boxShadow: [
                 BoxShadow(color: buttonColor, spreadRadius: 1, blurRadius: 20)
               ],
-              shape: BoxShape.circle,
-              color: buttonColor,
             ),
-            width: 75,
-            height: 75,
-            child:
-                Center(child: SizedBox(width: 35, height: 35, child: child)));
+            child: child);
       },
+    );
+  }
+}
+
+class _AudioSettingsControl extends StatelessWidget {
+  const _AudioSettingsControl();
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: "Audio Settings",
+      child: IconButton(
+        padding: const EdgeInsets.all(5),
+        constraints: const BoxConstraints(),
+        style:
+            const ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+        icon: const Icon(MingCute.settings_3_line,
+            color: Default_Theme.primaryColor1, size: 24),
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            backgroundColor: Colors.transparent,
+            builder: (context) => const AudioSettingsBottomSheet(),
+          );
+        },
+      ),
     );
   }
 }

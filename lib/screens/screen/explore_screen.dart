@@ -5,6 +5,7 @@ import 'package:Bloomee/blocs/lastdotfm/lastdotfm_cubit.dart';
 import 'package:Bloomee/blocs/mediaPlayer/bloomee_player_cubit.dart';
 import 'package:Bloomee/blocs/notification/notification_cubit.dart';
 import 'package:Bloomee/blocs/settings_cubit/cubit/settings_cubit.dart';
+import 'package:Bloomee/blocs/auth/auth_cubit.dart';
 import 'package:Bloomee/model/MediaPlaylistModel.dart';
 import 'package:Bloomee/screens/screen/home_views/recents_view.dart';
 import 'package:Bloomee/screens/screen/home_views/setting_views/about.dart';
@@ -236,24 +237,60 @@ class CustomDiscoverBar extends StatelessWidget {
     super.key,
   });
 
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+
+    if (hour < 12) {
+      return 'Good Morning';
+    } else if (hour < 17) {
+      return 'Good Afternoon';
+    } else if (hour < 21) {
+      return 'Good Evening';
+    } else {
+      return 'Good Night';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
       floating: true,
       surfaceTintColor: Default_Theme.themeColor,
       backgroundColor: Default_Theme.themeColor,
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text("Discover",
-              style: Default_Theme.primaryTextStyle.merge(const TextStyle(
-                  fontSize: 34, color: Default_Theme.primaryColor1))),
-          const Spacer(),
-          const NotificationIcon(),
-          const SiteIcon(),
-          const TimerIcon(),
-          const SettingsIcon(),
-        ],
+      title: BlocBuilder<AuthCubit, AuthState>(
+        builder: (context, authState) {
+          String greeting = _getGreeting();
+
+          // Add user's first name if authenticated and not a guest
+          if (authState is Authenticated &&
+              !context.read<AuthCubit>().isGuest &&
+              authState.user.displayName != null) {
+            final firstName = authState.user.displayName!.split(' ').first;
+            greeting = '$greeting, $firstName';
+          }
+
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                child: Text(
+                  greeting,
+                  style: Default_Theme.primaryTextStyle.merge(const TextStyle(
+                      fontSize: 34, color: Default_Theme.primaryColor1)),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
+              const NotificationIcon(),
+              const SizedBox(width: 4),
+              const SiteIcon(),
+              const SizedBox(width: 4),
+              const TimerIcon(),
+              const SizedBox(width: 4),
+              const SettingsIcon(),
+            ],
+          );
+        },
       ),
     );
   }

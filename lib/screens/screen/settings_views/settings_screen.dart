@@ -72,6 +72,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               _buildSectionHeader(context, "General"),
               _buildLanguageTile(context, state, cubit),
+              _buildThemeModeTile(context, state, cubit),
               _buildAutoUpdateTile(context),
               const Divider(color: Default_Theme.primaryColor2),
               _buildSectionHeader(
@@ -104,8 +105,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     color: Default_Theme.primaryColor1),
                 title: Text(AppLocalizations.of(context)!.version,
                     style: Default_Theme.primaryTextStyle), // Localize
-                subtitle:
-                    const Text("1.0.0", style: Default_Theme.secondoryTextStyle),
+                subtitle: const Text("1.0.0",
+                    style: Default_Theme.secondoryTextStyle),
               ),
             ],
           );
@@ -154,6 +155,83 @@ class _SettingsScreenState extends State<SettingsScreen> {
         onChanged: (val) {
           if (val != null) {
             cubit.setLocale(val);
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _buildThemeModeTile(
+      BuildContext context, SettingsState state, SettingsCubit cubit) {
+    String getThemeModeLabel(ThemeMode mode) {
+      switch (mode) {
+        case ThemeMode.light:
+          return 'Light';
+        case ThemeMode.dark:
+          return 'Dark';
+        case ThemeMode.system:
+          return 'System';
+      }
+    }
+
+    return ListTile(
+      leading: Icon(
+        state.themeMode == ThemeMode.light
+            ? MingCute.sun_fill
+            : state.themeMode == ThemeMode.dark
+                ? MingCute.moon_fill
+                : MingCute.settings_6_fill,
+        color: Default_Theme.primaryColor1,
+      ),
+      title: const Text("Theme", style: Default_Theme.primaryTextStyle),
+      trailing: DropdownButton<ThemeMode>(
+        value: state.themeMode,
+        dropdownColor: Default_Theme.themeColor,
+        style: Default_Theme.primaryTextStyle,
+        underline: Container(),
+        icon:
+            const Icon(MingCute.down_line, color: Default_Theme.primaryColor2),
+        items: [
+          DropdownMenuItem(
+            value: ThemeMode.dark,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(MingCute.moon_fill,
+                    size: 16, color: Default_Theme.primaryColor1),
+                const SizedBox(width: 8),
+                Text(getThemeModeLabel(ThemeMode.dark)),
+              ],
+            ),
+          ),
+          DropdownMenuItem(
+            value: ThemeMode.light,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(MingCute.sun_fill,
+                    size: 16, color: Default_Theme.primaryColor1),
+                const SizedBox(width: 8),
+                Text(getThemeModeLabel(ThemeMode.light)),
+              ],
+            ),
+          ),
+          DropdownMenuItem(
+            value: ThemeMode.system,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(MingCute.settings_6_fill,
+                    size: 16, color: Default_Theme.primaryColor1),
+                const SizedBox(width: 8),
+                Text(getThemeModeLabel(ThemeMode.system)),
+              ],
+            ),
+          ),
+        ],
+        onChanged: (val) {
+          if (val != null) {
+            cubit.setThemeMode(val);
           }
         },
       ),

@@ -15,6 +15,8 @@ import 'package:Bloomee/blocs/internet_connectivity/cubit/connectivity_cubit.dar
 import 'package:Bloomee/blocs/search/fetch_search_results.dart';
 import 'package:Bloomee/screens/screen/search_views/search_page.dart';
 import 'package:Bloomee/theme_data/default.dart';
+import 'package:Bloomee/model/search_filter_model.dart';
+import 'package:Bloomee/screens/widgets/search_filter_bottom_sheet.dart';
 
 class SearchScreen extends StatefulWidget {
   final String searchQuery;
@@ -32,6 +34,7 @@ class _SearchScreenState extends State<SearchScreen> {
   final ScrollController _scrollController = ScrollController();
   final ValueNotifier<ResultTypes> resultType =
       ValueNotifier(ResultTypes.songs);
+  SearchFilter _searchFilter = const SearchFilter();
 
   @override
   void dispose() {
@@ -75,63 +78,104 @@ class _SearchScreenState extends State<SearchScreen> {
           appBar: AppBar(
             shadowColor: Colors.black,
             surfaceTintColor: Default_Theme.themeColor,
-            title: SizedBox(
-              height: 50.0,
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  top: 10,
-                ),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(20),
-                  onTap: () {
-                    showSearch(
-                            context: context,
-                            delegate: SearchPageDelegate(resultType.value),
-                            query: _textEditingController.text)
-                        .then((value) {
-                      if (value != null) {
-                        _textEditingController.text = value.toString();
-                      }
-                    });
-                  },
-                  child: TextField(
-                    controller: _textEditingController,
-                    enabled: false,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: Default_Theme.primaryColor1
-                            .withValues(alpha: 0.55)),
-                    textInputAction: TextInputAction.search,
-                    decoration: InputDecoration(
-                        filled: true,
-                        suffixIcon: Icon(
-                          MingCute.search_2_fill,
-                          color: Default_Theme.primaryColor1
-                              .withValues(alpha: 0.4),
-                        ),
-                        fillColor:
-                            Default_Theme.primaryColor2.withValues(alpha: 0.07),
-                        contentPadding:
-                            const EdgeInsets.only(top: 20, left: 15, right: 5),
-                        hintText: "Find your next song obsession...",
-                        hintStyle: TextStyle(
-                          color: Default_Theme.primaryColor1
-                              .withValues(alpha: 0.3),
-                          fontFamily: "Unageo",
-                          fontWeight: FontWeight.normal,
-                        ),
-                        disabledBorder: OutlineInputBorder(
-                            borderSide:
-                                const BorderSide(style: BorderStyle.none),
-                            borderRadius: BorderRadius.circular(50)),
-                        focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
+            title: Row(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: 50.0,
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                        top: 10,
+                      ),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(20),
+                        onTap: () {
+                          showSearch(
+                                  context: context,
+                                  delegate: SearchPageDelegate(
+                                    resultType.value,
+                                    filter: _searchFilter,
+                                  ),
+                                  query: _textEditingController.text)
+                              .then((value) {
+                            if (value != null) {
+                              _textEditingController.text = value.toString();
+                            }
+                          });
+                        },
+                        child: TextField(
+                          controller: _textEditingController,
+                          enabled: false,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              color: Default_Theme.primaryColor1
+                                  .withValues(alpha: 0.55)),
+                          textInputAction: TextInputAction.search,
+                          decoration: InputDecoration(
+                              filled: true,
+                              suffixIcon: Icon(
+                                MingCute.search_2_fill,
                                 color: Default_Theme.primaryColor1
-                                    .withValues(alpha: 0.7)),
-                            borderRadius: BorderRadius.circular(50))),
+                                    .withValues(alpha: 0.4),
+                              ),
+                              fillColor: Default_Theme.primaryColor2
+                                  .withValues(alpha: 0.07),
+                              contentPadding: const EdgeInsets.only(
+                                  top: 20, left: 15, right: 5),
+                              hintText: "Find your next song obsession...",
+                              hintStyle: TextStyle(
+                                color: Default_Theme.primaryColor1
+                                    .withValues(alpha: 0.3),
+                                fontFamily: "Unageo",
+                                fontWeight: FontWeight.normal,
+                              ),
+                              disabledBorder: OutlineInputBorder(
+                                  borderSide:
+                                      const BorderSide(style: BorderStyle.none),
+                                  borderRadius: BorderRadius.circular(50)),
+                              focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: Default_Theme.primaryColor1
+                                          .withValues(alpha: 0.7)),
+                                  borderRadius: BorderRadius.circular(50))),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
+                const SizedBox(width: 8),
+                IconButton(
+                  onPressed: () {
+                    showModalBottomSheet(
+                      context: context,
+                      backgroundColor: Colors.transparent,
+                      isScrollControlled: true,
+                      builder: (context) => SearchFilterBottomSheet(
+                        currentFilter: _searchFilter,
+                        onFilterChanged: (newFilter) {
+                          setState(() {
+                            _searchFilter = newFilter;
+                          });
+                          // Re-search with new filters
+                          if (_textEditingController.text.isNotEmpty) {
+                            context
+                                .read<FetchSearchResultsCubit>()
+                                .searchAllSources(
+                                  _textEditingController.text,
+                                  resultType: resultType.value,
+                                  filter: newFilter,
+                                );
+                          }
+                        },
+                      ),
+                    );
+                  },
+                  icon: const Icon(
+                    MingCute.filter_2_fill,
+                    color: Default_Theme.primaryColor1,
+                  ),
+                ),
+              ],
             ),
             backgroundColor: Default_Theme.themeColor,
           ),
