@@ -27,8 +27,4 @@ class NotificationCubit extends Cubit<NotificationState> {
     // Watcher removed
   }
 
-  @override
-  Future<void> close() {
-    return super.close();
-  }
 }

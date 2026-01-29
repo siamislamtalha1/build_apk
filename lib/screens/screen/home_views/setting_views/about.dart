@@ -225,7 +225,7 @@ class About extends StatelessWidget {
   }
 
   Widget _buildSupportSection() {
-    return Column(
+    return const Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         // const Padding(

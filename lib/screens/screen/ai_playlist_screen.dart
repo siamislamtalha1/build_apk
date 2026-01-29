@@ -77,7 +77,7 @@ class _AIPlaylistScreenState extends State<AIPlaylistScreen> {
               ),
               child: Row(
                 children: [
-                  Icon(
+                  const Icon(
                     MingCute.sparkles_fill,
                     size: 40,
                     color: Default_Theme.accentColor2,
@@ -290,20 +290,13 @@ class _AIPlaylistScreenState extends State<AIPlaylistScreen> {
           height: 50,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
-            image: song.artURL != null
-                ? DecorationImage(
+            image: DecorationImage(
                     image: NetworkImage(song.artURL!),
                     fit: BoxFit.cover,
-                  )
-                : null,
+                  ),
             color: Default_Theme.accentColor2.withValues(alpha: 0.2),
           ),
-          child: song.artURL == null
-              ? Icon(
-                  MingCute.music_2_fill,
-                  color: Default_Theme.accentColor2,
-                )
-              : null,
+          child: null,
         ),
         title: Text(
           song.title ?? 'Unknown',

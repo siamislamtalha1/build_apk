@@ -227,20 +227,13 @@ class _DiscoverWeeklyScreenState extends State<DiscoverWeeklyScreen> {
           height: 50,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
-            image: song.artURL != null
-                ? DecorationImage(
+            image: DecorationImage(
                     image: NetworkImage(song.artURL!),
                     fit: BoxFit.cover,
-                  )
-                : null,
+                  ),
             color: Default_Theme.accentColor2.withValues(alpha: 0.2),
           ),
-          child: song.artURL == null
-              ? Icon(
-                  MingCute.music_2_fill,
-                  color: Default_Theme.accentColor2,
-                )
-              : null,
+          child: null,
         ),
         title: Text(
           song.title ?? 'Unknown',

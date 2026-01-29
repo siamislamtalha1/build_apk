@@ -67,7 +67,7 @@ class _AIRecommendationsWidgetState extends State<AIRecommendationsWidget> {
             children: [
               Row(
                 children: [
-                  Icon(
+                  const Icon(
                     MingCute.sparkles_fill,
                     color: Default_Theme.accentColor2,
                     size: 24,
@@ -172,21 +172,13 @@ class _AIRecommendationsWidgetState extends State<AIRecommendationsWidget> {
               height: 140,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-                image: song.artURL != null
-                    ? DecorationImage(
+                image: DecorationImage(
                         image: NetworkImage(song.artURL!),
                         fit: BoxFit.cover,
-                      )
-                    : null,
+                      ),
                 color: Default_Theme.accentColor2.withValues(alpha: 0.2),
               ),
-              child: song.artURL == null
-                  ? Icon(
-                      MingCute.music_2_fill,
-                      size: 48,
-                      color: Default_Theme.accentColor2,
-                    )
-                  : null,
+              child: null,
             ),
             const SizedBox(height: 8),
             // Song Title
@@ -344,7 +336,7 @@ class _DailyMixWidgetState extends State<DailyMixWidget> {
                   ],
                 ),
               ),
-              Icon(
+              const Icon(
                 MingCute.play_circle_fill,
                 color: Default_Theme.accentColor2,
                 size: 40,

@@ -3,7 +3,6 @@ import 'package:Bloomee/screens/widgets/player_overlay_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:Bloomee/screens/widgets/mini_player_widget.dart';
 import 'package:responsive_framework/responsive_framework.dart';
