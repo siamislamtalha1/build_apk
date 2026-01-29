@@ -38,7 +38,7 @@ class DiscordService {
                   ? "Playing・${mediaItem.artist?.isNotEmpty ?? false ? mediaItem.artist : 'Unknown Artist'}"
                   : "Paused・${mediaItem.artist?.isNotEmpty ?? false ? mediaItem.artist : 'Unknown Artist'}",
               largeImageKey: "bloomeetunes_logo",
-              largeImageText: "BloomeeTunes",
+              largeImageText: "Musicly",
               startTimeStamp: _startTimeStamp),
         );
       } catch (e) {

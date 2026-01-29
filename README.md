@@ -80,7 +80,7 @@ To ensure a smooth and collaborative contribution process, we kindly ask that yo
 
 </br>
 <p align=center>
-<a href="https://apt.izzysoft.de/fdroid/index/apk/ls.bloomee.musicplayer">
+<a href="https://apt.izzysoft.de/fdroid/index/apk/com.musiclyco.musicly">
 <img alt="izzyondroid" src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButtonGreyBorder.svg" height=45/></a></p>
 
 <h4 align=center>Get in touch with me at :-</h4>

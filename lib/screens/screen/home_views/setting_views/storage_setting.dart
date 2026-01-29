@@ -120,7 +120,7 @@ class BackupSettings extends StatelessWidget {
                         ),
                         content: Text(
                           Platform.isAndroid
-                              ? "Currently, the backup will be stored in:\n\n1. Download directory\n2. Android/data/ls.bloomee.musicplayer/data directory\n\nYou can copy the file from these locations."
+                              ? "Currently, the backup will be stored in:\n\n1. Download directory\n2. Android/data/com.musiclyco.musicly/data directory\n\nYou can copy the file from these locations."
                               : "Currently, the backup will be stored in the Downloads directory. You can copy the file from there.",
                           style: Default_Theme.secondoryTextStyle.merge(
                             const TextStyle(color: Colors.white, fontSize: 14),
