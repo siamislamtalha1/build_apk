@@ -1,4 +1,4 @@
-package ls.bloomee.musicplayer
+package com.musiclyco.musicly
 
 import io.flutter.embedding.android.FlutterActivity
 

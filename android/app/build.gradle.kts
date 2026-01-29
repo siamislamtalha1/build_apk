@@ -11,7 +11,7 @@ import java.io.FileInputStream
 val keystorePropertiesFile = rootProject.file("key.properties")
 
 android {
-    namespace = "ls.bloomee.musicplayer"
+    namespace = "com.musiclyco.musicly"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -25,7 +25,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "ls.bloomee.musicplayer"
+        applicationId = "com.musiclyco.musicly"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
