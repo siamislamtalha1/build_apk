@@ -258,4 +258,15 @@ class FirestoreService {
           (snapshot) => snapshot.docs.map((doc) => doc.data()).toList(),
         );
   }
+
+  /// Listen to history changes
+  Stream<List<Map<String, dynamic>>> watchHistory(String userId) {
+    return _userDoc(userId)
+        .collection('history')
+        .orderBy('syncedAt', descending: true)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs.map((doc) => doc.data()).toList(),
+        );
+  }
 }

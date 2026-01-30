@@ -159,11 +159,11 @@ class AppLocalizationsHi extends AppLocalizations {
   String get tryAgain => 'पुनः प्रयास करें';
 
   @override
-  String get advanced => 'Advanced';
+  String get advanced => 'उन्नत';
 
   @override
-  String get advancedSettings => 'Advanced Settings';
+  String get advancedSettings => 'उन्नत सेटिंग्स';
 
   @override
-  String get developerTools => 'Developer Tools';
+  String get developerTools => 'डेवलपर टूल्स';
 }

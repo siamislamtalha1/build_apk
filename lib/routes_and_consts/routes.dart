@@ -20,6 +20,7 @@ import 'package:Bloomee/screens/screen/auth/signup_screen.dart';
 import 'package:Bloomee/screens/screen/profile_screen.dart';
 import 'package:Bloomee/screens/screen/ai_playlist_screen.dart';
 import 'package:Bloomee/screens/screen/settings_views/settings_screen.dart';
+import 'package:Bloomee/screens/screen/home_views/setting_views/about.dart';
 
 import 'package:Bloomee/blocs/auth/auth_cubit.dart';
 import 'package:Bloomee/routes_and_consts/go_router_refresh_stream.dart';
@@ -133,6 +134,18 @@ class GlobalRoutes {
           parentNavigatorKey: globalRouterKey,
           name: 'Settings',
           builder: (context, state) => const SettingsScreen(),
+        ),
+        GoRoute(
+          path: '/About',
+          parentNavigatorKey: globalRouterKey,
+          name: 'About',
+          builder: (context, state) => const About(),
+        ),
+        GoRoute(
+          path: '/Statistics',
+          parentNavigatorKey: globalRouterKey,
+          name: 'Statistics',
+          builder: (context, state) => const StatisticsScreen(),
         ),
         StatefulShellRoute.indexedStack(
             builder: (context, state, navigationShell) =>

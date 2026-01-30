@@ -159,11 +159,11 @@ class AppLocalizationsBn extends AppLocalizations {
   String get tryAgain => 'আবার চেষ্টা করুন';
 
   @override
-  String get advanced => 'Advanced';
+  String get advanced => 'উন্নত';
 
   @override
-  String get advancedSettings => 'Advanced Settings';
+  String get advancedSettings => 'উন্নত সেটিংস';
 
   @override
-  String get developerTools => 'Developer Tools';
+  String get developerTools => 'ডেভেলপার টুলস';
 }

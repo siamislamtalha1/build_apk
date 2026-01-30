@@ -159,11 +159,11 @@ class AppLocalizationsPt extends AppLocalizations {
   String get tryAgain => 'Tentar novamente';
 
   @override
-  String get advanced => 'Advanced';
+  String get advanced => 'Avançado';
 
   @override
-  String get advancedSettings => 'Advanced Settings';
+  String get advancedSettings => 'Configurações avançadas';
 
   @override
-  String get developerTools => 'Developer Tools';
+  String get developerTools => 'Ferramentas de desenvolvedor';
 }

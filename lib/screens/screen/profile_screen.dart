@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:Bloomee/blocs/auth/auth_cubit.dart';
+import 'package:Bloomee/routes_and_consts/global_str_consts.dart';
 import 'package:Bloomee/services/sync/sync_service.dart';
 import 'package:Bloomee/theme_data/default.dart';
 import 'package:flutter/material.dart';
@@ -358,7 +359,7 @@ class ProfileScreen extends StatelessWidget {
           icon: MingCute.information_fill,
           title: 'About',
           subtitle: 'App information and developer',
-          onTap: () => context.push('/Settings/About'),
+          onTap: () => context.push('/About'),
         ),
         const SizedBox(height: 12),
         _buildMenuItem(
@@ -366,9 +367,7 @@ class ProfileScreen extends StatelessWidget {
           icon: MingCute.chart_bar_fill,
           title: 'Statistics',
           subtitle: 'Your listening stats',
-          onTap: () {
-            // Navigate to stats
-          },
+          onTap: () => context.pushNamed(GlobalStrConsts.statisticsScreen),
         ),
         if (!isGuest) ...[
           const SizedBox(height: 12),
@@ -513,8 +512,7 @@ class ProfileScreen extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(MingCute.user_add_fill,
-                        color: Colors.white, size: 24),
+                    Icon(MingCute.user_add_fill, color: Colors.white, size: 24),
                     SizedBox(width: 12),
                     Text(
                       'Sign In to Sync',

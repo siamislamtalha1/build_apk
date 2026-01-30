@@ -1,43 +1,26 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer' as dev;
 import 'dart:isolate';
-
+import 'package:Bloomee/services/db/bloomee_db_service.dart';
 import 'package:flutter/services.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 Future<AudioOnlyStreamInfo> getStreamInfoBG(
     String videoId, RootIsolateToken? token, String quality) async {
-  try {
-    if (token != null) {
-      BackgroundIsolateBinaryMessenger.ensureInitialized(token);
-    }
-    final ytExplode = YoutubeExplode();
-
-    // Add timeout protection to prevent hanging
-    final manifest = await ytExplode.videos.streams.getManifest(videoId,
-        requireWatchPage: true,
-        ytClients: [YoutubeApiClient.androidVr]).timeout(
-      const Duration(seconds: 10),
-      onTimeout: () =>
-          throw TimeoutException('YouTube manifest fetch timed out'),
-    );
-
-    final supportedStreams = manifest.audioOnly.sortByBitrate();
-    final audioStream = quality == 'high'
-        ? supportedStreams.lastOrNull
-        : supportedStreams.firstOrNull;
-
-    if (audioStream == null) {
-      throw Exception('No audio stream available for this video.');
-    }
-
-    ytExplode.close();
-    return audioStream;
-  } catch (e) {
-    dev.log('Error in getStreamInfoBG: $e', name: 'YTStream');
-    rethrow;
+  BackgroundIsolateBinaryMessenger.ensureInitialized(token!);
+  final ytExplode = YoutubeExplode();
+  final manifest = await ytExplode.videos.streams.getManifest(videoId,
+      requireWatchPage: true, ytClients: [YoutubeApiClient.androidVr]);
+  final supportedStreams = manifest.audioOnly.sortByBitrate();
+  final audioStream = quality == 'high'
+      ? supportedStreams.lastOrNull
+      : supportedStreams.firstOrNull;
+  if (audioStream == null) {
+    throw Exception('No audio stream available for this video.');
   }
+  return audioStream;
 }
 
 class YouTubeAudioSource extends StreamAudioSource {
@@ -52,62 +35,16 @@ class YouTubeAudioSource extends StreamAudioSource {
   }) : ytExplode = YoutubeExplode();
 
   Future<AudioOnlyStreamInfo> getStreamInfo() async {
-    try {
-      final vidId = videoId;
-      final qlty = quality;
-      final token = RootIsolateToken.instance;
-
-      // Try isolate execution with timeout
-      try {
-        final audioStream =
-            await Isolate.run(() => getStreamInfoBG(vidId, token, qlty))
-                .timeout(
-          const Duration(seconds: 12),
-          onTimeout: () =>
-              throw TimeoutException('Isolate execution timed out'),
-        );
-
-        return audioStream;
-      } catch (isolateError) {
-        dev.log(
-            'Isolate execution failed, falling back to direct execution: $isolateError',
-            name: 'YTStream');
-
-        // Fallback: Execute directly without isolate
-        return await _getStreamInfoDirect(vidId, qlty);
-      }
-    } catch (e) {
-      dev.log('Error getting stream info: $e', name: 'YTStream');
-      rethrow;
+    final cachedStreams = await getStreamFromCache(videoId);
+    if (cachedStreams != null) {
+      return quality == 'high' ? cachedStreams[1] : cachedStreams[0];
     }
-  }
-
-  // Fallback method that doesn't use isolates
-  Future<AudioOnlyStreamInfo> _getStreamInfoDirect(
-      String videoId, String quality) async {
-    try {
-      final manifest = await ytExplode.videos.streams.getManifest(videoId,
-          requireWatchPage: true,
-          ytClients: [YoutubeApiClient.androidVr]).timeout(
-        const Duration(seconds: 10),
-        onTimeout: () =>
-            throw TimeoutException('YouTube manifest fetch timed out'),
-      );
-
-      final supportedStreams = manifest.audioOnly.sortByBitrate();
-      final audioStream = quality == 'high'
-          ? supportedStreams.lastOrNull
-          : supportedStreams.firstOrNull;
-
-      if (audioStream == null) {
-        throw Exception('No audio stream available for this video.');
-      }
-
-      return audioStream;
-    } catch (e) {
-      dev.log('Direct stream fetch failed: $e', name: 'YTStream');
-      rethrow;
-    }
+    final vidId = videoId;
+    final qlty = quality;
+    final token = RootIsolateToken.instance;
+    final audioStream =
+        await Isolate.run(() => getStreamInfoBG(vidId, token, qlty));
+    return audioStream;
   }
 
   @override
@@ -131,8 +68,45 @@ class YouTubeAudioSource extends StreamAudioSource {
         contentType: audioStream.codec.mimeType,
       );
     } catch (e) {
-      dev.log('Failed to load audio stream for $videoId: $e', name: 'YTStream');
-      throw Exception('Failed to load YouTube audio for video $videoId: $e');
+      throw Exception('Failed to load audio: $e');
     }
   }
+}
+
+Future<void> cacheYtStreams({
+  required String id,
+  required AudioOnlyStreamInfo hURL,
+  required AudioOnlyStreamInfo lURL,
+}) async {
+  final expireAt = RegExp('expire=(.*?)&')
+          .firstMatch(lURL.url.toString())!
+          .group(1) ??
+      (DateTime.now().millisecondsSinceEpoch ~/ 1000 + 3600 * 5.5).toString();
+
+  try {
+    BloomeeDBService.putYtLinkCache(
+      id,
+      jsonEncode(lURL.toJson()),
+      jsonEncode(hURL.toJson()),
+      int.parse(expireAt),
+    );
+    dev.log("Cached: $id, ExpireAt: $expireAt", name: "CacheYtStreams");
+  } catch (e) {
+    dev.log(e.toString(), name: "CacheYtStreams");
+  }
+}
+
+Future<List<AudioOnlyStreamInfo>?> getStreamFromCache(String id) async {
+  final cache = await BloomeeDBService.getYtLinkCache(id);
+  if (cache != null) {
+    final expireAt = cache.expireAt;
+    if (expireAt > DateTime.now().millisecondsSinceEpoch ~/ 1000) {
+      // dev.log("Cache found: $id", name: "CacheYtStreams");
+      return [
+        AudioOnlyStreamInfo.fromJson(jsonDecode(cache.lowQURL!)),
+        AudioOnlyStreamInfo.fromJson(jsonDecode(cache.highQURL)),
+      ];
+    }
+  }
+  return null;
 }

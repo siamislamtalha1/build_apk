@@ -49,5 +49,8 @@
     "success": "সফলতা",
     "loading": "লোড হচ্ছে...",
     "noResults": "কোনো ফলাফল পাওয়া যায়নি",
-    "tryAgain": "আবার চেষ্টা করুন"
+    "tryAgain": "আবার চেষ্টা করুন",
+    "advanced": "উন্নত",
+    "advancedSettings": "উন্নত সেটিংস",
+    "developerTools": "ডেভেলপার টুলস"
 }

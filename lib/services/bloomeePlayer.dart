@@ -16,11 +16,6 @@ import '../model/MediaPlaylistModel.dart';
 import 'package:Bloomee/services/discord_service.dart';
 import 'package:Bloomee/services/player/recently_played_tracker.dart';
 
-import 'package:Bloomee/services/audio/audio_decoder_service.dart';
-import 'package:Bloomee/services/audio/hardware_offload_service.dart';
-import 'package:Bloomee/services/queue_persistence_service.dart'; // Added
-import 'package:Bloomee/services/platform/task_clear_listener.dart'; // Added
-
 class BloomeeMusicPlayer extends BaseAudioHandler
     with SeekHandler, QueueHandler {
   late AudioPlayer audioPlayer;
@@ -31,22 +26,10 @@ class BloomeeMusicPlayer extends BaseAudioHandler
   late QueueManager _queueManager;
   late RelatedSongsManager _relatedSongsManager;
 
-  // New Services
-  late AudioDecoderService _audioDecoderService;
-  late HardwareOffloadService _hardwareOffloadService;
-
   BehaviorSubject<bool> fromPlaylist = BehaviorSubject<bool>.seeded(false);
   BehaviorSubject<bool> isOffline = BehaviorSubject<bool>.seeded(false);
   BehaviorSubject<LoopMode> loopMode =
       BehaviorSubject<LoopMode>.seeded(LoopMode.off);
-
-  // Audio Enhancement Streams
-  BehaviorSubject<double> speed = BehaviorSubject<double>.seeded(1.0);
-  BehaviorSubject<double> pitch = BehaviorSubject<double>.seeded(1.0);
-  BehaviorSubject<bool> skipSilenceEnabled =
-      BehaviorSubject<bool>.seeded(false);
-  BehaviorSubject<bool> volumeNormalizationEnabled =
-      BehaviorSubject<bool>.seeded(false);
 
   // Flag to track if player is disposed
   bool _isDisposed = false;
@@ -72,123 +55,22 @@ class BloomeeMusicPlayer extends BaseAudioHandler
   BehaviorSubject<String> get queueTitle => _queueManager.queueTitle;
 
   BloomeeMusicPlayer() {
-    // We must initialize services first (async in constructor is tricky, usually we fire and forget or use a separate init)
-    // For now we fire it but _initializeAudioPlayer needs values.
-    // Ideally initializeModules should be async.
-    _initializeModules();
-    // We'll init player after modules because we need to read DB options
-    // forcing a slight delay/async pattern if db read is required.
-    // However, BloomeeMusicPlayer constructor doesn't allow async.
-    // We will initialize with defaults and then re-config if needed, or block?
-    // DB reads are async. We'll trigger init chain.
-    _startInitialization();
-  }
-
-  Future<void> _startInitialization() async {
-    await _initializeServices();
     _initializeAudioPlayer();
+    _initializeModules();
     _initializePlayer();
     _recentlyPlayedTracker = RecentlyPlayedTracker(
       audioPlayer,
       () => _queueManager.currentMediaItem,
     );
-
-    // Load persisted queue
-    await _loadPersistedQueue();
-  }
-
-  Future<void> _loadPersistedQueue() async {
-    try {
-      final result = await QueuePersistenceService().loadQueue();
-      if (result != null) {
-        final (queue, index, position) = result;
-        if (queue.isNotEmpty) {
-          log("Restoring persisted queue: ${queue.length} items",
-              name: "BloomeePlayer");
-          // Convert back to MediaItem
-          final mediaItems = queue
-              .map((e) => e as MediaItem)
-              .toList(); // MediaItemModel IS MediaItem
-
-          await _queueManager.updateQueue(mediaItems, doPlay: false);
-
-          // Restore index and position
-          if (index >= 0 && index < mediaItems.length) {
-            await _queueManager.skipToQueueItem(index);
-            // Seek to position
-            if (position > Duration.zero) {
-              await seek(position);
-            }
-          }
-        }
-      }
-    } catch (e) {
-      log("Error loading persisted queue: $e", name: "BloomeePlayer");
-    }
-  }
-
-  Future<void> _saveQueue() async {
-    // Debounce/Throttle save
-    EasyThrottle.throttle('saveQueue', const Duration(seconds: 5), () async {
-      if (_queueManager.queue.value.isEmpty) return;
-
-      final queue = _queueManager.queue.value
-          .map((e) => mediaItem2MediaItemModel(e))
-          .toList();
-      final index = _queueManager.currentPlayingIdx;
-      final position = audioPlayer.position;
-
-      await QueuePersistenceService().saveQueue(queue, index, position);
-    });
-  }
-
-  // Pass _saveQueue to listeners
-
-  Future<void> _initializeServices() async {
-    _audioDecoderService = AudioDecoderService();
-    _hardwareOffloadService = HardwareOffloadService();
-    await _audioDecoderService.init();
-    await _hardwareOffloadService.init();
   }
 
   void _initializeAudioPlayer() {
     _isDisposed = false;
-
-    // Use settings for offload configuration
-    // Note: just_audio 0.9.x uses audioLoadConfiguration for offloading usually
-    // but here we check what parameteters are available.
-    // 'androidApplyAudioAttributes' is available.
-    // For offload, usually AudioPlayer(audioLoadConfiguration: ...)
-    // If not available in this version, we stick to basic params.
-    // Checking pubspec: just_audio: ^0.10.5 - Supports AudioLoadConfiguration
-
-    AudioLoadConfiguration? audioLoadConfig;
-
-    if (_hardwareOffloadService.isOffloadEnabled) {
-      // Enable offload if requested
-      audioLoadConfig = const AudioLoadConfiguration(
-        androidLoadControl: AndroidLoadControl(),
-        darwinLoadControl: DarwinLoadControl(),
-      );
-    }
-
-    try {
-      audioPlayer = AudioPlayer(
-        handleInterruptions: true,
-        androidApplyAudioAttributes: true,
-        handleAudioSessionActivation: true,
-        audioLoadConfiguration: audioLoadConfig,
-      );
-    } catch (e) {
-      // Fallback if config fails
-      log("Failed to init AudioPlayer with offload, falling back",
-          name: "BloomeePlayer");
-      audioPlayer = AudioPlayer(
-        handleInterruptions: true,
-        androidApplyAudioAttributes: true,
-        handleAudioSessionActivation: true,
-      );
-    }
+    audioPlayer = AudioPlayer(
+      handleInterruptions: true,
+      androidApplyAudioAttributes: true,
+      handleAudioSessionActivation: true,
+    );
   }
 
   bool get isPlayerHealthy {
@@ -206,15 +88,19 @@ class BloomeeMusicPlayer extends BaseAudioHandler
     log('Reviving BloomeeMusicPlayer...', name: 'bloomeePlayer');
 
     // Re-initialize BehaviorSubjects if they were closed
-    if (fromPlaylist.isClosed) {
+    if (fromPlaylist.isClosed)
       fromPlaylist = BehaviorSubject<bool>.seeded(false);
-    }
     if (isOffline.isClosed) isOffline = BehaviorSubject<bool>.seeded(false);
-    if (loopMode.isClosed) {
+    if (loopMode.isClosed)
       loopMode = BehaviorSubject<LoopMode>.seeded(LoopMode.off);
-    }
 
-    await _startInitialization();
+    _initializeAudioPlayer();
+    _initializeModules();
+    _initializePlayer();
+    _recentlyPlayedTracker = RecentlyPlayedTracker(
+      audioPlayer,
+      () => _queueManager.currentMediaItem,
+    );
 
     _isDisposed = false;
 
@@ -223,18 +109,6 @@ class BloomeeMusicPlayer extends BaseAudioHandler
       processingState: AudioProcessingState.idle,
       playing: false,
     ));
-  }
-
-  /// Configure how many continuous seconds are required before a track is
-  /// added to Recently Played. Default is 15.
-  void setRecentlyPlayedThresholdSeconds(int seconds) {
-    if (isPlayerHealthy) _recentlyPlayedTracker.setThresholdSeconds(seconds);
-  }
-
-  /// Configure percentage (0..1) of track duration required before a track
-  /// is added to Recently Played. Default is 0.4 (40%).
-  void setRecentlyPlayedPercentThreshold(double percent) {
-    if (isPlayerHealthy) _recentlyPlayedTracker.setPercentThreshold(percent);
   }
 
   void _initializeModules() {
@@ -289,39 +163,31 @@ class BloomeeMusicPlayer extends BaseAudioHandler
           currentItem.id != item.id ||
           currentItem.artUri != item.artUri) {
         mediaItem.add(item);
-        _saveQueue(); // Save on track change
       }
     });
 
     // Trigger skipToNext when the current song ends.
-    // Windows needs a larger buffer for YouTube streams to prevent crashes
     final endingOffset =
-        Platform.isWindows ? 1000 : (Platform.isLinux ? 700 : 800);
+        Platform.isWindows ? 200 : (Platform.isLinux ? 700 : 200);
     _positionSubscription = audioPlayer.positionStream.listen((event) {
-      try {
-        //check if the current queue is empty and if it is, add related songs
-        EasyThrottle.throttle('loadRelatedSongs', const Duration(seconds: 5),
-            () async => check4RelatedSongs());
-        if (((audioPlayer.duration != null &&
-                audioPlayer.duration?.inSeconds != 0 &&
-                event.inMilliseconds >
-                    audioPlayer.duration!.inMilliseconds - endingOffset)) &&
-            loopMode.value != LoopMode.one &&
-            _queueManager.queue.value.isNotEmpty) {
-          // Add safety check for queue
-          EasyThrottle.throttle('skipNext', const Duration(milliseconds: 2000),
-              () async => skipToNext());
-        }
-      } catch (e) {
-        log('Error in position stream listener: $e', name: 'bloomeePlayer');
-        // Don't crash, just log the error
+      //check if the current queue is empty and if it is, add related songs
+      EasyThrottle.throttle('loadRelatedSongs', const Duration(seconds: 5),
+          () async => check4RelatedSongs());
+      if (((audioPlayer.duration != null &&
+              audioPlayer.duration?.inSeconds != 0 &&
+              event.inMilliseconds >
+                  audioPlayer.duration!.inMilliseconds - endingOffset)) &&
+          loopMode.value != LoopMode.one &&
+          _queueManager.queue.value.isNotEmpty) {
+        // Add safety check for queue
+        EasyThrottle.throttle('skipNext', const Duration(milliseconds: 2000),
+            () async => skipToNext());
       }
     });
 
     // Refresh shuffle list when queue changes - delegate to queue manager
     _queueSubscription = _queueManager.queue.listen((e) {
       queue.add(e); // Sync with base audio handler queue
-      _saveQueue(); // Save on queue change
     });
   }
 
@@ -678,11 +544,8 @@ class BloomeeMusicPlayer extends BaseAudioHandler
 
   @override
   Future<void> onTaskRemoved() async {
-    final shouldStop = await TaskClearListener.shouldStopOnTaskClear();
-    if (shouldStop) {
-      await stop();
-      await _cleanup();
-    }
+    await stop();
+    await _cleanup();
     return super.onTaskRemoved();
   }
 
@@ -773,43 +636,5 @@ class BloomeeMusicPlayer extends BaseAudioHandler
 
   Future<void> moveQueueItem(int oldIndex, int newIndex) async {
     await _queueManager.moveQueueItem(oldIndex, newIndex);
-  }
-
-  // --- Audio Enhancement Suite ---
-
-  /// Sets the playback speed (0.5x to 2.0x standard range)
-  Future<void> setSpeed(double value) async {
-    final clampedValue = value.clamp(0.25, 4.0);
-    speed.add(clampedValue);
-    await audioPlayer.setSpeed(clampedValue);
-  }
-
-  /// Sets the playback pitch (1.0 is normal)
-  Future<void> setPitch(double value) async {
-    final clampedValue = value.clamp(0.5, 2.0);
-    pitch.add(clampedValue);
-    await audioPlayer.setPitch(clampedValue);
-  }
-
-  /// Enables or disables skipping of silent parts (intros/outros)
-  Future<void> setSkipSilenceEnabled(bool enabled) async {
-    skipSilenceEnabled.add(enabled);
-    await audioPlayer.setSkipSilenceEnabled(enabled);
-  }
-
-  /// Enables volume normalization (placeholder for future advanced implementation)
-  Future<void> setVolumeNormalization(bool enabled) async {
-    volumeNormalizationEnabled.add(enabled);
-    if (enabled) {
-      // Stub for future normalization logic
-    }
-  }
-
-  /// Resets all audio effects to default
-  Future<void> resetAudioEffects() async {
-    await setSpeed(1.0);
-    await setPitch(1.0);
-    await setSkipSilenceEnabled(false);
-    await setVolumeNormalization(false);
   }
 }

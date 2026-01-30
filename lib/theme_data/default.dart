@@ -118,12 +118,13 @@ class Default_Theme {
   }
 
   ThemeData get lightThemeData {
-    // Light Theme Colors
-    const lightBackgroundColor = Color(0xFFF2F2F7);
-    const lightSurfaceColor = Colors.white;
-    const lightTextColor = Color(0xFF1C1C1E);
-    const lightAccentColor = Color(0xFF0EA5E0); // accentColor1
-    const lightSecondaryColor = Color(0xFFFE385E); // accentColor2
+    // Premium Light Theme Colors
+    const lightBackgroundColor = Color(0xFFF2F2F7); // iOS System Gray 6
+    const lightSurfaceColor = Color(0xFFFFFFFF);
+    const lightTextColor = Color(0xFF000000);
+    const lightSecondaryTextColor = Color(0xFF3C3C43); // iOS Label Secondary
+    const lightAccentColor = Color(0xFF007AFF); // iOS Blue
+    const lightSecondaryColor = Color(0xFFFF2D55); // iOS Pink
 
     const lightScheme = ColorScheme.light(
       primary: lightAccentColor,
@@ -132,6 +133,7 @@ class Default_Theme {
       onPrimary: Colors.white,
       onSecondary: Colors.white,
       onSurface: lightTextColor,
+      surfaceContainerHighest: Color(0xFFE5E5EA), // iOS System Gray 5
     );
 
     return ThemeData(
@@ -144,8 +146,14 @@ class Default_Theme {
       textTheme: const TextTheme(
         bodyLarge: TextStyle(color: lightTextColor, fontFamily: "Gilroy"),
         bodyMedium: TextStyle(color: lightTextColor, fontFamily: "Gilroy"),
+        bodySmall:
+            TextStyle(color: lightSecondaryTextColor, fontFamily: "Gilroy"),
         titleLarge: TextStyle(
             color: lightTextColor, fontFamily: "Fjalla", fontSize: 22),
+        titleMedium: TextStyle(
+            color: lightTextColor,
+            fontFamily: "Gilroy",
+            fontWeight: FontWeight.w600),
       ),
       scrollbarTheme: ScrollbarThemeData(
         thumbColor: WidgetStateProperty.all(lightAccentColor),
@@ -154,9 +162,9 @@ class Default_Theme {
         thickness: WidgetStateProperty.all(5),
       ),
       appBarTheme: const AppBarTheme(
-        backgroundColor: lightBackgroundColor,
+        backgroundColor: lightBackgroundColor, // Transparent feel
         foregroundColor: lightTextColor,
-        surfaceTintColor: lightBackgroundColor,
+        surfaceTintColor: Colors.transparent,
         iconTheme: IconThemeData(color: lightTextColor),
         elevation: 0,
       ),
@@ -164,7 +172,7 @@ class Default_Theme {
           const ProgressIndicatorThemeData(color: lightAccentColor),
       textSelectionTheme: const TextSelectionThemeData(
         cursorColor: lightAccentColor,
-        selectionColor: lightAccentColor,
+        selectionColor: Color(0x4D007AFF), // lightAccentColor with alpha
         selectionHandleColor: lightAccentColor,
       ),
       brightness: Brightness.light,
@@ -173,24 +181,41 @@ class Default_Theme {
         trackColor: WidgetStateProperty.resolveWith((states) =>
             states.contains(WidgetState.selected)
                 ? lightAccentColor
-                : Colors.grey.shade300),
+                : const Color(0xFFE9E9EA)),
+        trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
       ),
       searchBarTheme: const SearchBarThemeData(
         backgroundColor: WidgetStatePropertyAll(lightSurfaceColor),
+        elevation: WidgetStatePropertyAll(0),
       ),
       // Popup & Menus
       popupMenuTheme: const PopupMenuThemeData(
         color: lightSurfaceColor,
         textStyle: TextStyle(color: lightTextColor),
+        elevation: 4,
       ),
       cardTheme: const CardThemeData(
         color: lightSurfaceColor,
         surfaceTintColor: Colors.transparent,
-        elevation: 2,
+        elevation: 0, // Flat style
+        margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
       ),
       dialogTheme: const DialogThemeData(
         backgroundColor: lightSurfaceColor,
-        titleTextStyle: TextStyle(color: lightTextColor, fontSize: 20),
+        titleTextStyle: TextStyle(
+            color: lightTextColor, fontSize: 20, fontWeight: FontWeight.bold),
+        contentTextStyle:
+            TextStyle(color: lightSecondaryTextColor, fontSize: 16),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(16))),
+      ),
+      dividerTheme: const DividerThemeData(
+        color: Color(0xFFC6C6C8), // iOS Separator
+        thickness: 0.5,
+      ),
+      listTileTheme: const ListTileThemeData(
+        iconColor: lightTextColor,
+        textColor: lightTextColor,
       ),
     );
   }

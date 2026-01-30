@@ -49,5 +49,8 @@
     "success": "सफलता",
     "loading": "लोड हो रहा है...",
     "noResults": "कोई परिणाम नहीं मिला",
-    "tryAgain": "पुनः प्रयास करें"
+    "tryAgain": "पुनः प्रयास करें",
+    "advanced": "उन्नत",
+    "advancedSettings": "उन्नत सेटिंग्स",
+    "developerTools": "डेवलपर टूल्स"
 }

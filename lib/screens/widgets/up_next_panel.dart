@@ -5,6 +5,9 @@ import 'package:Bloomee/blocs/mediaPlayer/bloomee_player_cubit.dart';
 import 'package:Bloomee/blocs/settings_cubit/cubit/settings_cubit.dart';
 import 'package:Bloomee/model/songModel.dart';
 import 'package:Bloomee/screens/widgets/toogle_btn.dart';
+import 'package:Bloomee/services/db/bloomee_db_service.dart';
+import 'package:Bloomee/services/db/GlobalDB.dart';
+import 'package:Bloomee/screens/widgets/snackbar.dart';
 import 'package:Bloomee/theme_data/default.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
@@ -483,22 +486,135 @@ class _QueueInfoRow extends StatelessWidget {
 
   const _QueueInfoRow({required this.playerCubit});
 
+  Future<void> _saveQueueAsPlaylist(
+      BuildContext context, List<MediaItem> queue) async {
+    final TextEditingController controller = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+
+    final String? playlistName = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Default_Theme.themeColor,
+          title: const Text('Save Queue as Playlist',
+              style: Default_Theme.secondoryTextStyleMedium),
+          content: Form(
+            key: formKey,
+            child: TextFormField(
+              controller: controller,
+              autofocus: true,
+              style: const TextStyle(color: Default_Theme.primaryColor1),
+              decoration: const InputDecoration(
+                hintText: 'Playlist Name',
+                hintStyle: TextStyle(color: Colors.grey),
+                enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Default_Theme.accentColor2)),
+                focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Default_Theme.accentColor1)),
+              ),
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Please enter a name';
+                }
+                return null;
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Default_Theme.accentColor1,
+                foregroundColor: Default_Theme.primaryColor2,
+              ),
+              onPressed: () {
+                if (formKey.currentState!.validate()) {
+                  Navigator.pop(context, controller.text.trim());
+                }
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (playlistName != null && playlistName.isNotEmpty) {
+      try {
+        final List<MediaItemDB> mediaItemsDB = queue.map((e) {
+          return MediaItemDB(
+            title: e.title,
+            album: e.album ?? '',
+            artist: e.artist ?? '',
+            artURL: e.artUri?.toString() ?? '',
+            genre: e.genre ?? '',
+            mediaID: e.id,
+            streamingURL: e.extras?['url'] ?? '',
+            source: e.extras?['source']?.toString(),
+            duration: e.duration?.inSeconds,
+            permaURL: e.extras?['perma_url'] ?? '',
+            language: e.extras?['language'] ?? 'en',
+            isLiked: false, // Default to false when saving new playlist
+          );
+        }).toList();
+
+        await BloomeeDBService.createPlaylist(
+          playlistName,
+          mediaItems: mediaItemsDB,
+        );
+
+        if (context.mounted) {
+          SnackbarService.showMessage(
+              'Playlist "$playlistName" saved successfully!');
+        }
+      } catch (e) {
+        if (context.mounted) {
+          SnackbarService.showMessage('Failed to save playlist: $e');
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          StreamBuilder<List<MediaItem>>(
-            stream: playerCubit.bloomeePlayer.queue,
-            builder: (context, snapshot) {
-              return Text(
-                "${snapshot.data?.length ?? 0} Items in Queue",
-                style: _UpNextStyles.queueCountStyle,
-              );
-            },
+          Expanded(
+            child: StreamBuilder<List<MediaItem>>(
+              stream: playerCubit.bloomeePlayer.queue,
+              builder: (context, snapshot) {
+                final queue = snapshot.data ?? [];
+                return Row(
+                  children: [
+                    Text(
+                      "${queue.length} Items",
+                      style: _UpNextStyles.queueCountStyle,
+                    ),
+                    if (queue.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Tooltip(
+                          message: "Save Queue",
+                          child: IconButton(
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                            icon: const Icon(Icons.save_alt_rounded,
+                                size: 20, color: Default_Theme.primaryColor1),
+                            onPressed: () =>
+                                _saveQueueAsPlaylist(context, queue),
+                          ),
+                        ),
+                      ),
+                  ],
+                );
+              },
+            ),
           ),
           BlocBuilder<SettingsCubit, SettingsState>(
             builder: (context, state) {

@@ -1,11 +1,11 @@
 import 'dart:developer';
 import 'package:Bloomee/blocs/explore/cubit/explore_cubits.dart';
+import 'package:Bloomee/blocs/auth/auth_cubit.dart';
 import 'package:Bloomee/blocs/internet_connectivity/cubit/connectivity_cubit.dart';
 import 'package:Bloomee/blocs/lastdotfm/lastdotfm_cubit.dart';
 import 'package:Bloomee/blocs/mediaPlayer/bloomee_player_cubit.dart';
 import 'package:Bloomee/blocs/notification/notification_cubit.dart';
 import 'package:Bloomee/blocs/settings_cubit/cubit/settings_cubit.dart';
-import 'package:Bloomee/blocs/auth/auth_cubit.dart';
 import 'package:Bloomee/model/MediaPlaylistModel.dart';
 import 'package:Bloomee/screens/screen/home_views/recents_view.dart';
 import 'package:Bloomee/screens/screen/home_views/setting_views/about.dart';
@@ -61,234 +61,224 @@ class _ExploreScreenState extends State<ExploreScreen> {
     return const MediaPlaylist(mediaItems: [], playlistName: "");
   }
 
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) {
+      return 'Good Morning';
+    } else if (hour < 17) {
+      return 'Good Afternoon';
+    } else {
+      return 'Good Evening';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: MultiBlocProvider(
-        providers: [
-          BlocProvider<RecentlyCubit>(
-            create: (context) => RecentlyCubit(),
-            lazy: false,
-          ),
-          BlocProvider(
-            create: (context) => yTMusicCubit,
-            lazy: false,
-          ),
-          BlocProvider(
-            create: (context) => FetchChartCubit(),
-            lazy: false,
-          ),
-        ],
-        child: Scaffold(
-          body: RefreshIndicator(
-            onRefresh: () async {
-              await yTMusicCubit.fetchYTMusic();
-            },
-            child: CustomScrollView(
-              shrinkWrap: true,
-              physics: const ClampingScrollPhysics(),
-              slivers: [
-                const CustomDiscoverBar(),
-                SliverList(
-                  delegate: SliverChildListDelegate(
-                    [
-                      CaraouselWidget(),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 15.0),
-                        child: SizedBox(
-                          child: BlocBuilder<RecentlyCubit, RecentlyCubitState>(
-                            builder: (context, state) {
-                              if (state is RecentlyCubitInitial) {
-                                return const Center(
-                                  child: SizedBox(
-                                      height: 60,
-                                      width: 60,
-                                      child: CircularProgressIndicator(
-                                        color: Default_Theme.accentColor2,
-                                      )),
-                                );
-                              }
-                              if (state.mediaPlaylist.mediaItems.isNotEmpty) {
-                                return InkWell(
-                                  onTap: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                const HistoryView()));
-                                  },
-                                  child: TabSongListWidget(
-                                    list:
-                                        state.mediaPlaylist.mediaItems.map((e) {
-                                      return SongCardWidget(
-                                        song: e,
-                                        onTap: () {
-                                          context
-                                              .read<BloomeePlayerCubit>()
-                                              .bloomeePlayer
-                                              .updateQueue(
-                                            [e],
-                                            doPlay: true,
+    // Removed SafeArea to fix "unwanted bar" (Edge-to-Edge)
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<RecentlyCubit>(
+          create: (context) => RecentlyCubit(),
+          lazy: false,
+        ),
+        BlocProvider(
+          create: (context) => yTMusicCubit,
+          lazy: false,
+        ),
+        BlocProvider(
+          create: (context) => FetchChartCubit(),
+          lazy: false,
+        ),
+      ],
+      child: Scaffold(
+        body: RefreshIndicator(
+          onRefresh: () async {
+            await yTMusicCubit.fetchYTMusic();
+          },
+          child: CustomScrollView(
+            shrinkWrap: true,
+            physics: const ClampingScrollPhysics(),
+            slivers: [
+              CustomDiscoverBar(greeting: _getGreeting()),
+              SliverList(
+                delegate: SliverChildListDelegate(
+                  [
+                    CaraouselWidget(),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 15.0),
+                      child: SizedBox(
+                        child: BlocBuilder<RecentlyCubit, RecentlyCubitState>(
+                          builder: (context, state) {
+                            if (state is RecentlyCubitInitial) {
+                              return const Center(
+                                child: SizedBox(
+                                    height: 60,
+                                    width: 60,
+                                    child: CircularProgressIndicator(
+                                      color: Default_Theme.accentColor2,
+                                    )),
+                              );
+                            }
+                            if (state.mediaPlaylist.mediaItems.isNotEmpty) {
+                              return InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const HistoryView()));
+                                },
+                                child: TabSongListWidget(
+                                  list: state.mediaPlaylist.mediaItems.map((e) {
+                                    return SongCardWidget(
+                                      song: e,
+                                      onTap: () {
+                                        context
+                                            .read<BloomeePlayerCubit>()
+                                            .bloomeePlayer
+                                            .updateQueue(
+                                          [e],
+                                          doPlay: true,
+                                        );
+                                      },
+                                      onOptionsTap: () =>
+                                          showMoreBottomSheet(context, e),
+                                    );
+                                  }).toList(),
+                                  category: "Recently",
+                                  columnSize: 3,
+                                ),
+                              );
+                            }
+                            return const SizedBox();
+                          },
+                        ),
+                      ),
+                    ),
+                    BlocBuilder<SettingsCubit, SettingsState>(
+                      builder: (context, state) {
+                        if (state.lFMPicks) {
+                          return FutureBuilder(
+                              future: fetchLFMPicks(state.lFMPicks, context),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData &&
+                                    (snapshot.data?.mediaItems.isNotEmpty ??
+                                        false)) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(top: 15.0),
+                                    child: TabSongListWidget(
+                                        list:
+                                            snapshot.data!.mediaItems.map((e) {
+                                          return SongCardWidget(
+                                            song: e,
+                                            onTap: () {
+                                              context
+                                                  .read<BloomeePlayerCubit>()
+                                                  .bloomeePlayer
+                                                  .loadPlaylist(
+                                                    snapshot.data!,
+                                                    idx: snapshot
+                                                        .data!.mediaItems
+                                                        .indexOf(e),
+                                                    doPlay: true,
+                                                  );
+                                            },
+                                            onOptionsTap: () =>
+                                                showMoreBottomSheet(context, e),
                                           );
-                                        },
-                                        onOptionsTap: () =>
-                                            showMoreBottomSheet(context, e),
-                                      );
-                                    }).toList(),
-                                    category: "Recently",
-                                    columnSize: 3,
-                                  ),
+                                        }).toList(),
+                                        category: "Last.Fm Picks",
+                                        columnSize: 3),
+                                  );
+                                }
+                                return const SizedBox.shrink();
+                              });
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                    BlocBuilder<YTMusicCubit, YTMusicCubitState>(
+                      builder: (context, state) {
+                        if (state is YTMusicCubitInitial) {
+                          return BlocBuilder<ConnectivityCubit,
+                              ConnectivityState>(
+                            builder: (context, state2) {
+                              if (state2 == ConnectivityState.disconnected) {
+                                return const SignBoardWidget(
+                                  message: "No Internet Connection!",
+                                  icon: MingCute.wifi_off_line,
                                 );
                               }
                               return const SizedBox();
                             },
-                          ),
-                        ),
-                      ),
-                      BlocBuilder<SettingsCubit, SettingsState>(
-                        builder: (context, state) {
-                          if (state.lFMPicks) {
-                            return FutureBuilder(
-                                future: fetchLFMPicks(state.lFMPicks, context),
-                                builder: (context, snapshot) {
-                                  if (snapshot.hasData &&
-                                      (snapshot.data?.mediaItems.isNotEmpty ??
-                                          false)) {
-                                    return Padding(
-                                      padding: const EdgeInsets.only(top: 15.0),
-                                      child: TabSongListWidget(
-                                          list: snapshot.data!.mediaItems
-                                              .map((e) {
-                                            return SongCardWidget(
-                                              song: e,
-                                              onTap: () {
-                                                context
-                                                    .read<BloomeePlayerCubit>()
-                                                    .bloomeePlayer
-                                                    .loadPlaylist(
-                                                      snapshot.data!,
-                                                      idx: snapshot
-                                                          .data!.mediaItems
-                                                          .indexOf(e),
-                                                      doPlay: true,
-                                                    );
-                                              },
-                                              onOptionsTap: () =>
-                                                  showMoreBottomSheet(
-                                                      context, e),
-                                            );
-                                          }).toList(),
-                                          category: "Last.Fm Picks",
-                                          columnSize: 3),
-                                    );
-                                  }
-                                  return const SizedBox.shrink();
-                                });
-                          }
-                          return const SizedBox.shrink();
-                        },
-                      ),
-                      BlocBuilder<YTMusicCubit, YTMusicCubitState>(
-                        builder: (context, state) {
-                          if (state is YTMusicCubitInitial) {
-                            return BlocBuilder<ConnectivityCubit,
-                                ConnectivityState>(
-                              builder: (context, state2) {
-                                if (state2 == ConnectivityState.disconnected) {
-                                  return const SignBoardWidget(
-                                    message: "No Internet Connection!",
-                                    icon: MingCute.wifi_off_line,
-                                  );
-                                }
-                                return const SizedBox();
-                              },
-                            );
-                          }
-                          return ListView.builder(
-                            shrinkWrap: true,
-                            itemExtent: 275,
-                            padding: const EdgeInsets.only(top: 0),
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: state.ytmData["body"]!.length,
-                            itemBuilder: (context, index) {
-                              return HorizontalCardView(
-                                  data: state.ytmData["body"]![index]);
-                            },
                           );
-                        },
-                      ),
-                    ],
-                  ),
-                )
-              ],
-            ),
+                        }
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          itemExtent: 275,
+                          padding: const EdgeInsets.only(top: 0),
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: state.ytmData["body"]!.length,
+                          itemBuilder: (context, index) {
+                            return HorizontalCardView(
+                                data: state.ytmData["body"]![index]);
+                          },
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              )
+            ],
           ),
-          backgroundColor: Default_Theme.themeColor,
         ),
+        backgroundColor: Default_Theme.themeColor,
       ),
     );
   }
 }
 
 class CustomDiscoverBar extends StatelessWidget {
+  final String greeting;
   const CustomDiscoverBar({
     super.key,
+    required this.greeting,
   });
-
-  String _getGreeting() {
-    final hour = DateTime.now().hour;
-
-    if (hour < 12) {
-      return 'Good Morning';
-    } else if (hour < 17) {
-      return 'Good Afternoon';
-    } else if (hour < 21) {
-      return 'Good Evening';
-    } else {
-      return 'Good Night';
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
+    // Get user name if logged in
+    final user = context.read<AuthCubit>().currentUser;
+    final String displayName =
+        user?.displayName != null && user!.displayName!.isNotEmpty
+            ? user.displayName!.split(' ')[0] // First name
+            : 'User'; // Fallback if no name
+
+    // If guest or no name, just use greeting. If name exists, add it.
+    final String titleText =
+        user == null || user.isAnonymous ? greeting : "$greeting, $displayName";
+
     return SliverAppBar(
       floating: true,
       surfaceTintColor: Default_Theme.themeColor,
       backgroundColor: Default_Theme.themeColor,
-      title: BlocBuilder<AuthCubit, AuthState>(
-        builder: (context, authState) {
-          String greeting = _getGreeting();
-
-          // Add user's first name if authenticated and not a guest
-          if (authState is Authenticated &&
-              !context.read<AuthCubit>().isGuest &&
-              authState.user.displayName != null) {
-            final firstName = authState.user.displayName!.split(' ').first;
-            greeting = '$greeting, $firstName';
-          }
-
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                child: Text(
-                  greeting,
-                  style: Default_Theme.primaryTextStyle.merge(const TextStyle(
-                      fontSize: 34, color: Default_Theme.primaryColor1)),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              const SizedBox(width: 8),
-              const NotificationIcon(),
-              const SizedBox(width: 4),
-              const SiteIcon(),
-              const SizedBox(width: 4),
-              const TimerIcon(),
-              const SizedBox(width: 4),
-              const SettingsIcon(),
-            ],
-          );
-        },
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            // Use Expanded to avoid overflow with long names
+            child: Text(titleText,
+                overflow: TextOverflow.ellipsis,
+                style: Default_Theme.primaryTextStyle.merge(const TextStyle(
+                    fontSize: 28, // Slightly reduced to fit longer greetings
+                    color: Default_Theme.primaryColor1))),
+          ),
+          // Removed Spacer to allow title to take space
+          const NotificationIcon(),
+          const SiteIcon(),
+          const TimerIcon(),
+          const SettingsIcon(),
+        ],
       ),
     );
   }

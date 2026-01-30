@@ -1,5 +1,4 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:Bloomee/screens/screen/home_views/setting_views/about.dart';
 import 'package:Bloomee/screens/screen/home_views/setting_views/appui_setting.dart';
 import 'package:Bloomee/screens/screen/home_views/setting_views/storage_setting.dart';
 import 'package:Bloomee/screens/screen/home_views/setting_views/country_setting.dart';
@@ -7,11 +6,10 @@ import 'package:Bloomee/screens/screen/home_views/setting_views/download_setting
 import 'package:Bloomee/screens/screen/home_views/setting_views/lastfm_setting.dart'; // Restored
 import 'package:Bloomee/screens/screen/home_views/setting_views/player_setting.dart';
 import 'package:Bloomee/screens/screen/home_views/setting_views/updates_setting.dart';
-import 'package:Bloomee/screens/screen/settings_views/advanced_settings_screen.dart'; // Added
-import 'package:Bloomee/screens/screen/settings_views/developer_tools_screen.dart'; // Added
 import 'package:flutter/material.dart';
 import 'package:Bloomee/theme_data/default.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:go_router/go_router.dart';
 
 class SettingsView extends StatelessWidget {
   const SettingsView({super.key});
@@ -109,24 +107,14 @@ class SettingsView extends StatelessWidget {
               subtitle: "Audio engine, Persistence, Maintenance",
               icon: Icons.settings,
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AdvancedSettingsScreen(),
-                  ),
-                );
+                context.push('/AdvancedSettings');
               }),
           settingListTile(
               title: "Developer Tools",
               subtitle: "Debug tools and logs",
               icon: Icons.code,
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const DeveloperToolsScreen(),
-                  ),
-                );
+                context.push('/DeveloperTools');
               }),
           settingListTile(
               title: "Language & Country",
@@ -145,12 +133,7 @@ class SettingsView extends StatelessWidget {
               subtitle: "About the app, version, developer, etc.",
               icon: MingCute.github_fill,
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const About(),
-                  ),
-                );
+                context.push('/About');
               }),
         ],
       ),

@@ -159,11 +159,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get tryAgain => 'Réessayer';
 
   @override
-  String get advanced => 'Advanced';
+  String get advanced => 'Avancé';
 
   @override
-  String get advancedSettings => 'Advanced Settings';
+  String get advancedSettings => 'Paramètres avancés';
 
   @override
-  String get developerTools => 'Developer Tools';
+  String get developerTools => 'Outils de développement';
 }

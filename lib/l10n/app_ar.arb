@@ -49,5 +49,8 @@
     "success": "نجاح",
     "loading": "جارٍ التحميل...",
     "noResults": "لم يتم العثور على نتائج",
-    "tryAgain": "حاول مرة أخرى"
+    "tryAgain": "حاول مرة أخرى",
+    "advanced": "متقدم",
+    "advancedSettings": "الإعدادات المتقدمة",
+    "developerTools": "أدوات المطور"
 }

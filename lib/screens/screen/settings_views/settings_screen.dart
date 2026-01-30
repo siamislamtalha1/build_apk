@@ -197,8 +197,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(MingCute.moon_fill,
-                    size: 16, color: Default_Theme.primaryColor1),
+                const Icon(MingCute.moon_fill, size: 16),
                 const SizedBox(width: 8),
                 Text(getThemeModeLabel(ThemeMode.dark)),
               ],
@@ -209,8 +208,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(MingCute.sun_fill,
-                    size: 16, color: Default_Theme.primaryColor1),
+                const Icon(MingCute.sun_fill, size: 16),
                 const SizedBox(width: 8),
                 Text(getThemeModeLabel(ThemeMode.light)),
               ],
@@ -221,8 +219,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(MingCute.settings_6_fill,
-                    size: 16, color: Default_Theme.primaryColor1),
+                const Icon(MingCute.settings_6_fill, size: 16),
                 const SizedBox(width: 8),
                 Text(getThemeModeLabel(ThemeMode.system)),
               ],

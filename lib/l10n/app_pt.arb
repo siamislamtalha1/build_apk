@@ -49,5 +49,8 @@
     "success": "Sucesso",
     "loading": "Carregando...",
     "noResults": "Nenhum resultado encontrado",
-    "tryAgain": "Tentar novamente"
+    "tryAgain": "Tentar novamente",
+    "advanced": "Avançado",
+    "advancedSettings": "Configurações avançadas",
+    "developerTools": "Ferramentas de desenvolvedor"
 }

@@ -91,19 +91,13 @@ class MiniPlayerCard extends StatelessWidget {
             child: Container(
               height: 70,
               decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.05),
+                color: Colors.transparent,
                 borderRadius: BorderRadius.circular(30),
                 border: Border.all(
                   color: Colors.white.withValues(alpha: 0.1),
                   width: 1.0,
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+                boxShadow: [],
               ),
               child: Stack(
                 clipBehavior: Clip.hardEdge,
@@ -112,8 +106,9 @@ class MiniPlayerCard extends StatelessWidget {
                   Positioned.fill(
                     child: Container(
                       decoration: BoxDecoration(
-                        // Very subtle tint for better readability
-                        color: Default_Theme.themeColor.withValues(alpha: 0.15),
+                        // Extremely subtle tint for better readability, almost fully transparent
+                        color: Default_Theme.themeColor
+                            .withValues(alpha: 0.02), // Reduced from 0.05
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),

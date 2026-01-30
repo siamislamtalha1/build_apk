@@ -40,12 +40,55 @@ class _AppUISettingsState extends State<AppUISettings> {
         builder: (context, state) {
           return ListView(
             children: [
+              // Theme Mode Setting
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "App Theme",
+                      style: const TextStyle(
+                              color: Default_Theme.primaryColor1, fontSize: 16)
+                          .merge(Default_Theme.secondoryTextStyleMedium),
+                    ),
+                    DropdownButton<ThemeMode>(
+                      value: state.themeMode,
+                      dropdownColor: Default_Theme.themeColor,
+                      style:
+                          const TextStyle(color: Default_Theme.primaryColor1),
+                      items: const [
+                        DropdownMenuItem(
+                          value: ThemeMode.system,
+                          child: Text("System"),
+                        ),
+                        DropdownMenuItem(
+                          value: ThemeMode.light,
+                          child: Text("Light"),
+                        ),
+                        DropdownMenuItem(
+                          value: ThemeMode.dark,
+                          child: Text("Dark"),
+                        ),
+                      ],
+                      onChanged: (ThemeMode? value) {
+                        if (value != null) {
+                          context.read<SettingsCubit>().setThemeMode(value);
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(color: Colors.white10),
               SwitchListTile(
                   value: state.autoSlideCharts,
                   subtitle: Text(
                     "Slide charts automatically in home screen.",
                     style: TextStyle(
-                            color: Default_Theme.primaryColor1.withValues(alpha: 0.5),
+                            color: Default_Theme.primaryColor1
+                                .withValues(alpha: 0.5),
                             fontSize: 12)
                         .merge(Default_Theme.secondoryTextStyleMedium),
                   ),
@@ -63,7 +106,8 @@ class _AppUISettingsState extends State<AppUISettings> {
                   subtitle: Text(
                     "Suggestions from Last.FM will be shown in the home screen. (Login & Restart required)",
                     style: TextStyle(
-                            color: Default_Theme.primaryColor1.withValues(alpha: 0.5),
+                            color: Default_Theme.primaryColor1
+                                .withValues(alpha: 0.5),
                             fontSize: 12)
                         .merge(Default_Theme.secondoryTextStyleMedium),
                   ),
@@ -93,7 +137,8 @@ class _AppUISettingsState extends State<AppUISettings> {
                 subtitle: Text(
                   "Manage the source engines you want to use for Music search. (Restart required)",
                   style: TextStyle(
-                          color: Default_Theme.primaryColor1.withValues(alpha: 0.5),
+                          color: Default_Theme.primaryColor1
+                              .withValues(alpha: 0.5),
                           fontSize: 12)
                       .merge(Default_Theme.secondoryTextStyleMedium),
                 ),
@@ -126,7 +171,8 @@ class _AppUISettingsState extends State<AppUISettings> {
                 subtitle: Text(
                   "Manage the chart sources you want to see in the home screen.",
                   style: TextStyle(
-                          color: Default_Theme.primaryColor1.withValues(alpha: 0.5),
+                          color: Default_Theme.primaryColor1
+                              .withValues(alpha: 0.5),
                           fontSize: 12)
                       .merge(Default_Theme.secondoryTextStyleMedium),
                 ),

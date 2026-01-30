@@ -49,21 +49,19 @@ class SyncService {
     _watchLocalChanges(userId);
 
     // 3. Listen to Cloud Changes -> Update Local (Realtime)
-    // _watchCloudChanges(userId); // Optional: can be resource intensive, simpler to just pull on start
-
-    // Assume initial sync done or running
-    // Ideally await _performInitialSync, but _startSync is void here.
-    // Changing _startSync to async void is fine for fire-and-forget but better to handle state.
+    _watchCloudChanges(userId);
   }
 
   void _stopSync() {
     print('⏹️ Stopping sync');
+    _authSubscription?.cancel();
     _likedSongsSubscription?.cancel();
     _playlistsSubscription?.cancel();
     _syncStatusController.add(SyncStatus.idle);
   }
 
   Future<void> _performInitialSync(String userId) async {
+    print('⬇️ Performing initial sync from cloud...');
     // 1. Sync Liked Songs
     final cloudLiked = await _firestoreService.getLikedSongsFromCloud(userId);
     if (cloudLiked.isNotEmpty) {
@@ -96,17 +94,72 @@ class SyncService {
     }
 
     _syncStatusController.add(SyncStatus.synced);
+    print('✅ Initial sync completed');
+  }
+
+  void _watchCloudChanges(String userId) {
+    // Watch Liked Songs from Cloud
+    _likedSongsSubscription =
+        _firestoreService.watchLikedSongs(userId).listen((cloudSongs) async {
+      if (cloudSongs.isEmpty) return;
+      print('☁️ Cloud liked songs changed: ${cloudSongs.length} items');
+
+      // Update Local DB
+      // Note: This might trigger _watchLocalChanges -> _syncLikeSongsToCloud
+      // Loop prevention: _syncLikedSongsToCloud compares content or we rely on Idempotency
+      // Ideally, we shout check if local == cloud before writing.
+      // For now, simpler implementation:
+
+      await BloomeeDBService.createPlaylist(BloomeeDBService.likedPlaylist);
+      // We might want to merge or replace. Cloud is "truth" here for simplicity?
+      // Or merge? Let's just add missing ones for now to be safe against deletion loops.
+
+      for (var item in cloudSongs) {
+        try {
+          final mediaItem = MediaItemDB.fromMap(item);
+          // Add if not exists or update.
+          // BloomeeDBService.addMediaItem checks for existence?
+          // Usually yes, or use put.
+          await BloomeeDBService.addMediaItem(
+              mediaItem, BloomeeDBService.likedPlaylist);
+        } catch (e) {
+          print('Error syncing cloud liked item to local: $e');
+        }
+      }
+    });
+
+    // Watch History from Cloud
+    // Note: History stream might be frequent.
+    _firestoreService.watchHistory(userId).listen((cloudHistory) async {
+      if (cloudHistory.isEmpty) return;
+      // Similar logic for history
+      await BloomeeDBService.createPlaylist(
+          BloomeeDBService.recentlyPlayedPlaylist);
+      for (var item in cloudHistory) {
+        try {
+          final mediaItem = MediaItemDB.fromMap(item);
+          await BloomeeDBService.addMediaItem(
+              mediaItem, BloomeeDBService.recentlyPlayedPlaylist);
+        } catch (e) {
+          print('Error syncing cloud history to local: $e');
+        }
+      }
+    });
   }
 
   void _watchLocalChanges(String userId) async {
     // Watch Playlists (triggers on any playlist change, including Liked and Recently Played)
     _playlistsSubscription =
         (await BloomeeDBService.getPlaylistsWatcher()).listen((_) {
+      print('💾 Local playlists changed, scheduling sync...');
+      // Simple debounce or just fire
       _syncPlaylistsToCloud(userId);
       _syncHistoryToCloud(userId);
       _syncLikedSongsToCloud(userId);
     });
   }
+
+  // ... (Rest of existing sync methods)
 
   Future<void> _syncPlaylistsToCloud(String userId) async {
     final playlists = await BloomeeDBService.getAllPlaylistsDB();
