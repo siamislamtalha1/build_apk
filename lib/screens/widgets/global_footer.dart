@@ -50,8 +50,8 @@ class GlobalFooter extends StatelessWidget {
                     ),
                   ],
                 ),
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          drawerScrimColor: Theme.of(context).scaffoldBackgroundColor,
+          backgroundColor: Default_Theme.themeColor,
+          drawerScrimColor: Default_Theme.themeColor,
           bottomNavigationBar: SafeArea(
               child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
