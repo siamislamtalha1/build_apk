@@ -14,7 +14,7 @@ class CountrySettings extends StatelessWidget {
         centerTitle: true,
         title: Text(
           'Country & Language Settings',
-          style: const TextStyle(
+          style: TextStyle(
                   color: Default_Theme.primaryColor1,
                   fontSize: 20,
                   fontWeight: FontWeight.bold)
@@ -37,7 +37,7 @@ class CountrySettings extends StatelessWidget {
                   ),
                   title: Text(
                     "Auto check country",
-                    style: const TextStyle(
+                    style: TextStyle(
                             color: Default_Theme.primaryColor1, fontSize: 17)
                         .merge(Default_Theme.secondoryTextStyleMedium),
                   ),
@@ -50,7 +50,7 @@ class CountrySettings extends StatelessWidget {
                 trailing: DropdownButton(
                   value: state.countryCode,
                   isDense: true,
-                  style: const TextStyle(
+                  style: TextStyle(
                     overflow: TextOverflow.ellipsis,
                     fontWeight: FontWeight.bold,
                     color: Default_Theme.primaryColor1,

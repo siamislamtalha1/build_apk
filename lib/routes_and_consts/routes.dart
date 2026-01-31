@@ -19,8 +19,8 @@ import 'package:Bloomee/screens/screen/auth/login_screen.dart';
 import 'package:Bloomee/screens/screen/auth/signup_screen.dart';
 import 'package:Bloomee/screens/screen/profile_screen.dart';
 import 'package:Bloomee/screens/screen/ai_playlist_screen.dart';
-import 'package:Bloomee/screens/screen/settings_views/settings_screen.dart';
 import 'package:Bloomee/screens/screen/home_views/setting_views/about.dart';
+import 'package:Bloomee/screens/screen/home_views/setting_view.dart';
 
 import 'package:Bloomee/blocs/auth/auth_cubit.dart';
 import 'package:Bloomee/routes_and_consts/go_router_refresh_stream.dart';
@@ -30,22 +30,31 @@ class GlobalRoutes {
 
   static GoRouter getRouter(AuthCubit authCubit) {
     return GoRouter(
+      debugLogDiagnostics: true,
       initialLocation: '/Explore',
       navigatorKey: globalRouterKey,
       refreshListenable: GoRouterRefreshStream(authCubit.stream),
       redirect: (context, state) {
+        final path = state.uri.path;
+        if (path.length > 1 && path.endsWith('/')) {
+          final trimmedPath = path.substring(0, path.length - 1);
+          final query = state.uri.hasQuery ? '?${state.uri.query}' : '';
+          return '$trimmedPath$query';
+        }
         final authState = authCubit.state;
-        final bool isLoggedIn = authState is Authenticated;
+        final bool isAuthenticated = authState is Authenticated;
+        final bool isRegistered = authState is Authenticated &&
+            !(authState).user.isAnonymous;
         final bool isLoggingIn = state.uri.toString() == '/Login' ||
             state.uri.toString() == '/Signup';
 
         // 1. If not logged in and not on login/signup page -> Redirect to Login
-        if (!isLoggedIn && !isLoggingIn) {
+        if (!isAuthenticated && !isLoggingIn) {
           return '/Login';
         }
 
         // 2. If logged in and on login/signup page -> Redirect to Explore
-        if (isLoggedIn && isLoggingIn) {
+        if (isRegistered && isLoggingIn) {
           return '/Explore';
         }
 
@@ -133,19 +142,31 @@ class GlobalRoutes {
           path: '/Settings',
           parentNavigatorKey: globalRouterKey,
           name: 'Settings',
-          builder: (context, state) => const SettingsScreen(),
+          builder: (context, state) => const SettingsView(),
         ),
         GoRoute(
           path: '/About',
           parentNavigatorKey: globalRouterKey,
           name: 'About',
+          builder: (context, state) => const AboutHub(),
+        ),
+        GoRoute(
+          path: '/Settings/About',
+          parentNavigatorKey: globalRouterKey,
+          name: 'SettingsAbout',
+          builder: (context, state) => const AboutHub(),
+        ),
+        GoRoute(
+          path: '/About/Developer',
+          parentNavigatorKey: globalRouterKey,
+          name: 'AboutDeveloper',
           builder: (context, state) => const About(),
         ),
         GoRoute(
-          path: '/Statistics',
+          path: '/About/App',
           parentNavigatorKey: globalRouterKey,
-          name: 'Statistics',
-          builder: (context, state) => const StatisticsScreen(),
+          name: 'AboutApp',
+          builder: (context, state) => const AppAbout(),
         ),
         StatefulShellRoute.indexedStack(
             builder: (context, state, navigationShell) =>

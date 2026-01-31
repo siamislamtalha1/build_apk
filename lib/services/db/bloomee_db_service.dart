@@ -466,6 +466,119 @@ class BloomeeDBService {
     return id;
   }
 
+  static Future<bool> playlistExists(String playlistName) async {
+    if (playlistName.isEmpty) return false;
+    final existing = await getPlaylist(playlistName);
+    return existing != null;
+  }
+
+  static Future<String> generateUniquePlaylistName(String baseName) async {
+    var name = baseName;
+    var i = 1;
+    while (await playlistExists(name)) {
+      name = '${baseName}_$i';
+      i++;
+    }
+    return name;
+  }
+
+  static Future<void> upsertPlaylistInfo(
+    String playlistName, {
+    String? artURL,
+    String? description,
+    String? permaURL,
+    String? source,
+    String? artists,
+    bool? isAlbum,
+  }) async {
+    if (playlistName.isEmpty) return;
+    final existing = await getPlaylistInfo(playlistName);
+    if (existing == null) {
+      await createPlaylistInfo(
+        playlistName,
+        artURL: artURL,
+        description: description,
+        permaURL: permaURL,
+        source: source,
+        artists: artists,
+        isAlbum: isAlbum ?? false,
+      );
+      return;
+    }
+
+    final updated = PlaylistsInfoDB(
+      playlistName: playlistName,
+      lastUpdated: DateTime.now(),
+      isAlbum: isAlbum ?? existing.isAlbum,
+      artURL: artURL ?? existing.artURL,
+      description: description ?? existing.description,
+      permaURL: permaURL ?? existing.permaURL,
+      source: source ?? existing.source,
+      artists: artists ?? existing.artists,
+    );
+    final isarDB = await db;
+    isarDB.writeTxnSync(() => isarDB.playlistsInfoDBs.putSync(updated));
+  }
+
+  static Future<String?> duplicatePlaylist(
+    String sourcePlaylistName, {
+    required String newPlaylistName,
+  }) async {
+    final src = await getPlaylist(sourcePlaylistName);
+    if (src == null) return null;
+    if (newPlaylistName.isEmpty) return null;
+    if (await playlistExists(newPlaylistName)) return null;
+
+    final items = await getPlaylistItems(src) ?? <MediaItemDB>[];
+    final info = await getPlaylistInfo(sourcePlaylistName);
+
+    await createPlaylist(
+      newPlaylistName,
+      artURL: info?.artURL,
+      description: info?.description,
+      permaURL: info?.permaURL,
+      source: info?.source,
+      artists: info?.artists,
+      isAlbum: info?.isAlbum ?? false,
+      mediaItems: const <MediaItemDB>[],
+    );
+
+    for (final it in items) {
+      await addMediaItem(it, newPlaylistName);
+    }
+
+    final ranks = await getPlaylistItemsRankByName(sourcePlaylistName);
+    if (ranks.isNotEmpty) {
+      await updatePltItemsRankByName(newPlaylistName, ranks);
+    }
+
+    return newPlaylistName;
+  }
+
+  static Future<bool> renamePlaylist(
+    String oldPlaylistName,
+    String newPlaylistName,
+  ) async {
+    final oldName = oldPlaylistName.trim();
+    final newName = newPlaylistName.trim();
+    if (oldName.isEmpty || newName.isEmpty) return false;
+    if (oldName == newName) return true;
+
+    final src = await getPlaylist(oldName);
+    if (src == null) return false;
+    if (await playlistExists(newName)) return false;
+
+    final duplicated = await duplicatePlaylist(
+      oldName,
+      newPlaylistName: newName,
+    );
+    if (duplicated == null) return false;
+
+    await removePlaylistInfoByName(oldName);
+    await removePlaylistByName(oldName);
+    return true;
+  }
+
   static Future<void> removeMediaItem(MediaItemDB mediaItemDB) async {
     Isar isarDB = await db;
     bool res = false;
@@ -1195,6 +1308,9 @@ class BloomeeDBService {
       List<RecentlyPlayedDB> recentlyPlayed =
           isarDB.recentlyPlayedDBs.where().sortByLastPlayedDesc().findAllSync();
       for (var element in recentlyPlayed) {
+        try {
+          await element.mediaItem.load();
+        } catch (_) {}
         if (element.mediaItem.value != null) {
           mediaItems.add(MediaItemDB2MediaItem(element.mediaItem.value!));
         }
@@ -1206,6 +1322,9 @@ class BloomeeDBService {
           .limit(limit)
           .findAllSync();
       for (var element in recentlyPlayed) {
+        try {
+          await element.mediaItem.load();
+        } catch (_) {}
         if (element.mediaItem.value != null) {
           mediaItems.add(MediaItemDB2MediaItem(element.mediaItem.value!));
         }
@@ -1213,6 +1332,24 @@ class BloomeeDBService {
     }
     return MediaPlaylist(
         mediaItems: mediaItems, playlistName: "Recently Played");
+  }
+
+  static Future<List<MediaItemDB>> getRecentlyPlayedDBItems({int limit = 0}) async {
+    final List<MediaItemDB> items = [];
+    final Isar isarDB = await db;
+
+    final query = isarDB.recentlyPlayedDBs.where().sortByLastPlayedDesc();
+    final List<RecentlyPlayedDB> recentlyPlayed =
+        limit == 0 ? query.findAllSync() : query.limit(limit).findAllSync();
+
+    for (final element in recentlyPlayed) {
+      try {
+        await element.mediaItem.load();
+      } catch (_) {}
+      final mi = element.mediaItem.value;
+      if (mi != null) items.add(mi);
+    }
+    return items;
   }
 
   static Future<Stream<void>> watchRecentlyPlayed() async {

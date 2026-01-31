@@ -151,7 +151,7 @@ class _AlbumViewState extends State<AlbumView> {
                                             children: [
                                               OutlinedButton.icon(
                                                 style: OutlinedButton.styleFrom(
-                                                  side: const BorderSide(
+                                                  side: BorderSide(
                                                     width: 2,
                                                     color: Default_Theme
                                                         .accentColor2,

@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 import 'dart:async';
+import 'dart:math' as math;
 import 'package:Bloomee/screens/widgets/snackbar.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
@@ -183,9 +184,12 @@ class PlayerErrorHandler {
   }
 
   Duration _calculateRetryDelay(int attempts) {
-    final delay =
-        _retryConfig.initialDelay * (attempts * _retryConfig.backoffMultiplier);
-    return delay > _retryConfig.maxDelay ? _retryConfig.maxDelay : delay;
+    // Exponential backoff: initialDelay * backoffMultiplier^attempts.
+    // attempts is 0 for the first retry -> initialDelay (never 0ms).
+    final factor = math.pow(_retryConfig.backoffMultiplier, attempts).toDouble();
+    final ms = (_retryConfig.initialDelay.inMilliseconds * factor).round();
+    final delay = Duration(milliseconds: ms.clamp(0, _retryConfig.maxDelay.inMilliseconds));
+    return delay == Duration.zero ? _retryConfig.initialDelay : delay;
   }
 
   Future<void> _skipToNextOnError(MediaItem? currentItem) async {

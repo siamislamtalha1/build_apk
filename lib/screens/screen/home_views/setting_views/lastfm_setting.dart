@@ -75,7 +75,7 @@ class _LastDotFMState extends State<LastDotFM> {
         centerTitle: true,
         title: Text(
           'Last.FM Settings',
-          style: const TextStyle(
+          style: TextStyle(
                   color: Default_Theme.primaryColor1,
                   fontSize: 20,
                   fontWeight: FontWeight.bold)
@@ -98,7 +98,7 @@ class _LastDotFMState extends State<LastDotFM> {
                   ),
                   title: Text(
                     "Scrobble Tracks",
-                    style: const TextStyle(
+                    style: TextStyle(
                             color: Default_Theme.primaryColor1, fontSize: 16)
                         .merge(Default_Theme.secondoryTextStyleMedium),
                   ),
@@ -145,12 +145,12 @@ class _LastDotFMState extends State<LastDotFM> {
                           color: Default_Theme.primaryColor1
                               .withValues(alpha: 0.5)),
                     ),
-                    focusedBorder: const UnderlineInputBorder(
+                    focusedBorder: UnderlineInputBorder(
                       borderSide:
                           BorderSide(color: Default_Theme.primaryColor1),
                     ),
                   ),
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: Default_Theme.primaryColor1,
                       fontFamily: 'Unageo',
                       fontWeight: FontWeight.w500,
@@ -176,12 +176,12 @@ class _LastDotFMState extends State<LastDotFM> {
                           color: Default_Theme.primaryColor1
                               .withValues(alpha: 0.5)),
                     ),
-                    focusedBorder: const UnderlineInputBorder(
+                    focusedBorder: UnderlineInputBorder(
                       borderSide:
                           BorderSide(color: Default_Theme.primaryColor1),
                     ),
                   ),
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: Default_Theme.primaryColor1,
                       fontFamily: 'Unageo',
                       fontWeight: FontWeight.w500,

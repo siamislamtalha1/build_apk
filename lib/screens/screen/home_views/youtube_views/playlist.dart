@@ -113,7 +113,7 @@ class _YoutubePlaylistState extends State<YoutubePlaylist> {
                               ),
                             )
                           : snapshot.hasError
-                              ? const CustomScrollView(
+                              ? CustomScrollView(
                                   slivers: [
                                     SliverAppBar(
                                       backgroundColor: Default_Theme.themeColor,
@@ -145,8 +145,8 @@ class _YoutubePlaylistState extends State<YoutubePlaylist> {
                                                   subject: "Youtube Playlist");
                                             },
                                             padding: const EdgeInsets.all(5),
-                                            constraints: const BoxConstraints(),
-                                            icon: const Icon(
+                                            constraints: BoxConstraints(),
+                                            icon: Icon(
                                               MingCute.share_forward_line,
                                               color:
                                                   Default_Theme.primaryColor1,
@@ -241,7 +241,7 @@ class _YoutubePlaylistState extends State<YoutubePlaylist> {
                                                           overflow: TextOverflow
                                                               .ellipsis,
                                                           style:
-                                                              const TextStyle(
+                                                              TextStyle(
                                                             fontSize: 20,
                                                             fontWeight:
                                                                 FontWeight.bold,
@@ -355,7 +355,7 @@ class _YoutubePlaylistState extends State<YoutubePlaylist> {
                                                                     constraints:
                                                                         const BoxConstraints(),
                                                                     icon:
-                                                                        const Icon(
+                                                                        Icon(
                                                                       MingCute
                                                                           .shuffle_fill,
                                                                       color: Default_Theme
@@ -457,7 +457,7 @@ class _YoutubePlaylistState extends State<YoutubePlaylist> {
                                                                     constraints:
                                                                         const BoxConstraints(),
                                                                     icon:
-                                                                        const Icon(
+                                                                        Icon(
                                                                       FontAwesome
                                                                           .square_plus,
                                                                       color: Default_Theme

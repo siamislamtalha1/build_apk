@@ -88,11 +88,13 @@ class BloomeeMusicPlayer extends BaseAudioHandler
     log('Reviving BloomeeMusicPlayer...', name: 'bloomeePlayer');
 
     // Re-initialize BehaviorSubjects if they were closed
-    if (fromPlaylist.isClosed)
+    if (fromPlaylist.isClosed) {
       fromPlaylist = BehaviorSubject<bool>.seeded(false);
+    }
     if (isOffline.isClosed) isOffline = BehaviorSubject<bool>.seeded(false);
-    if (loopMode.isClosed)
+    if (loopMode.isClosed) {
       loopMode = BehaviorSubject<LoopMode>.seeded(LoopMode.off);
+    }
 
     _initializeAudioPlayer();
     _initializeModules();

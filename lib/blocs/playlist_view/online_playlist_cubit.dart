@@ -112,10 +112,10 @@ class OnlPlaylistCubit extends Cubit<OnlPlaylistState> {
   Future<void> addToSavedCollections() async {
     if (!state.isSavedCollection) {
       await BloomeeDBService.putOnlPlaylistModel(playlist);
-      SnackbarService.showMessage("Artist added to Library!");
+      SnackbarService.showMessage("Playlist added to Library!");
     } else {
       await BloomeeDBService.removeFromSavedCollecs(playlist.sourceId);
-      SnackbarService.showMessage("Artist removed from Library!");
+      SnackbarService.showMessage("Playlist removed from Library!");
     }
     checkIsSaved();
   }

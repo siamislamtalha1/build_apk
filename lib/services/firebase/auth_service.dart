@@ -3,12 +3,24 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:desktop_webview_auth/desktop_webview_auth.dart';
 import 'package:desktop_webview_auth/google.dart';
+import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:flutter/services.dart';
 
 /// Authentication service handling email/password, Google Sign-In, and guest mode
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
+  static const String _googleServerClientId =
+      String.fromEnvironment('GOOGLE_OAUTH_SERVER_CLIENT_ID');
+  static const String _windowsGoogleOAuthClientId =
+      String.fromEnvironment('GOOGLE_OAUTH_CLIENT_ID_WINDOWS');
+  static const String _windowsGoogleOAuthRedirectUri =
+      String.fromEnvironment('GOOGLE_OAUTH_REDIRECT_URI_WINDOWS',
+          defaultValue: 'http://localhost');
+
+  late final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: ['email', 'profile'],
+    serverClientId:
+        _googleServerClientId.trim().isEmpty ? null : _googleServerClientId,
   );
 
   /// Get current user
@@ -42,10 +54,10 @@ class AuthService {
         await credential.user?.updateDisplayName(displayName);
       }
 
-      print('✅ Sign up successful: ${credential.user?.email}');
+      debugPrint('✅ Sign up successful: ${credential.user?.email}');
       return credential;
     } on FirebaseAuthException catch (e) {
-      print('❌ Sign up failed: ${e.message}');
+      debugPrint('❌ Sign up failed: ${e.message}');
       throw _handleAuthException(e);
     }
   }
@@ -60,10 +72,10 @@ class AuthService {
         email: email,
         password: password,
       );
-      print('✅ Sign in successful: ${credential.user?.email}');
+      debugPrint('✅ Sign in successful: ${credential.user?.email}');
       return credential;
     } on FirebaseAuthException catch (e) {
-      print('❌ Sign in failed: ${e.message}');
+      debugPrint('❌ Sign in failed: ${e.message}');
       throw _handleAuthException(e);
     }
   }
@@ -79,7 +91,7 @@ class AuthService {
         return await _signInWithGoogleMobile();
       }
     } catch (e) {
-      print('❌ Google Sign-In failed: $e');
+      debugPrint('❌ Google Sign-In failed: $e');
       rethrow;
     }
   }
@@ -88,7 +100,22 @@ class AuthService {
   Future<UserCredential?> _signInWithGoogleMobile() async {
     try {
       // Trigger the authentication flow
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      GoogleSignInAccount? googleUser;
+      try {
+        googleUser = await _googleSignIn.signIn();
+      } on PlatformException catch (e) {
+        final msg = (e.message ?? '').toLowerCase();
+        if (e.code == 'sign_in_failed' && msg.contains('invalid_client')) {
+          final fallback = GoogleSignIn(scopes: ['email', 'profile']);
+          googleUser = await fallback.signIn();
+        } else if (e.code == 'sign_in_failed' && msg.contains('10')) {
+          throw Exception(
+            'Google Sign-In failed (Android error 10). This is almost always caused by missing/incorrect SHA-1/SHA-256 in Firebase for your Android app. Add your debug + release SHA fingerprints in Firebase Console, then re-download google-services.json and reinstall the app.',
+          );
+        } else {
+          rethrow;
+        }
+      }
 
       if (googleUser == null) {
         // User canceled the sign-in
@@ -105,12 +132,32 @@ class AuthService {
         idToken: googleAuth.idToken,
       );
 
+      if (googleAuth.idToken == null) {
+        throw Exception(
+          'Google Sign-In failed to return an idToken. Ensure Google Sign-In is enabled in Firebase Auth and your Android SHA-1/SHA-256 fingerprints are configured.',
+        );
+      }
+
       // Sign in to Firebase with the Google credential
-      final userCredential = await _auth.signInWithCredential(credential);
-      print('✅ Google Sign-In successful: ${userCredential.user?.email}');
+      final currentUser = _auth.currentUser;
+      UserCredential userCredential;
+      if (currentUser != null && currentUser.isAnonymous) {
+        try {
+          userCredential = await currentUser.linkWithCredential(credential);
+        } on FirebaseAuthException catch (e) {
+          if (e.code == 'credential-already-in-use') {
+            userCredential = await _auth.signInWithCredential(credential);
+          } else {
+            throw _handleAuthException(e);
+          }
+        }
+      } else {
+        userCredential = await _auth.signInWithCredential(credential);
+      }
+      debugPrint('✅ Google Sign-In successful: ${userCredential.user?.email}');
       return userCredential;
     } catch (e) {
-      print('❌ Google Sign-In (mobile) failed: $e');
+      debugPrint('❌ Google Sign-In (mobile) failed: $e');
       rethrow;
     }
   }
@@ -118,12 +165,16 @@ class AuthService {
   /// Google Sign-In for Windows (using browser-based auth)
   Future<UserCredential?> _signInWithGoogleDesktop() async {
     try {
+      if (_windowsGoogleOAuthClientId.trim().isEmpty) {
+        throw Exception(
+          'Missing Windows OAuth clientId. Build/run with --dart-define=GOOGLE_OAUTH_CLIENT_ID_WINDOWS=YOUR_DESKTOP_OAUTH_CLIENT_ID',
+        );
+      }
       // Use desktop_webview_auth for Windows
       final result = await DesktopWebviewAuth.signIn(
         GoogleSignInArgs(
-          clientId:
-              '612505906312-6fhigd9mi64k7nkqvdh8m68sdqshjopn.apps.googleusercontent.com',
-          redirectUri: 'http://localhost',
+          clientId: _windowsGoogleOAuthClientId,
+          redirectUri: _windowsGoogleOAuthRedirectUri,
           scope: 'email profile',
         ),
       );
@@ -143,12 +194,36 @@ class AuthService {
       );
 
       // Sign in to Firebase
-      final userCredential = await _auth.signInWithCredential(credential);
-      print(
+      final currentUser = _auth.currentUser;
+      UserCredential userCredential;
+      if (currentUser != null && currentUser.isAnonymous) {
+        try {
+          userCredential = await currentUser.linkWithCredential(credential);
+        } on FirebaseAuthException catch (e) {
+          if (e.code == 'credential-already-in-use') {
+            userCredential = await _auth.signInWithCredential(credential);
+          } else {
+            throw _handleAuthException(e);
+          }
+        }
+      } else {
+        userCredential = await _auth.signInWithCredential(credential);
+      }
+      debugPrint(
           '✅ Google Sign-In (Windows) successful: ${userCredential.user?.email}');
       return userCredential;
+    } on PlatformException catch (e) {
+      final msg = (e.message ?? '').toLowerCase();
+      if (msg.contains('invalid_client')) {
+        throw Exception(
+          'Google Sign-In (Windows) failed: invalid_client. Ensure you are using a Desktop OAuth Client ID (not Android/Web), and that your redirect URI matches exactly. Current redirectUri: $_windowsGoogleOAuthRedirectUri',
+        );
+      }
+      throw Exception(
+        'Google Sign-In (Windows) failed: ${e.code}${e.message == null ? '' : ' - ${e.message}'}',
+      );
     } catch (e) {
-      print('❌ Google Sign-In (Windows) failed: $e');
+      debugPrint('❌ Google Sign-In (Windows) failed: $e');
       rethrow;
     }
   }
@@ -159,10 +234,10 @@ class AuthService {
   Future<UserCredential?> signInAsGuest() async {
     try {
       final credential = await _auth.signInAnonymously();
-      print('✅ Guest sign-in successful');
+      debugPrint('✅ Guest sign-in successful');
       return credential;
     } on FirebaseAuthException catch (e) {
-      print('❌ Guest sign-in failed: ${e.message}');
+      debugPrint('❌ Guest sign-in failed: ${e.message}');
       throw _handleAuthException(e);
     }
   }
@@ -184,10 +259,10 @@ class AuthService {
       );
 
       final userCredential = await user.linkWithCredential(credential);
-      print('✅ Anonymous account linked with email');
+      debugPrint('✅ Anonymous account linked with email');
       return userCredential;
     } on FirebaseAuthException catch (e) {
-      print('❌ Linking anonymous account failed: ${e.message}');
+      debugPrint('❌ Linking anonymous account failed: ${e.message}');
       throw _handleAuthException(e);
     }
   }
@@ -198,9 +273,9 @@ class AuthService {
   Future<void> sendPasswordResetEmail(String email) async {
     try {
       await _auth.sendPasswordResetEmail(email: email);
-      print('✅ Password reset email sent to $email');
+      debugPrint('✅ Password reset email sent to $email');
     } on FirebaseAuthException catch (e) {
-      print('❌ Password reset failed: ${e.message}');
+      debugPrint('❌ Password reset failed: ${e.message}');
       throw _handleAuthException(e);
     }
   }
@@ -217,9 +292,9 @@ class AuthService {
 
       // Sign out from Firebase
       await _auth.signOut();
-      print('✅ Sign out successful');
+      debugPrint('✅ Sign out successful');
     } catch (e) {
-      print('❌ Sign out failed: $e');
+      debugPrint('❌ Sign out failed: $e');
       rethrow;
     }
   }
@@ -235,9 +310,9 @@ class AuthService {
       }
 
       await user.delete();
-      print('✅ Account deleted successfully');
+      debugPrint('✅ Account deleted successfully');
     } on FirebaseAuthException catch (e) {
-      print('❌ Account deletion failed: ${e.message}');
+      debugPrint('❌ Account deletion failed: ${e.message}');
       throw _handleAuthException(e);
     }
   }
@@ -251,12 +326,18 @@ class AuthService {
         return 'The password is too weak. Please use a stronger password.';
       case 'email-already-in-use':
         return 'An account already exists with this email.';
+      case 'account-exists-with-different-credential':
+        return 'An account already exists with the same email but a different sign-in method. Try signing in using the original method, then link Google from your account.';
       case 'invalid-email':
         return 'The email address is invalid.';
       case 'user-not-found':
         return 'No account found with this email.';
       case 'wrong-password':
         return 'Incorrect password. Please try again.';
+      case 'credential-already-in-use':
+        return 'This Google account is already linked to another user. Please sign in directly with Google.';
+      case 'invalid-credential':
+        return 'Invalid credentials. If this is Google Sign-In, check your Firebase project configuration and OAuth client IDs.';
       case 'user-disabled':
         return 'This account has been disabled.';
       case 'too-many-requests':

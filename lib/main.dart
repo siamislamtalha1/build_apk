@@ -26,6 +26,7 @@ import 'package:Bloomee/utils/ticker.dart';
 import 'package:Bloomee/utils/url_checker.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:Bloomee/blocs/add_to_playlist/cubit/add_to_playlist_cubit.dart';
 import 'package:Bloomee/blocs/library/cubit/library_items_cubit.dart';
@@ -131,6 +132,9 @@ Future<void> initServices() async {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   GestureBinding.instance.resamplingEnabled = true;
+
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+
   if (io.Platform.isLinux || io.Platform.isWindows) {
     JustAudioMediaKit.ensureInitialized(
       linux: true,
@@ -174,11 +178,21 @@ class _MyAppState extends State<MyApp> {
   late StreamSubscription _intentSub;
   SharedMedia? sharedMedia;
   late final GoRouter _router;
+  VoidCallback? _previousPlatformBrightnessHandler;
 
   @override
   void initState() {
     super.initState();
     _router = GlobalRoutes.getRouter(widget.authCubit);
+
+    _previousPlatformBrightnessHandler =
+        WidgetsBinding.instance.platformDispatcher.onPlatformBrightnessChanged;
+    WidgetsBinding.instance.platformDispatcher.onPlatformBrightnessChanged =
+        () {
+      _previousPlatformBrightnessHandler?.call();
+      if (!mounted) return;
+      setState(() {});
+    };
 
     if (io.Platform.isAndroid) {
       initPlatformState();
@@ -237,7 +251,7 @@ class _MyAppState extends State<MyApp> {
         );
       }
     } catch (e) {
-      print("Error checking weekly popup: $e");
+      debugPrint("Error checking weekly popup: $e");
     }
   }
 
@@ -281,6 +295,9 @@ class _MyAppState extends State<MyApp> {
     if (io.Platform.isWindows || io.Platform.isLinux || io.Platform.isMacOS) {
       DiscordService.clearPresence();
     }
+
+    WidgetsBinding.instance.platformDispatcher.onPlatformBrightnessChanged =
+        _previousPlatformBrightnessHandler;
     super.dispose();
   }
 
@@ -362,6 +379,14 @@ class _MyAppState extends State<MyApp> {
       ],
       child: BlocBuilder<SettingsCubit, SettingsState>(
         builder: (context, settingsState) {
+          final platformBrightness =
+              WidgetsBinding.instance.platformDispatcher.platformBrightness;
+          final brightness = settingsState.themeMode == ThemeMode.system
+              ? platformBrightness
+              : settingsState.themeMode == ThemeMode.dark
+                  ? Brightness.dark
+                  : Brightness.light;
+          Default_Theme.setBrightness(brightness);
           return BlocBuilder<BloomeePlayerCubit, BloomeePlayerState>(
             builder: (context, state) {
               if (state is BloomeePlayerInitial) {
@@ -383,21 +408,40 @@ class _MyAppState extends State<MyApp> {
                         GlobalCupertinoLocalizations.delegate,
                       ],
                       supportedLocales: AppLocalizations.supportedLocales,
-                      builder: (context, child) =>
-                          ResponsiveBreakpoints.builder(
-                        breakpoints: [
-                          const Breakpoint(start: 0, end: 450, name: MOBILE),
-                          const Breakpoint(start: 451, end: 800, name: TABLET),
-                          const Breakpoint(
-                              start: 801, end: 1920, name: DESKTOP),
-                          const Breakpoint(
-                              start: 1921, end: double.infinity, name: '4K'),
-                        ],
-                        child: GlobalEventListener(
-                          navigatorKey: GlobalRoutes.globalRouterKey,
-                          child: child!,
-                        ),
-                      ),
+                      builder: (context, child) {
+                        final isDark =
+                            Theme.of(context).brightness == Brightness.dark;
+                        return AnnotatedRegion<SystemUiOverlayStyle>(
+                          value: SystemUiOverlayStyle(
+                            statusBarColor: Default_Theme.themeColor,
+                            statusBarIconBrightness:
+                                isDark ? Brightness.light : Brightness.dark,
+                            statusBarBrightness:
+                                isDark ? Brightness.dark : Brightness.light,
+                            systemNavigationBarColor: Default_Theme.themeColor,
+                            systemNavigationBarIconBrightness:
+                                isDark ? Brightness.light : Brightness.dark,
+                          ),
+                          child: ResponsiveBreakpoints.builder(
+                            breakpoints: [
+                              const Breakpoint(
+                                  start: 0, end: 450, name: MOBILE),
+                              const Breakpoint(
+                                  start: 451, end: 800, name: TABLET),
+                              const Breakpoint(
+                                  start: 801, end: 1920, name: DESKTOP),
+                              const Breakpoint(
+                                  start: 1921,
+                                  end: double.infinity,
+                                  name: '4K'),
+                            ],
+                            child: GlobalEventListener(
+                              navigatorKey: GlobalRoutes.globalRouterKey,
+                              child: child!,
+                            ),
+                          ),
+                        );
+                      },
                       scaffoldMessengerKey: SnackbarService.messengerKey,
                       routerConfig: _router,
                       // Theming connection

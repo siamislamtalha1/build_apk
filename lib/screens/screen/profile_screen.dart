@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:Bloomee/blocs/auth/auth_cubit.dart';
-import 'package:Bloomee/routes_and_consts/global_str_consts.dart';
 import 'package:Bloomee/services/sync/sync_service.dart';
+import 'package:Bloomee/services/firebase/firestore_service.dart';
 import 'package:Bloomee/theme_data/default.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -55,6 +55,7 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildProfileHeader(BuildContext context, dynamic user, bool isGuest) {
+    final firestore = FirestoreService();
     return Container(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -159,12 +160,99 @@ class ProfileScreen extends StatelessWidget {
                     // User name
                     Text(
                       user.displayName ?? (isGuest ? 'Guest User' : 'User'),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
                         color: Default_Theme.primaryColor1,
                       ),
                     ),
+                    const SizedBox(height: 6),
+                    if (!isGuest)
+                      StreamBuilder<Map<String, dynamic>?>(
+                        stream: firestore.watchUserProfile(user.uid),
+                        builder: (context, snap) {
+                          final username = snap.data?['username'] as String?;
+                          if (username == null || username.trim().isEmpty) {
+                            return const SizedBox.shrink();
+                          }
+                          return Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                username,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Default_Theme.accentColor2
+                                      .withValues(alpha: 0.95),
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              InkWell(
+                                onTap: () async {
+                                  final controller = TextEditingController(
+                                      text: username);
+                                  final next = await showDialog<String>(
+                                    context: context,
+                                    builder: (ctx) {
+                                      return AlertDialog(
+                                        backgroundColor: Default_Theme.themeColor,
+                                        title: const Text('Change username'),
+                                        content: TextField(
+                                          controller: controller,
+                                          decoration: const InputDecoration(
+                                            hintText: '@username',
+                                          ),
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () => Navigator.pop(ctx),
+                                            child: const Text('Cancel'),
+                                          ),
+                                          ElevatedButton(
+                                            onPressed: () => Navigator.pop(
+                                                ctx, controller.text),
+                                            child: const Text('Save'),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                  final v = (next ?? '').trim();
+                                  if (v.isEmpty) return;
+                                  try {
+                                    await context
+                                        .read<AuthCubit>()
+                                        .updateUsername(v);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Username updated'),
+                                      ),
+                                    );
+                                  } catch (e) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(e.toString()),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
+                                },
+                                borderRadius: BorderRadius.circular(12),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(4),
+                                  child: Icon(
+                                    MingCute.edit_line,
+                                    size: 16,
+                                    color: Default_Theme.primaryColor2
+                                        .withValues(alpha: 0.75),
+                                  ),
+                                ),
+                              )
+                            ],
+                          );
+                        },
+                      ),
                     const SizedBox(height: 8),
                     // Email or guest badge
                     if (!isGuest && user.email != null)
@@ -190,7 +278,7 @@ class ProfileScreen extends StatelessWidget {
                             width: 1,
                           ),
                         ),
-                        child: const Text(
+                        child: Text(
                           'GUEST MODE',
                           style: TextStyle(
                             fontSize: 12,
@@ -262,10 +350,10 @@ class ProfileScreen extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      const Icon(MingCute.cloud_fill,
+                      Icon(MingCute.cloud_fill,
                           color: Default_Theme.accentColor2, size: 24),
                       const SizedBox(width: 12),
-                      const Text(
+                      Text(
                         'Cloud Sync',
                         style: TextStyle(
                           fontSize: 18,
@@ -332,7 +420,7 @@ class ProfileScreen extends StatelessWidget {
         const SizedBox(width: 12),
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 15,
             color: Default_Theme.primaryColor2,
           ),
@@ -367,7 +455,7 @@ class ProfileScreen extends StatelessWidget {
           icon: MingCute.chart_bar_fill,
           title: 'Statistics',
           subtitle: 'Your listening stats',
-          onTap: () => context.pushNamed(GlobalStrConsts.statisticsScreen),
+          onTap: () => context.push('/Statistics'),
         ),
         if (!isGuest) ...[
           const SizedBox(height: 12),
@@ -545,7 +633,7 @@ class ProfileScreen extends StatelessWidget {
               color: Default_Theme.primaryColor2.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'Not Logged In',
               style: TextStyle(
                 fontSize: 24,
@@ -576,11 +664,11 @@ class ProfileScreen extends StatelessWidget {
       builder: (dialogContext) => AlertDialog(
         backgroundColor: Default_Theme.themeColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text(
+        title: Text(
           'Sign Out',
           style: TextStyle(color: Default_Theme.primaryColor1),
         ),
-        content: const Text(
+        content: Text(
           'Are you sure you want to sign out?',
           style: TextStyle(color: Default_Theme.primaryColor2),
         ),

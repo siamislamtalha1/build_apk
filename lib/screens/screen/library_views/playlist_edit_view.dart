@@ -5,6 +5,7 @@ import 'package:Bloomee/model/songModel.dart';
 import 'package:Bloomee/screens/screen/library_views/cubit/current_playlist_cubit.dart';
 import 'package:Bloomee/screens/widgets/snackbar.dart';
 import 'package:Bloomee/screens/widgets/song_tile.dart';
+import 'package:Bloomee/services/db/bloomee_db_service.dart';
 import 'package:Bloomee/theme_data/default.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,6 +20,8 @@ class PlaylistEditView extends StatefulWidget {
 
 class _PlaylistEditViewState extends State<PlaylistEditView> {
   TextEditingController titleController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
+  TextEditingController coverUrlController = TextEditingController();
   // ValueNotifier isPlaylistExist = ValueNotifier<bool>(false);
   // ValueNotifier isTitleEmpty = ValueNotifier<bool>(false);
   List<MediaItemModel> mediaItems = [];
@@ -48,11 +51,21 @@ class _PlaylistEditViewState extends State<PlaylistEditView> {
   }
 
   @override
+  void dispose() {
+    titleController.dispose();
+    descriptionController.dispose();
+    coverUrlController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: BlocBuilder<CurrentPlaylistCubit, CurrentPlaylistState>(
         builder: (context, state) {
           titleController.text = state.mediaPlaylist.playlistName;
+          descriptionController.text = state.mediaPlaylist.description ?? '';
+          coverUrlController.text = state.mediaPlaylist.imgUrl ?? '';
           mediaItems = state.mediaPlaylist.mediaItems;
           if (state is! CurrentPlaylistInitial &&
                   state is! CurrentPlaylistLoading ||
@@ -67,33 +80,127 @@ class _PlaylistEditViewState extends State<PlaylistEditView> {
                   backgroundColor: Default_Theme.themeColor,
                   title: Text("Edit Playlist",
                       style: Default_Theme.secondoryTextStyleMedium.merge(
-                          const TextStyle(
+                          TextStyle(
                               fontSize: 16,
                               color: Default_Theme.primaryColor1))),
                   actions: [
                     Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: IconButton(
-                          onPressed: () {
+                          onPressed: () async {
                             // check if title is empty or playlist already exist
                             // check if item order is changed or not
+                            final oldName = state.mediaPlaylist.playlistName;
+                            final newName = titleController.text.trim();
+
+                            if (newName.isEmpty || newName.length < 3) {
+                              SnackbarService.showMessage(
+                                  "Playlist name must be at least 3 characters");
+                              return;
+                            }
+
+                            if (oldName != newName) {
+                              final exists =
+                                  await BloomeeDBService.playlistExists(newName);
+                              if (exists) {
+                                SnackbarService.showMessage(
+                                    "A playlist named \"$newName\" already exists");
+                                return;
+                              }
+
+                              final ok = await context
+                                  .read<CurrentPlaylistCubit>()
+                                  .renamePlaylist(newName);
+                              if (!ok) {
+                                SnackbarService.showMessage(
+                                    "Failed to rename playlist");
+                                return;
+                              }
+                            }
+
+                            final desc = descriptionController.text.trim();
+                            final cover = coverUrlController.text.trim();
+                            await context.read<CurrentPlaylistCubit>().updatePlaylistInfo(
+                                  description: desc.isEmpty ? null : desc,
+                                  artURL: cover.isEmpty ? null : cover,
+                                );
+
                             if (mediaItems.length == mediaOrder.length &&
-                                mediaItems.isNotEmpty &&
-                                titleController.text.isNotEmpty) {
-                              context
+                                mediaItems.isNotEmpty) {
+                              await context
                                   .read<CurrentPlaylistCubit>()
                                   .updatePlaylist(
                                     mediaOrder,
                                   );
-                              SnackbarService.showMessage("Playlist Updated!");
                             }
-                            Navigator.of(context).pop();
+
+                            SnackbarService.showMessage("Playlist Updated!");
+                            if (context.mounted) {
+                              Navigator.of(context).pop();
+                            }
                           },
                           padding: const EdgeInsets.only(right: 8, left: 8),
-                          icon: const Icon(MingCute.check_fill)),
+                          icon: Icon(MingCute.check_fill)),
                     )
                   ],
                 ),
+
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 8),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextField(
+                          controller: titleController,
+                          textInputAction: TextInputAction.next,
+                          style: Default_Theme.secondoryTextStyleMedium.merge(
+                            TextStyle(
+                              fontSize: 18,
+                              color: Default_Theme.primaryColor1,
+                            ),
+                          ),
+                          decoration: const InputDecoration(
+                            labelText: 'Playlist name',
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        TextField(
+                          controller: descriptionController,
+                          textInputAction: TextInputAction.newline,
+                          maxLines: 3,
+                          style: Default_Theme.secondoryTextStyle.merge(
+                            TextStyle(
+                              fontSize: 14,
+                              color: Default_Theme.primaryColor1,
+                            ),
+                          ),
+                          decoration: const InputDecoration(
+                            labelText: 'Description (optional)',
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        TextField(
+                          controller: coverUrlController,
+                          textInputAction: TextInputAction.done,
+                          maxLines: 2,
+                          style: Default_Theme.secondoryTextStyle.merge(
+                            TextStyle(
+                              fontSize: 14,
+                              color: Default_Theme.primaryColor1,
+                            ),
+                          ),
+                          decoration: const InputDecoration(
+                            labelText: 'Cover image URL (optional)',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
                 // Text field for playlist title and description
                 // SliverToBoxAdapter(
                 //   child: Padding(

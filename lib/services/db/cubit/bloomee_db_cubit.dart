@@ -18,6 +18,36 @@ class BloomeeDBCubit extends Cubit<MediadbState> {
     addNewPlaylistToDB(MediaPlaylistDB(playlistName: "Liked"));
   }
 
+  Future<void> savePremadePlaylist(MediaPlaylist playlist,
+      {String? description,
+      String? source,
+      String? permaURL,
+      String? artURL,
+      String? artists}) async {
+    if (playlist.playlistName.isEmpty) return;
+    final existing = await BloomeeDBService.getPlaylist(playlist.playlistName);
+    if (existing != null) {
+      SnackbarService.showMessage('Playlist already exists in your library');
+      return;
+    }
+
+    await BloomeeDBService.createPlaylist(
+      playlist.playlistName,
+      artURL: artURL ?? playlist.imgUrl,
+      description: description ?? playlist.description,
+      permaURL: permaURL ?? playlist.permaURL,
+      source: source ?? playlist.source,
+      artists: artists ?? playlist.artists,
+      isAlbum: playlist.isAlbum,
+    );
+
+    for (final item in playlist.mediaItems) {
+      await addMediaItemToPlaylist(item, MediaPlaylistDB(playlistName: playlist.playlistName),
+          showSnackbar: false);
+    }
+    SnackbarService.showMessage('Saved "${playlist.playlistName}" to your library');
+  }
+
   Future<void> addNewPlaylistToDB(MediaPlaylistDB mediaPlaylistDB,
       {bool undo = false}) async {
     List<String> list = await getListOfPlaylists();

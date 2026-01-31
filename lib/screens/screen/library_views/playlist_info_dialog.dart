@@ -12,7 +12,7 @@ class InfoTile extends StatelessWidget {
     required this.subtitle,
     required this.icon,
     this.onTap,
-    this.fg = Default_Theme.primaryColor1,
+    this.fg = Colors.white,
   }) : super(key: key);
 
   @override
@@ -70,19 +70,21 @@ Future<dynamic> showPlaylistInfo(
   BuildContext context,
   CurrentPlaylistState state, {
   Color bgColor = const Color.fromARGB(255, 15, 0, 19),
-  Color fgColor = Default_Theme.primaryColor1,
+  Color? fgColor,
 }) {
-  bgColor =
+  final resolvedBgColor =
       bgColor == Colors.black ? const Color.fromARGB(255, 15, 0, 19) : bgColor;
-  fgColor = fgColor == Colors.white ? Default_Theme.primaryColor1 : fgColor;
+  final resolvedFgColor = (fgColor == null || fgColor == Colors.white)
+      ? Default_Theme.primaryColor1
+      : fgColor;
   return showDialog(
     context: context,
     useSafeArea: true,
     barrierDismissible: true,
     builder: (context) {
       return Dialog(
-          backgroundColor: bgColor,
-          shadowColor: bgColor,
+          backgroundColor: resolvedBgColor,
+          shadowColor: resolvedBgColor,
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 500),
             child: Padding(
@@ -96,7 +98,7 @@ Future<dynamic> showPlaylistInfo(
                         state.mediaPlaylist.playlistName,
                         style: Default_Theme.secondoryTextStyle.merge(
                           TextStyle(
-                              color: fgColor,
+                              color: resolvedFgColor,
                               fontSize: 16,
                               fontFamily: 'NotoSans',
                               fontWeight: FontWeight.bold),
@@ -108,21 +110,21 @@ Future<dynamic> showPlaylistInfo(
                       subtitle:
                           state.mediaPlaylist.mediaItems.length.toString(),
                       icon: MingCute.playlist_2_line,
-                      fg: fgColor,
+                      fg: resolvedFgColor,
                     ),
                     InfoTile(
                       title: "Artists",
                       subtitle: state.mediaPlaylist.artists ??
                           getArtists(state.mediaPlaylist.mediaItems),
                       icon: MingCute.group_fill,
-                      fg: fgColor,
+                      fg: resolvedFgColor,
                     ),
                     state.mediaPlaylist.description != null
                         ? InfoTile(
                             title: "Description",
                             subtitle: state.mediaPlaylist.description!,
                             icon: MingCute.document_2_line,
-                            fg: fgColor,
+                            fg: resolvedFgColor,
                           )
                         : const SizedBox.shrink(),
                     state.mediaPlaylist.lastUpdated != null
@@ -132,7 +134,7 @@ Future<dynamic> showPlaylistInfo(
                                     ?.toIso8601String() ??
                                 "",
                             icon: MingCute.history_line,
-                            fg: fgColor,
+                            fg: resolvedFgColor,
                           )
                         : const SizedBox.shrink(),
                     state.mediaPlaylist.source != null
@@ -140,7 +142,7 @@ Future<dynamic> showPlaylistInfo(
                             title: "Source",
                             subtitle: state.mediaPlaylist.source!,
                             icon: MingCute.server_line,
-                            fg: fgColor,
+                            fg: resolvedFgColor,
                           )
                         : const SizedBox.shrink(),
                     state.mediaPlaylist.permaURL != null
@@ -148,7 +150,7 @@ Future<dynamic> showPlaylistInfo(
                             title: "Original URL",
                             subtitle: state.mediaPlaylist.permaURL!,
                             icon: MingCute.external_link_line,
-                            fg: fgColor,
+                            fg: resolvedFgColor,
                             onTap: () {
                               Clipboard.setData(ClipboardData(
                                   text: state.mediaPlaylist.permaURL!));

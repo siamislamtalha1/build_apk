@@ -15,6 +15,7 @@ part 'mini_player_state.dart';
 
 class MiniPlayerBloc extends Bloc<MiniPlayerEvent, MiniPlayerState> {
   StreamSubscription? _playerStateSubscription;
+  Timer? _idleDebounce;
   BloomeePlayerCubit playerCubit;
   Stream? combinedStream;
   MiniPlayerBloc({
@@ -79,18 +80,31 @@ class MiniPlayerBloc extends Bloc<MiniPlayerEvent, MiniPlayerState> {
       log("$state", name: "MiniPlayer");
       switch (state.processingState) {
         case ProcessingState.idle:
-          add(MiniPlayerInitialEvent());
+          // Debounce idle -> prevents mini-player flashing during brief
+          // transitions (commonly observed when switching YouTube sources).
+          _idleDebounce?.cancel();
+          _idleDebounce = Timer(const Duration(milliseconds: 450), () {
+            if (isClosed) return;
+            try {
+              add(MiniPlayerInitialEvent());
+            } catch (_) {
+              // Ignore if bloc is already closing/closed.
+            }
+          });
           break;
         case ProcessingState.loading:
+          _idleDebounce?.cancel();
           add(MiniPlayerProcessingEvent(mediaItem2));
 
           break;
         case ProcessingState.buffering:
+          _idleDebounce?.cancel();
           try {
             add(MiniPlayerBufferingEvent(mediaItem2));
           } catch (e) {}
           break;
         case ProcessingState.ready:
+          _idleDebounce?.cancel();
           try {
             if (state.playing) {
               add(MiniPlayerPlayedEvent(mediaItem2));
@@ -100,6 +114,7 @@ class MiniPlayerBloc extends Bloc<MiniPlayerEvent, MiniPlayerState> {
           } catch (e) {}
           break;
         case ProcessingState.completed:
+          _idleDebounce?.cancel();
           try {
             add(MiniPlayerCompletedEvent(mediaItem2));
           } catch (e) {}
@@ -111,6 +126,7 @@ class MiniPlayerBloc extends Bloc<MiniPlayerEvent, MiniPlayerState> {
   @override
   Future<void> close() {
     _playerStateSubscription?.cancel();
+    _idleDebounce?.cancel();
     return super.close();
   }
 }

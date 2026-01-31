@@ -14,7 +14,7 @@ class PlayerSettings extends StatelessWidget {
         centerTitle: true,
         title: Text(
           'Audio Player',
-          style: const TextStyle(
+          style: TextStyle(
                   color: Default_Theme.primaryColor1,
                   fontSize: 20,
                   fontWeight: FontWeight.bold)
@@ -31,7 +31,7 @@ class PlayerSettings extends StatelessWidget {
                     "Quality of audio files streamed from online sources.",
                 trailing: DropdownButton(
                   value: state.strmQuality,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Default_Theme.primaryColor1,
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
@@ -60,7 +60,7 @@ class PlayerSettings extends StatelessWidget {
                     "Quality of Youtube audio files streamed from Youtube.",
                 trailing: DropdownButton(
                   value: state.ytStrmQuality,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Default_Theme.primaryColor1,
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
@@ -87,7 +87,7 @@ class PlayerSettings extends StatelessWidget {
                   value: state.autoPlay,
                   title: Text(
                     "Auto Play",
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Default_Theme.primaryColor1,
                       fontSize: 15,
                       fontWeight: FontWeight.bold,

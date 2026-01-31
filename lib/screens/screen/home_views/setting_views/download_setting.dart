@@ -55,7 +55,7 @@ class _DownloadSettingsState extends State<DownloadSettings> {
         centerTitle: true,
         title: Text(
           'Download Settings',
-          style: const TextStyle(
+          style: TextStyle(
                   color: Default_Theme.primaryColor1,
                   fontSize: 20,
                   fontWeight: FontWeight.bold)
@@ -72,7 +72,7 @@ class _DownloadSettingsState extends State<DownloadSettings> {
                     "Quality of audio files downloaded from online sources.",
                 trailing: DropdownButton(
                   value: state.downQuality,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Default_Theme.primaryColor1,
                     fontSize: 15,
@@ -101,7 +101,7 @@ class _DownloadSettingsState extends State<DownloadSettings> {
                     "Quality of Youtube audio files downloaded from Youtube.",
                 trailing: DropdownButton(
                   value: state.ytDownQuality,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Default_Theme.primaryColor1,
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
@@ -130,7 +130,7 @@ class _DownloadSettingsState extends State<DownloadSettings> {
                 trailing: Platform.isAndroid
                     ? null
                     : IconButton(
-                        icon: const Icon(
+                        icon: Icon(
                           MingCute.refresh_1_line,
                           color: Default_Theme.primaryColor1,
                         ),

@@ -237,7 +237,7 @@ class _LibraryScreenViewState extends State<_LibraryScreenView> {
           autofocus: false,
           textInputAction: TextInputAction.search,
           style: Default_Theme.secondoryTextStyle.merge(
-            const TextStyle(
+            TextStyle(
               color: Default_Theme.primaryColor1,
               fontSize: 15,
             ),
@@ -430,7 +430,7 @@ class _LibraryScreenViewState extends State<_LibraryScreenView> {
           Text(
             "Library",
             style: Default_Theme.primaryTextStyle.merge(
-              const TextStyle(
+              TextStyle(
                 fontSize: 34,
                 color: Default_Theme.primaryColor1,
                 fontWeight: FontWeight.w700,
@@ -458,14 +458,14 @@ class _LibraryScreenViewState extends State<_LibraryScreenView> {
           IconButton(
             padding: const EdgeInsets.all(8),
             onPressed: () => createPlaylistBottomSheet(context),
-            icon: const Icon(MingCute.add_fill,
+            icon: Icon(MingCute.add_fill,
                 size: 25, color: Default_Theme.primaryColor1),
           ),
           IconButton(
             padding: const EdgeInsets.all(8),
             onPressed: () =>
                 context.pushNamed(GlobalStrConsts.ImportMediaFromPlatforms),
-            icon: const Icon(FontAwesome.file_import_solid,
+            icon: Icon(FontAwesome.file_import_solid,
                 size: 22, color: Default_Theme.primaryColor1),
           ),
         ],
@@ -493,11 +493,17 @@ class _ListOfPlaylists extends StatelessWidget {
         return AnimatedListItem(
           index: index,
           child: LibItemCard(
-            onTap: () {
-              context
-                  .read<CurrentPlaylistCubit>()
-                  .setupPlaylist(playlist.playlistName);
-              context.pushNamed(GlobalStrConsts.playlistView);
+            onTap: () async {
+              try {
+                await context
+                    .read<CurrentPlaylistCubit>()
+                    .setupPlaylist(playlist.playlistName);
+                if (context.mounted) {
+                  context.pushNamed(GlobalStrConsts.playlistView);
+                }
+              } catch (_) {
+                // Keep user on library screen; snackbar handled elsewhere if needed.
+              }
             },
             onSecondaryTap: () =>
                 showPlaylistOptsExtSheet(context, playlist.playlistName),

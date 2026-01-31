@@ -67,7 +67,7 @@ class _YtSongTileState extends State<YtSongTile> {
             textAlign: TextAlign.start,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
-            style: Default_Theme.tertiaryTextStyle.merge(const TextStyle(
+            style: Default_Theme.tertiaryTextStyle.merge(TextStyle(
                 fontWeight: FontWeight.w600,
                 color: Default_Theme.primaryColor1,
                 fontSize: 14)),
@@ -89,7 +89,7 @@ class _YtSongTileState extends State<YtSongTile> {
                 widget.onOpts!();
               }
             },
-            icon: const Icon(
+            icon: Icon(
               Icons.more_vert,
               color: Default_Theme.primaryColor1,
             ),

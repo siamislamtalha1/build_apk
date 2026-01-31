@@ -92,7 +92,7 @@ class _ImporterDialogWidgetState extends State<ImporterDialogWidget> {
                                 right: 8.0, left: 8.0, top: 8),
                             child: Text(
                               message,
-                              style: const TextStyle(
+                              style: TextStyle(
                                       fontSize: 16,
                                       color: Default_Theme.primaryColor1)
                                   .merge(Default_Theme.secondoryTextStyle),

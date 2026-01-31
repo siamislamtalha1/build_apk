@@ -92,7 +92,7 @@ class ChartListTile extends StatelessWidget {
             textAlign: TextAlign.start,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
-            style: Default_Theme.tertiaryTextStyle.merge(const TextStyle(
+            style: Default_Theme.tertiaryTextStyle.merge(TextStyle(
                 fontWeight: FontWeight.w600,
                 color: Default_Theme.primaryColor1,
                 fontSize: 14)),

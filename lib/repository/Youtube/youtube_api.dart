@@ -94,17 +94,29 @@ class YouTubeServices {
 
   Future<Map?> refreshLink(String id, {String quality = 'Low'}) async {
     try {
-      final StreamManifest manifest =
-          await yt.videos.streamsClient.getManifest(id);
+      final StreamManifest manifest = await yt.videos.streams.getManifest(
+        id,
+        requireWatchPage: true,
+        ytClients: [YoutubeApiClient.androidVr],
+      );
       final List<AudioOnlyStreamInfo> sortedStreamInfo =
           manifest.audioOnly.sortByBitrate();
+
+      String withRange(AudioOnlyStreamInfo info) {
+        final total = info.size.totalBytes;
+        final base = info.url.toString();
+        if (base.contains('range=')) return base;
+        final range = 'range=0-${total > 0 ? total : 10000000}';
+        final sep = base.contains('?') ? '&' : '?';
+        return '$base$sep$range';
+      }
 
       Map<String, dynamic> data = {
         'id': id,
         'qurls': [
           true,
-          sortedStreamInfo.first.url.toString(),
-          sortedStreamInfo.last.url.toString(),
+          withRange(sortedStreamInfo.first),
+          withRange(sortedStreamInfo.last),
         ],
       };
 
@@ -401,7 +413,8 @@ class YouTubeServices {
       }
 
       finalUrl = ((quality == 'High') ? urls.last : urls.first);
-      expireAt = RegExp('expire=(.*?)&').firstMatch(finalUrl)!.group(1) ??
+      final match = RegExp('expire=(.*?)&').firstMatch(finalUrl);
+      expireAt = match?.group(1) ??
           (DateTime.now().millisecondsSinceEpoch ~/ 1000 + 3600 * 5.5)
               .toString();
 
@@ -507,25 +520,34 @@ class YouTubeServices {
     Video video,
     // {bool preferM4a = true}
   ) async {
-    final StreamManifest manifest =
-        await yt.videos.streamsClient.getManifest(video.id);
+    final StreamManifest manifest = await yt.videos.streams.getManifest(
+      video.id,
+      requireWatchPage: true,
+      ytClients: [YoutubeApiClient.androidVr],
+    );
     final List<AudioOnlyStreamInfo> sortedStreamInfo =
         manifest.audioOnly.sortByBitrate();
-    if (Platform.isIOS || Platform.isMacOS) {
-      final List<AudioOnlyStreamInfo> m4aStreams = sortedStreamInfo
-          .where((element) => element.audioCodec.contains('mp4'))
-          .toList();
 
-      if (m4aStreams.isNotEmpty) {
-        return [
-          m4aStreams.first.url.toString(),
-          m4aStreams.last.url.toString(),
-        ];
-      }
+    String withRange(AudioOnlyStreamInfo info) {
+      final total = info.size.totalBytes;
+      final base = info.url.toString();
+      if (base.contains('range=')) return base;
+      final range = 'range=0-${total > 0 ? total : 10000000}';
+      final sep = base.contains('?') ? '&' : '?';
+      return '$base$sep$range';
+    }
+
+    if (Platform.isIOS || Platform.isMacOS) {
+      return [
+        withRange(
+            sortedStreamInfo.firstWhere((e) => e.codec.mimeType == 'audio/mp4')),
+        withRange(
+            sortedStreamInfo.lastWhere((e) => e.codec.mimeType == 'audio/mp4')),
+      ];
     }
     return [
-      sortedStreamInfo.first.url.toString(),
-      sortedStreamInfo.last.url.toString(),
+      withRange(sortedStreamInfo.first),
+      withRange(sortedStreamInfo.last),
     ];
   }
 }

@@ -51,7 +51,7 @@ class BackupSettings extends StatelessWidget {
         centerTitle: true,
         title: Text(
           'Storage',
-          style: const TextStyle(
+          style: TextStyle(
                   color: Default_Theme.primaryColor1,
                   fontSize: 20,
                   fontWeight: FontWeight.bold)
@@ -67,7 +67,7 @@ class BackupSettings extends StatelessWidget {
                 subtitle: "Clear history after every specified Time.",
                 trailing: DropdownButton(
                   value: state.historyClearTime,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Default_Theme.primaryColor1,
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
@@ -255,14 +255,14 @@ class BackupSettings extends StatelessWidget {
                         "App has been reset to its default state.");
                   }
                 },
-                trailing: const Icon(
+                trailing: Icon(
                   Icons.delete,
                   color: Default_Theme.primaryColor1,
                 ),
               ),
               SwitchListTile(
                 title: Text("Auto Backup",
-                    style: const TextStyle(
+                    style: TextStyle(
                             color: Default_Theme.primaryColor1, fontSize: 16)
                         .merge(Default_Theme.secondoryTextStyleMedium)),
                 subtitle: Text(
@@ -279,7 +279,7 @@ class BackupSettings extends StatelessWidget {
               ),
               SwitchListTile(
                   title: Text("Auto Save Lyrics",
-                      style: const TextStyle(
+                      style: TextStyle(
                               color: Default_Theme.primaryColor1, fontSize: 16)
                           .merge(Default_Theme.secondoryTextStyleMedium)),
                   subtitle: Text(

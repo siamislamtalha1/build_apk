@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:go_router/go_router.dart';
 import 'dart:ui';
 import 'dart:math';
 
@@ -34,6 +35,315 @@ const Gradient kWaveformGradient = LinearGradient(
   begin: Alignment.centerLeft,
   end: Alignment.centerRight,
 );
+
+class AboutHub extends StatelessWidget {
+  const AboutHub({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: kBackgroundColor,
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_rounded,
+              color: kPrimaryTextColor.withValues(alpha: 0.5)),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: const Text(
+          'About',
+          style: TextStyle(
+            color: kPrimaryTextColor,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.1,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: Stack(
+        alignment: Alignment.center,
+        children: [
+          const ParticleBackground(),
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 520),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 120),
+                    _FrostedMenuCard(
+                      title: 'Developer',
+                      subtitle: 'Developer information and links',
+                      onTap: () => context.push('/About/Developer'),
+                    ),
+                    const SizedBox(height: 14),
+                    _FrostedMenuCard(
+                      title: 'App Info',
+                      subtitle: 'Version, licenses, and details',
+                      onTap: () => context.push('/About/App'),
+                    ),
+                    const SizedBox(height: 14),
+                    _FrostedMenuCard(
+                      title: 'Licenses',
+                      subtitle: 'Open source licenses',
+                      onTap: () => showLicensePage(
+                        context: context,
+                        applicationName: 'BloomeeTunes',
+                      ),
+                    ),
+                    const Spacer(),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      child: FutureBuilder<PackageInfo>(
+                        future: PackageInfo.fromPlatform(),
+                        builder: (context, snapshot) {
+                          final ver = snapshot.hasData
+                              ? 'v${snapshot.data!.version}+${snapshot.data!.buildNumber}'
+                              : '';
+                          return Text(
+                            ver,
+                            style: const TextStyle(
+                              color: kSecondaryTextColor,
+                              fontSize: 12,
+                              fontFamily: 'Gilroy',
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FrostedMenuCard extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _FrostedMenuCard({
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(22.0),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 20.0, sigmaY: 20.0),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+              decoration: BoxDecoration(
+                color: kCardBackgroundColor,
+                borderRadius: BorderRadius.circular(22.0),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: const TextStyle(
+                            color: kPrimaryTextColor,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Gilroy',
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          subtitle,
+                          style: const TextStyle(
+                            color: kSecondaryTextColor,
+                            fontSize: 13,
+                            fontFamily: 'Gilroy',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(Icons.arrow_forward_ios_rounded,
+                      size: 16, color: kPrimaryTextColor.withValues(alpha: 0.5)),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class AppAbout extends StatelessWidget {
+  const AppAbout({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: kBackgroundColor,
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_rounded,
+              color: kPrimaryTextColor.withValues(alpha: 0.5)),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: const Text(
+          'App Info',
+          style: TextStyle(
+            color: kPrimaryTextColor,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.1,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: Stack(
+        alignment: Alignment.center,
+        children: [
+          const ParticleBackground(),
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 520),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(28.0),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 25.0, sigmaY: 25.0),
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.fromLTRB(24, 26, 24, 22),
+                          decoration: BoxDecoration(
+                            color: kCardBackgroundColor,
+                            borderRadius: BorderRadius.circular(28.0),
+                            border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.1)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'BloomeeTunes',
+                                style: TextStyle(
+                                  color: kPrimaryTextColor,
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Gilroy',
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              FutureBuilder<PackageInfo>(
+                                future: PackageInfo.fromPlatform(),
+                                builder: (context, snapshot) {
+                                  final versionText = snapshot.hasData
+                                      ? 'Version: ${snapshot.data!.version} (${snapshot.data!.buildNumber})'
+                                      : 'Version: -';
+                                  return Text(
+                                    versionText,
+                                    style: const TextStyle(
+                                      color: kSecondaryTextColor,
+                                      fontSize: 14,
+                                      fontFamily: 'Gilroy',
+                                    ),
+                                  );
+                                },
+                              ),
+                              const SizedBox(height: 16),
+                              _FrostedMenuCard(
+                                title: 'Open Source Licenses',
+                                subtitle: 'View third-party licenses',
+                                onTap: () => showLicensePage(
+                                  context: context,
+                                  applicationName: 'BloomeeTunes',
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(22.0),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 20.0, sigmaY: 20.0),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 18, vertical: 16),
+                          decoration: BoxDecoration(
+                            color: kCardBackgroundColor,
+                            borderRadius: BorderRadius.circular(22.0),
+                            border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.1)),
+                          ),
+                          child: Row(
+                            children: [
+                              const Expanded(
+                                child: Text(
+                                  'Website',
+                                  style: TextStyle(
+                                    color: kPrimaryTextColor,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'Gilroy',
+                                  ),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  launchUrl(
+                                    Uri.parse(
+                                        'https://hemantkarya.github.io/BloomeeTunes/'),
+                                    mode: LaunchMode.externalApplication,
+                                  );
+                                },
+                                child: const Text(
+                                  'Open',
+                                  style: TextStyle(
+                                    color: kSecondaryTextColor,
+                                    fontFamily: 'Gilroy',
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 class About extends StatelessWidget {
   const About({super.key});

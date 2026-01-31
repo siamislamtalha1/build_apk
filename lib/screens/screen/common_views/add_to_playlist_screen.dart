@@ -124,7 +124,7 @@ class _AddToPlaylistScreenState extends State<AddToPlaylistScreen> {
         backgroundColor: Default_Theme.themeColor,
         surfaceTintColor: Default_Theme.themeColor,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_rounded,
             color: Default_Theme.primaryColor1,
           ),
@@ -133,7 +133,7 @@ class _AddToPlaylistScreenState extends State<AddToPlaylistScreen> {
         title: Text(
           'Add to Playlist',
           style: Default_Theme.secondoryTextStyleMedium.merge(
-            const TextStyle(
+            TextStyle(
               color: Default_Theme.primaryColor1,
               fontSize: 18,
             ),
@@ -142,7 +142,7 @@ class _AddToPlaylistScreenState extends State<AddToPlaylistScreen> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(
+            icon: Icon(
               MingCute.add_circle_line,
               color: Default_Theme.accentColor2,
               size: 26,
@@ -215,7 +215,7 @@ class _AddToPlaylistScreenState extends State<AddToPlaylistScreen> {
                   child: BlocBuilder<LibraryItemsCubit, LibraryItemsState>(
                     builder: (context, libraryState) {
                       if (libraryState is LibraryItemsLoading) {
-                        return const Center(
+                        return Center(
                           child: CircularProgressIndicator(
                             color: Default_Theme.accentColor2,
                           ),
@@ -291,7 +291,7 @@ class _AddToPlaylistScreenState extends State<AddToPlaylistScreen> {
         backgroundColor: Default_Theme.accentColor2,
         elevation: 2,
         onPressed: () => createPlaylistBottomSheet(context),
-        child: const Icon(
+        child: Icon(
           Icons.add_rounded,
           size: 28,
           color: Default_Theme.primaryColor1,
@@ -346,7 +346,7 @@ class _SongInfoCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: Default_Theme.secondoryTextStyleMedium.merge(
-                    const TextStyle(
+                    TextStyle(
                       color: Default_Theme.primaryColor1,
                       fontSize: 14,
                     ),
@@ -399,7 +399,7 @@ class _SearchBar extends StatelessWidget {
           focusNode: focusNode,
           textInputAction: TextInputAction.search,
           style: Default_Theme.secondoryTextStyle.merge(
-            const TextStyle(
+            TextStyle(
               color: Default_Theme.primaryColor1,
               fontSize: 15,
             ),
@@ -502,7 +502,7 @@ class _PlaylistTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: Default_Theme.secondoryTextStyleMedium.merge(
-                        const TextStyle(
+                        TextStyle(
                           color: Default_Theme.primaryColor1,
                           fontSize: 15,
                         ),
@@ -527,13 +527,13 @@ class _PlaylistTile extends StatelessWidget {
 
               // Checkmark indicator (only when in playlist)
               AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
+                duration: Duration(milliseconds: 200),
                 transitionBuilder: (child, animation) {
                   return ScaleTransition(scale: animation, child: child);
                 },
                 child: isInPlaylist
                     ? Container(
-                        key: const ValueKey('checked'),
+                        key: ValueKey('checked'),
                         width: 32,
                         height: 32,
                         decoration: BoxDecoration(
@@ -541,7 +541,7 @@ class _PlaylistTile extends StatelessWidget {
                               .withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.check_rounded,
                           color: Default_Theme.accentColor1,
                           size: 20,
@@ -713,7 +713,7 @@ class _OverflowAvatar extends StatelessWidget {
         child: Text(
           ' $count+',
           style: Default_Theme.secondoryTextStyleMedium.merge(
-            const TextStyle(
+            TextStyle(
               color: Default_Theme.accentColor1,
               fontSize: 12,
               fontWeight: FontWeight.bold,

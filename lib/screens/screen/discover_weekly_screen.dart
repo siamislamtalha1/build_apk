@@ -96,7 +96,7 @@ class _DiscoverWeeklyScreenState extends State<DiscoverWeeklyScreen> {
                     Text(
                       'Discover Weekly',
                       style: Default_Theme.primaryTextStyle.merge(
-                        const TextStyle(
+                        TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
                           color: Default_Theme.primaryColor1,
@@ -107,7 +107,7 @@ class _DiscoverWeeklyScreenState extends State<DiscoverWeeklyScreen> {
                     Text(
                       'Your personalized weekly playlist',
                       style: Default_Theme.secondoryTextStyle.merge(
-                        const TextStyle(
+                        TextStyle(
                           fontSize: 14,
                           color: Default_Theme.primaryColor2,
                         ),
@@ -141,7 +141,7 @@ class _DiscoverWeeklyScreenState extends State<DiscoverWeeklyScreen> {
                     Text(
                       'No songs available',
                       style: Default_Theme.primaryTextStyle.merge(
-                        const TextStyle(
+                        TextStyle(
                           fontSize: 18,
                           color: Default_Theme.primaryColor2,
                         ),
@@ -152,7 +152,7 @@ class _DiscoverWeeklyScreenState extends State<DiscoverWeeklyScreen> {
                       'Like some songs to get personalized recommendations',
                       textAlign: TextAlign.center,
                       style: Default_Theme.secondoryTextStyle.merge(
-                        const TextStyle(
+                        TextStyle(
                           fontSize: 14,
                           color: Default_Theme.primaryColor2,
                         ),
@@ -228,7 +228,7 @@ class _DiscoverWeeklyScreenState extends State<DiscoverWeeklyScreen> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
             image: DecorationImage(
-                    image: NetworkImage(song.artURL!),
+                    image: NetworkImage(song.artURL),
                     fit: BoxFit.cover,
                   ),
             color: Default_Theme.accentColor2.withValues(alpha: 0.2),
@@ -238,7 +238,7 @@ class _DiscoverWeeklyScreenState extends State<DiscoverWeeklyScreen> {
         title: Text(
           song.title ?? 'Unknown',
           style: Default_Theme.primaryTextStyle.merge(
-            const TextStyle(
+            TextStyle(
               fontSize: 14,
               color: Default_Theme.primaryColor1,
             ),
@@ -249,7 +249,7 @@ class _DiscoverWeeklyScreenState extends State<DiscoverWeeklyScreen> {
         subtitle: Text(
           song.artist ?? 'Unknown Artist',
           style: Default_Theme.secondoryTextStyle.merge(
-            const TextStyle(
+            TextStyle(
               fontSize: 12,
               color: Default_Theme.primaryColor2,
             ),
@@ -263,7 +263,7 @@ class _DiscoverWeeklyScreenState extends State<DiscoverWeeklyScreen> {
             Text(
               '#${index + 1}',
               style: Default_Theme.secondoryTextStyle.merge(
-                const TextStyle(
+                TextStyle(
                   fontSize: 12,
                   color: Default_Theme.primaryColor2,
                 ),

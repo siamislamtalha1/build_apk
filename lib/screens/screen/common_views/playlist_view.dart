@@ -12,6 +12,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:Bloomee/services/db/cubit/bloomee_db_cubit.dart';
 
 class OnlPlaylistView extends StatefulWidget {
   final PlaylistOnlModel playlist;
@@ -145,7 +146,7 @@ class _OnlPlaylistViewState extends State<OnlPlaylistView> {
                                             children: [
                                               OutlinedButton.icon(
                                                 style: OutlinedButton.styleFrom(
-                                                  side: const BorderSide(
+                                                  side: BorderSide(
                                                     width: 2,
                                                     color: Default_Theme
                                                         .accentColor2,
@@ -207,6 +208,45 @@ class _OnlPlaylistViewState extends State<OnlPlaylistView> {
                                                           FontAwesome.heart),
                                                   color: Default_Theme
                                                       .accentColor2,
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                  left: 5,
+                                                ),
+                                                child: Tooltip(
+                                                  message:
+                                                      'Save to your library',
+                                                  child: IconButton(
+                                                    onPressed: () {
+                                                      final playlist =
+                                                          state.playlist.playlist;
+                                                      context
+                                                          .read<BloomeeDBCubit>()
+                                                          .savePremadePlaylist(
+                                                            playlist,
+                                                            description: state
+                                                                .playlist
+                                                                .description,
+                                                            source: state
+                                                                .playlist.source,
+                                                            permaURL: state
+                                                                .playlist
+                                                                .sourceURL,
+                                                            artURL: state
+                                                                .playlist
+                                                                .imageURL,
+                                                            artists: state
+                                                                .playlist
+                                                                .artists,
+                                                          );
+                                                    },
+                                                    icon: const Icon(
+                                                      MingCute.save_2_line,
+                                                    ),
+                                                    color:
+                                                        Default_Theme.accentColor2,
+                                                  ),
                                                 ),
                                               ),
                                               Tooltip(

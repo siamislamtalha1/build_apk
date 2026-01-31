@@ -36,7 +36,7 @@ class ImportMediaFromPlatformsView extends StatelessWidget {
         title: Text(
           'Import Songs',
           textAlign: TextAlign.start,
-          style: const TextStyle(
+          style: TextStyle(
                   color: Default_Theme.primaryColor1,
                   fontSize: 20,
                   fontWeight: FontWeight.bold)
@@ -119,13 +119,13 @@ class ImportMediaFromPlatformsView extends StatelessWidget {
                 showDialog(
                   context: context,
                   builder: (context) => AlertDialog(
-                    title: const Text(
+                    title: Text(
                       "Note",
                       style: TextStyle(
                         color: Default_Theme.primaryColor2,
                       ),
                     ),
-                    content: const Text(
+                    content: Text(
                       "You can only import files created by Bloomee. \nIf your file is from another source, it will not work. Continue anyway?",
                       style: TextStyle(
                         color: Default_Theme.primaryColor2,
@@ -195,7 +195,7 @@ class ImportFromBtn extends StatelessWidget {
       onTap: onClickFunc,
       title: Text(
         btnName,
-        style: const TextStyle(
+        style: TextStyle(
                 color: Default_Theme.primaryColor1,
                 fontSize: 18,
                 fontWeight: FontWeight.w500)
@@ -248,7 +248,7 @@ Future getIdAndShowBottomSheet(BuildContext context,
                               cursorColor: Default_Theme.accentColor2,
                               autofocus: true,
 
-                              style: const TextStyle(
+                              style: TextStyle(
                                       fontSize: 30,
                                       color: Default_Theme.accentColor2)
                                   .merge(
@@ -258,11 +258,11 @@ Future getIdAndShowBottomSheet(BuildContext context,
                                   hintStyle: TextStyle(
                                       color: Default_Theme.primaryColor2
                                           .withValues(alpha: 0.3)),
-                                  enabledBorder: const OutlineInputBorder(
+                                  enabledBorder: OutlineInputBorder(
                                     borderSide:
                                         BorderSide(style: BorderStyle.none),
                                   ),
-                                  focusedBorder: const OutlineInputBorder(
+                                  focusedBorder: OutlineInputBorder(
                                     borderSide: BorderSide.none,
                                   )),
                               onSubmitted: (value) {

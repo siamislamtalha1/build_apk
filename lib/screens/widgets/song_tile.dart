@@ -17,7 +17,7 @@ import 'package:Bloomee/utils/load_Image.dart';
 // Cached styles to avoid repeated merges
 class _SongCardStyles {
   static final titleStyle = Default_Theme.tertiaryTextStyle.merge(
-    const TextStyle(
+    TextStyle(
       fontWeight: FontWeight.w600,
       color: Default_Theme.primaryColor1,
       fontSize: 14,
@@ -38,27 +38,27 @@ class _SongCardStyles {
   static const buttonPadding = EdgeInsets.symmetric(horizontal: 2);
 
   // Cached action icons to avoid recreation
-  static const playIcon = Icon(
+  static final playIcon = Icon(
     FontAwesome.play_solid,
     size: 30,
     color: Default_Theme.primaryColor1,
   );
-  static const copyIcon = Icon(
+  static final copyIcon = Icon(
     Icons.copy_outlined,
     size: 25,
     color: Default_Theme.primaryColor1,
   );
-  static const infoIcon = Icon(
+  static final infoIcon = Icon(
     MingCute.information_line,
     size: 30,
     color: Default_Theme.primaryColor1,
   );
-  static const deleteIcon = Icon(
+  static final deleteIcon = Icon(
     MingCute.delete_2_line,
     size: 28,
     color: Default_Theme.primaryColor1,
   );
-  static const optionsIcon = Icon(
+  static final optionsIcon = Icon(
     MingCute.more_2_fill,
     color: Default_Theme.primaryColor1,
   );
@@ -242,7 +242,7 @@ class _PlayingIndicatorState extends State<_PlayingIndicator>
           sizeFactor: _slideAnimation,
           child: FadeTransition(
             opacity: _slideAnimation,
-            child: const Center(
+            child: Center(
               child: SizedBox(
                 width: _indicatorWidth,
                 child: Icon(

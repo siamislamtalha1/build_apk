@@ -17,7 +17,7 @@ class PlayerInitializer {
   Future<void> _initialize() async {
     bloomeeMusicPlayer = await AudioService.init(
       builder: () => BloomeeMusicPlayer(),
-      config: const AudioServiceConfig(
+      config: AudioServiceConfig(
         androidStopForegroundOnPause: false,
         androidNotificationChannelId: 'com.BloomeePlayer.notification.status',
         androidNotificationChannelName: 'BloomeTunes',

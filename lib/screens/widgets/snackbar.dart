@@ -31,10 +31,10 @@ class SnackbarService {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(message,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: Default_Theme.primaryColor1, fontSize: 16)),
-                  const Padding(
-                    padding: EdgeInsets.only(left: 10),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 10),
                     child: SizedBox(
                       height: 20,
                       width: 20,
@@ -47,7 +47,7 @@ class SnackbarService {
                 ],
               )
             : Text(message,
-                style: const TextStyle(
+                style: TextStyle(
                     color: Default_Theme.primaryColor1, fontSize: 16)),
         duration: loading ? const Duration(minutes: 1) : duration,
         showCloseIcon: false,

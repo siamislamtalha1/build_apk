@@ -54,14 +54,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title: Text(
           'Settings',
           style: Default_Theme.primaryTextStyle.merge(
-            const TextStyle(
+            TextStyle(
               color: Default_Theme.primaryColor1,
               fontWeight: FontWeight.bold,
             ),
           ),
         ),
         backgroundColor: Default_Theme.themeColor,
-        iconTheme: const IconThemeData(color: Default_Theme.primaryColor1),
+        iconTheme: IconThemeData(color: Default_Theme.primaryColor1),
         elevation: 0,
       ),
       body: BlocBuilder<SettingsCubit, SettingsState>(
@@ -74,34 +74,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _buildLanguageTile(context, state, cubit),
               _buildThemeModeTile(context, state, cubit),
               _buildAutoUpdateTile(context),
-              const Divider(color: Default_Theme.primaryColor2),
+              Divider(color: Default_Theme.primaryColor2),
               _buildSectionHeader(
                   context, AppLocalizations.of(context)!.advanced), // Localize
               ListTile(
-                leading: const Icon(MingCute.settings_2_line,
+                leading: Icon(MingCute.settings_2_line,
                     color: Default_Theme.primaryColor1),
                 title: Text(
                     AppLocalizations.of(context)!.advancedSettings, // Localize
                     style: Default_Theme.primaryTextStyle),
-                trailing: const Icon(MingCute.right_line,
+                trailing: Icon(MingCute.right_line,
                     color: Default_Theme.primaryColor2),
                 onTap: () => context.push('/AdvancedSettings'),
               ),
               ListTile(
-                leading: const Icon(MingCute.code_line,
-                    color: Default_Theme.primaryColor1),
+                leading:
+                    Icon(MingCute.code_line, color: Default_Theme.primaryColor1),
                 title: Text(
                     AppLocalizations.of(context)!.developerTools, // Localize
                     style: Default_Theme.primaryTextStyle),
-                trailing: const Icon(MingCute.right_line,
+                trailing: Icon(MingCute.right_line,
                     color: Default_Theme.primaryColor2),
                 onTap: () => context.push('/DeveloperTools'),
               ),
-              const Divider(color: Default_Theme.primaryColor2),
+              Divider(color: Default_Theme.primaryColor2),
               _buildSectionHeader(
                   context, AppLocalizations.of(context)!.about), // Localize
               ListTile(
-                leading: const Icon(MingCute.information_line,
+                leading: Icon(MingCute.information_line,
+                    color: Default_Theme.primaryColor1),
+                title: const Text('About', style: Default_Theme.primaryTextStyle),
+                trailing: Icon(MingCute.right_line,
+                    color: Default_Theme.primaryColor2),
+                onTap: () => context.push('/About'),
+              ),
+              ListTile(
+                leading: Icon(MingCute.information_line,
                     color: Default_Theme.primaryColor1),
                 title: Text(AppLocalizations.of(context)!.version,
                     style: Default_Theme.primaryTextStyle), // Localize
@@ -120,7 +128,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
       child: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           color: Default_Theme.accentColor2,
           fontWeight: FontWeight.bold,
           fontSize: 14,
@@ -132,8 +140,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _buildLanguageTile(
       BuildContext context, SettingsState state, SettingsCubit cubit) {
     return ListTile(
-      leading: const Icon(MingCute.translate_line,
-          color: Default_Theme.primaryColor1),
+      leading:
+          Icon(MingCute.translate_line, color: Default_Theme.primaryColor1),
       title: const Text("Language", style: Default_Theme.primaryTextStyle),
       trailing: DropdownButton<String>(
         value: state.locale ?? 'en',
@@ -141,7 +149,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         style: Default_Theme.primaryTextStyle,
         underline: Container(),
         icon:
-            const Icon(MingCute.down_line, color: Default_Theme.primaryColor2),
+            Icon(MingCute.down_line, color: Default_Theme.primaryColor2),
         items: const [
           DropdownMenuItem(value: 'en', child: Text('English')),
           DropdownMenuItem(value: 'es', child: Text('Aspaniol')),
@@ -190,7 +198,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         style: Default_Theme.primaryTextStyle,
         underline: Container(),
         icon:
-            const Icon(MingCute.down_line, color: Default_Theme.primaryColor2),
+            Icon(MingCute.down_line, color: Default_Theme.primaryColor2),
         items: [
           DropdownMenuItem(
             value: ThemeMode.dark,
@@ -237,7 +245,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _buildAutoUpdateTile(BuildContext context) {
     return ListTile(
-      leading: const Icon(MingCute.download_2_line,
+      leading: Icon(MingCute.download_2_line,
           color: Default_Theme.primaryColor1),
       title: const Text("Auto-Update Notifications",
           style: Default_Theme.primaryTextStyle),

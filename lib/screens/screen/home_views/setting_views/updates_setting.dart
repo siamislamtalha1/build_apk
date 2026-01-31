@@ -15,7 +15,7 @@ class UpdatesSettings extends StatelessWidget {
         centerTitle: true,
         title: Text(
           'Updates',
-          style: const TextStyle(
+          style: TextStyle(
                   color: Default_Theme.primaryColor1,
                   fontSize: 20,
                   fontWeight: FontWeight.bold)
@@ -49,7 +49,7 @@ class UpdatesSettings extends StatelessWidget {
                   ),
                   title: Text(
                     "Auto update notify",
-                    style: const TextStyle(
+                    style: TextStyle(
                             color: Default_Theme.primaryColor1, fontSize: 17)
                         .merge(Default_Theme.secondoryTextStyleMedium),
                   ),

@@ -13,23 +13,43 @@ class Default_Theme {
       TextStyle(fontFamily: "FontAwesome-Solids");
 
   // Colors
-  static const themeColor = Color(0xFF0A040C);
-  static const primaryColor1 = Color(0xFFDAEAF7);
-  static const primaryColor2 = Color.fromARGB(255, 242, 231, 240);
-  static const accentColor1 = Color(0xFF0EA5E0);
-  static const accentColor1light = Color(0xFF18C9ED);
-  static const accentColor2 = Color(0xFFFE385E);
-  static const successColor = Color(0xFF5EFF43);
+  static Color themeColor = const Color(0xFF0A040C);
+  static Color primaryColor1 = const Color(0xFFDAEAF7);
+  static Color primaryColor2 = const Color.fromARGB(255, 242, 231, 240);
+  static Color accentColor1 = const Color(0xFF0EA5E0);
+  static Color accentColor1light = const Color(0xFF18C9ED);
+  static Color accentColor2 = const Color(0xFFFE385E);
+  static Color successColor = const Color(0xFF5EFF43);
+
+  static void setBrightness(Brightness brightness) {
+    if (brightness == Brightness.dark) {
+      themeColor = const Color(0xFF0A040C);
+      primaryColor1 = const Color(0xFFDAEAF7);
+      primaryColor2 = const Color.fromARGB(255, 242, 231, 240);
+      accentColor1 = const Color(0xFF0EA5E0);
+      accentColor1light = const Color(0xFF18C9ED);
+      accentColor2 = const Color(0xFFFE385E);
+      successColor = const Color(0xFF5EFF43);
+    } else {
+      themeColor = const Color(0xFFF2F2F7);
+      primaryColor1 = const Color(0xFF000000);
+      primaryColor2 = const Color(0xFF3C3C43);
+      accentColor1 = const Color(0xFF007AFF);
+      accentColor1light = const Color(0xFF007AFF);
+      accentColor2 = const Color(0xFFFF2D55);
+      successColor = const Color(0xFF34C759);
+    }
+  }
 
   ThemeData get defaultThemeData {
     const darkScheme = ColorScheme.dark(
-      primary: accentColor2,
-      secondary: accentColor1,
-      surface: themeColor,
+      primary: Color(0xFFFE385E),
+      secondary: Color(0xFF0EA5E0),
+      surface: Color(0xFF0A040C),
       surfaceContainerHighest: Color(0xFF1A111B),
-      onPrimary: primaryColor1,
-      onSecondary: primaryColor1,
-      onSurface: primaryColor1,
+      onPrimary: Color(0xFFDAEAF7),
+      onSecondary: Color(0xFFDAEAF7),
+      onSurface: Color(0xFFDAEAF7),
     );
 
     return ThemeData(
@@ -55,7 +75,7 @@ class Default_Theme {
         primary: accentColor2,
         secondary: accentColor2,
       ),
-      iconTheme: const IconThemeData(color: primaryColor1),
+      iconTheme: IconThemeData(color: primaryColor1),
       scrollbarTheme: ScrollbarThemeData(
         thumbColor: WidgetStateProperty.all(accentColor2),
         interactive: true,
@@ -63,21 +83,21 @@ class Default_Theme {
         thickness: WidgetStateProperty.all(5),
       ),
       appBarTheme: const AppBarTheme(
-        backgroundColor: themeColor,
-        foregroundColor: primaryColor1,
-        surfaceTintColor: themeColor,
-        iconTheme: IconThemeData(color: primaryColor1),
+        backgroundColor: Color(0xFF0A040C),
+        foregroundColor: Color(0xFFDAEAF7),
+        surfaceTintColor: Color(0xFF0A040C),
+        iconTheme: IconThemeData(color: Color(0xFFDAEAF7)),
       ),
       progressIndicatorTheme:
-          const ProgressIndicatorThemeData(color: accentColor2),
+          const ProgressIndicatorThemeData(color: Color(0xFFFE385E)),
       textSelectionTheme: const TextSelectionThemeData(
-        cursorColor: accentColor2,
-        selectionColor: accentColor2,
-        selectionHandleColor: accentColor2,
+        cursorColor: Color(0xFFFE385E),
+        selectionColor: Color(0xFFFE385E),
+        selectionHandleColor: Color(0xFFFE385E),
       ),
       brightness: Brightness.dark,
       switchTheme: SwitchThemeData(
-        thumbColor: const WidgetStatePropertyAll(primaryColor1),
+        thumbColor: WidgetStatePropertyAll(primaryColor1),
         trackOutlineColor: WidgetStateProperty.resolveWith((states) =>
             states.contains(WidgetState.selected)
                 ? accentColor1
@@ -87,33 +107,33 @@ class Default_Theme {
                 ? accentColor1
                 : primaryColor2.withValues(alpha: 0.0)),
       ),
-      searchBarTheme: const SearchBarThemeData(
+      searchBarTheme: SearchBarThemeData(
         backgroundColor: WidgetStatePropertyAll(themeColor),
       ),
 
       // 🔹 Fix for white popup menus / dropdowns
-      popupMenuTheme: const PopupMenuThemeData(
-        color: Color.fromARGB(255, 23, 18, 25),
+      popupMenuTheme: PopupMenuThemeData(
+        color: const Color.fromARGB(255, 23, 18, 25),
         textStyle: TextStyle(color: primaryColor1),
       ),
-      dropdownMenuTheme: const DropdownMenuThemeData(
+      dropdownMenuTheme: DropdownMenuThemeData(
         menuStyle: MenuStyle(
           backgroundColor: WidgetStatePropertyAll(themeColor),
         ),
         textStyle: TextStyle(color: primaryColor1),
       ),
-      menuTheme: const MenuThemeData(
+      menuTheme: MenuThemeData(
         style: MenuStyle(
           backgroundColor: WidgetStatePropertyAll(themeColor),
         ),
       ),
 
       // 🔹 Fix for cards and surfaces
-      cardTheme: const CardThemeData(
+      cardTheme: CardThemeData(
         color: themeColor,
         surfaceTintColor: Colors.transparent,
       ),
-      dialogTheme: const DialogThemeData(backgroundColor: themeColor),
+      dialogTheme: DialogThemeData(backgroundColor: themeColor),
     );
   }
 

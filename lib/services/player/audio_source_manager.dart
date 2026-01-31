@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:Bloomee/model/songModel.dart';
 import 'package:Bloomee/model/saavnModel.dart';
+import 'package:Bloomee/repository/Youtube/youtube_api.dart';
 import 'package:Bloomee/routes_and_consts/global_str_consts.dart';
 import 'package:Bloomee/screens/widgets/snackbar.dart';
 import 'package:Bloomee/services/db/bloomee_db_service.dart';
@@ -29,15 +30,39 @@ class AudioSourceManager {
 
       AudioSource audioSource;
 
-      if (mediaItem.extras?["source"] == "youtube") {
+      final sourceStr = (mediaItem.extras?["source"] ?? '').toString().toLowerCase();
+      final isYoutube = sourceStr == 'youtube' || sourceStr.contains('yt') ||
+          (mediaItem.extras?["perma_url"]?.toString().toLowerCase().contains('youtube') ?? false);
+
+      if (isYoutube) {
         String? quality =
             await BloomeeDBService.getSettingStr(GlobalStrConsts.ytStrmQuality);
         quality = quality ?? "high";
         quality = quality.toLowerCase();
         final id = mediaItem.id.replaceAll("youtube", '');
 
-        audioSource =
-            YouTubeAudioSource(videoId: id, quality: quality, tag: mediaItem);
+        // Prefer direct URL playback for YouTube. This is generally more stable
+        // across platforms than StreamAudioSource (reduces idle/flicker loops).
+        try {
+          final yt = YouTubeServices();
+          final refreshed = await yt.refreshLink(id, quality: 'Low');
+          if (refreshed != null && refreshed['qurls'] is List) {
+            final qurls = refreshed['qurls'] as List;
+            final int idx = (quality == 'high') ? 2 : 1;
+            final url = (qurls.length > idx) ? qurls[idx]?.toString() : null;
+            if (url != null && url.isNotEmpty) {
+              audioSource = AudioSource.uri(Uri.parse(url), tag: mediaItem);
+            } else {
+              throw Exception('Empty YouTube stream URL');
+            }
+          } else {
+            throw Exception('Failed to refresh YouTube stream URL');
+          }
+        } catch (e) {
+          // Fallback to StreamAudioSource-based playback.
+          audioSource =
+              YouTubeAudioSource(videoId: id, quality: quality, tag: mediaItem);
+        }
       } else {
         String? kurl = await getJsQualityURL(mediaItem.extras?["url"]);
         if (kurl == null || kurl.isEmpty) {

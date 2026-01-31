@@ -65,8 +65,8 @@ void showMoreBottomSheet(
                   showInfoBtn: true,
                 ),
               ),
-              const Padding(
-                padding: EdgeInsets.only(right: 10, left: 10),
+              Padding(
+                padding: const EdgeInsets.only(right: 10, left: 10),
                 child: Opacity(
                   opacity: 0.5,
                   child: Divider(
@@ -77,12 +77,12 @@ void showMoreBottomSheet(
               ),
               (showSinglePlay)
                   ? ListTile(
-                      leading: const Icon(
+                      leading: Icon(
                         MingCute.play_circle_fill,
                         color: Default_Theme.primaryColor1,
                         size: 28,
                       ),
-                      title: const Text(
+                      title: Text(
                         'Play with Mix',
                         style: TextStyle(
                             color: Default_Theme.primaryColor1,
@@ -103,12 +103,12 @@ void showMoreBottomSheet(
                   : const SizedBox.shrink(),
               (showPlayNext)
                   ? ListTile(
-                      leading: const Icon(
+                      leading: Icon(
                         MingCute.square_arrow_right_line,
                         color: Default_Theme.primaryColor1,
                         size: 28,
                       ),
-                      title: const Text(
+                      title: Text(
                         'Play Next',
                         style: TextStyle(
                             color: Default_Theme.primaryColor1,
@@ -129,12 +129,12 @@ void showMoreBottomSheet(
                   : const SizedBox.shrink(),
               (showAddToQueue)
                   ? ListTile(
-                      leading: const Icon(
+                      leading: Icon(
                         MingCute.playlist_2_line,
                         color: Default_Theme.primaryColor1,
                         size: 28,
                       ),
-                      title: const Text(
+                      title: Text(
                         'Add to Queue',
                         style: TextStyle(
                             color: Default_Theme.primaryColor1,
@@ -154,12 +154,12 @@ void showMoreBottomSheet(
                     )
                   : const SizedBox.shrink(),
               ListTile(
-                leading: const Icon(
+                leading: Icon(
                   MingCute.heart_fill,
                   color: Default_Theme.primaryColor1,
                   size: 28,
                 ),
-                title: const Text(
+                title: Text(
                   'Add to Favorites',
                   style: TextStyle(
                       color: Default_Theme.primaryColor1,
@@ -176,12 +176,12 @@ void showMoreBottomSheet(
                 },
               ),
               ListTile(
-                leading: const Icon(
+                leading: Icon(
                   MingCute.add_circle_fill,
                   color: Default_Theme.primaryColor1,
                   size: 28,
                 ),
-                title: const Text(
+                title: Text(
                   'Add to Playlist',
                   style: TextStyle(
                       color: Default_Theme.primaryColor1,
@@ -196,18 +196,19 @@ void showMoreBottomSheet(
                 },
               ),
               ListTile(
-                leading: const Icon(
+                leading: Icon(
                   Icons.share,
                   color: Default_Theme.primaryColor1,
                   size: 28,
                 ),
-                title: const Text(
+                title: Text(
                   'Share',
                   style: TextStyle(
-                      color: Default_Theme.primaryColor1,
-                      fontFamily: "Unageo",
-                      fontSize: 17,
-                      fontWeight: FontWeight.w400),
+                    color: Default_Theme.primaryColor1,
+                    fontFamily: "Unageo",
+                    fontSize: 17,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
                 onTap: () async {
                   Navigator.pop(context);
@@ -220,18 +221,19 @@ void showMoreBottomSheet(
               ),
               (isDownloaded != null && isDownloaded == true)
                   ? ListTile(
-                      leading: const Icon(
+                      leading: Icon(
                         Icons.offline_pin_rounded,
                         color: Default_Theme.primaryColor1,
                         size: 28,
                       ),
-                      title: const Text(
+                      title: Text(
                         'Available Offline',
                         style: TextStyle(
-                            color: Default_Theme.primaryColor1,
-                            fontFamily: "Unageo",
-                            fontSize: 17,
-                            fontWeight: FontWeight.w400),
+                          color: Default_Theme.primaryColor1,
+                          fontFamily: "Unageo",
+                          fontSize: 17,
+                          fontWeight: FontWeight.w400,
+                        ),
                       ),
                       onTap: () {
                         Navigator.pop(context);
@@ -239,18 +241,19 @@ void showMoreBottomSheet(
                       },
                     )
                   : ListTile(
-                      leading: const Icon(
+                      leading: Icon(
                         MingCute.download_2_fill,
                         color: Default_Theme.primaryColor1,
                         size: 28,
                       ),
-                      title: const Text(
+                      title: Text(
                         'Download',
                         style: TextStyle(
-                            color: Default_Theme.primaryColor1,
-                            fontFamily: "Unageo",
-                            fontSize: 17,
-                            fontWeight: FontWeight.w400),
+                          color: Default_Theme.primaryColor1,
+                          fontFamily: "Unageo",
+                          fontSize: 17,
+                          fontWeight: FontWeight.w400,
+                        ),
                       ),
                       onTap: () {
                         Navigator.pop(context);
@@ -259,18 +262,19 @@ void showMoreBottomSheet(
                     ),
               // : const SizedBox.shrink(),
               ListTile(
-                leading: const Icon(
+                leading: Icon(
                   MingCute.external_link_line,
                   color: Default_Theme.primaryColor1,
                   size: 28,
                 ),
-                title: const Text(
+                title: Text(
                   'Open original link',
                   style: TextStyle(
-                      color: Default_Theme.primaryColor1,
-                      fontFamily: "Unageo",
-                      fontSize: 17,
-                      fontWeight: FontWeight.w400),
+                    color: Default_Theme.primaryColor1,
+                    fontFamily: "Unageo",
+                    fontSize: 17,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
                 onTap: () {
                   Navigator.pop(context);
@@ -280,18 +284,19 @@ void showMoreBottomSheet(
               Visibility(
                 visible: showDelete,
                 child: ListTile(
-                  leading: const Icon(
+                  leading: Icon(
                     MingCute.delete_2_fill,
                     color: Default_Theme.primaryColor1,
                     size: 28,
                   ),
-                  title: const Text(
+                  title: Text(
                     'Delete',
                     style: TextStyle(
-                        color: Default_Theme.primaryColor1,
-                        fontFamily: "Unageo",
-                        fontSize: 17,
-                        fontWeight: FontWeight.w400),
+                      color: Default_Theme.primaryColor1,
+                      fontFamily: "Unageo",
+                      fontSize: 17,
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
                   onTap: () {
                     Navigator.pop(context);

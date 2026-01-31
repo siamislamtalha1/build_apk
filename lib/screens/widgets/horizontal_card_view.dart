@@ -52,7 +52,7 @@ class HorizontalCardView extends StatelessWidget {
             child: Text(
               data["title"].toString(),
               textAlign: TextAlign.start,
-              style: const TextStyle(
+              style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: Default_Theme.accentColor2)

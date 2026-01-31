@@ -91,7 +91,7 @@ class _NotificationBannerWidgetState extends State<NotificationBannerWidget> {
                       Text(
                         notification.title,
                         style: Default_Theme.primaryTextStyle.merge(
-                          const TextStyle(
+                          TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                             color: Default_Theme.primaryColor1,
@@ -102,7 +102,7 @@ class _NotificationBannerWidgetState extends State<NotificationBannerWidget> {
                       Text(
                         notification.body,
                         style: Default_Theme.secondoryTextStyle.merge(
-                          const TextStyle(
+                          TextStyle(
                             fontSize: 12,
                             color: Default_Theme.primaryColor2,
                           ),

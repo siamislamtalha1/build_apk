@@ -91,7 +91,7 @@ class _AudioPlayerViewState extends State<AudioPlayerView>
           IconButton(
               onPressed: () =>
                   showMoreBottomSheet(context, musicPlayer.currentMedia),
-              icon: const Icon(MingCute.more_2_fill,
+              icon: Icon(MingCute.more_2_fill,
                   size: 25, color: Default_Theme.primaryColor1))
         ],
         title: Column(
@@ -99,7 +99,7 @@ class _AudioPlayerViewState extends State<AudioPlayerView>
             Text(
               'Enjoying From',
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                       color: Default_Theme.primaryColor1,
                       fontSize: 12,
                       fontWeight: FontWeight.bold)
@@ -111,7 +111,7 @@ class _AudioPlayerViewState extends State<AudioPlayerView>
                   return Text(
                     snapshot.data ?? "Unknown",
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Default_Theme.primaryColor2,
                       fontSize: 12,
                     ).merge(Default_Theme.secondoryTextStyle),
@@ -352,7 +352,7 @@ class _SongInfoRow extends StatelessWidget {
                         mediaItem?.title ?? "Unknown",
                         textAlign: TextAlign.start,
                         style: Default_Theme.secondoryTextStyle.merge(
-                            const TextStyle(
+                            TextStyle(
                                 fontSize: 22,
                                 fontFamily: "NotoSans",
                                 fontWeight: FontWeight.w700,
@@ -552,7 +552,7 @@ class _PlayerControlsRow extends StatelessWidget {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (_) => const TimerView()));
               },
-              icon: const Icon(MingCute.alarm_1_line,
+              icon: Icon(MingCute.alarm_1_line,
                   color: Default_Theme.primaryColor1, size: 30),
             ),
           ),
@@ -565,7 +565,7 @@ class _PlayerControlsRow extends StatelessWidget {
             style: const ButtonStyle(
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap),
             onPressed: () => musicPlayer.skipToPrevious(),
-            icon: const Icon(MingCute.skip_previous_fill,
+            icon: Icon(MingCute.skip_previous_fill,
                 color: Default_Theme.primaryColor1, size: 30),
           ),
           bottomWidget: Tooltip(
@@ -575,7 +575,7 @@ class _PlayerControlsRow extends StatelessWidget {
               constraints: const BoxConstraints(),
               style: const ButtonStyle(
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-              icon: const Icon(MingCute.music_2_line,
+              icon: Icon(MingCute.music_2_line,
                   color: Default_Theme.primaryColor1, size: 24),
               onPressed: () {
                 Navigator.of(context).push(
@@ -599,7 +599,7 @@ class _PlayerControlsRow extends StatelessWidget {
             style: const ButtonStyle(
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap),
             onPressed: () => musicPlayer.skipToNext(),
-            icon: const Icon(MingCute.skip_forward_fill,
+            icon: Icon(MingCute.skip_forward_fill,
                 color: Default_Theme.primaryColor1, size: 30),
           ),
           bottomWidget: const _AudioSettingsControl(),
@@ -717,16 +717,16 @@ class _ExternalLinkControl extends StatelessWidget {
               if (snapshot.hasData &&
                   snapshot.data?.extras?['perma_url'] != null) {
                 return snapshot.data?.extras?['source'] == 'youtube'
-                    ? const Icon(MingCute.youtube_fill,
+                    ? Icon(MingCute.youtube_fill,
                         color: Default_Theme.primaryColor1, size: 24)
                     : Text("JS",
-                        style: const TextStyle(
+                        style: TextStyle(
                                 color: Default_Theme.primaryColor1,
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold)
                             .merge(Default_Theme.secondoryTextStyle));
               }
-              return const Icon(MingCute.external_link_line,
+              return Icon(MingCute.external_link_line,
                   color: Default_Theme.primaryColor1, size: 24);
             }),
         onPressed: () async {
@@ -761,21 +761,21 @@ class _PlayPauseButton extends StatelessWidget {
         Color buttonColor = Default_Theme.accentColor2;
 
         if (state is MiniPlayerInitial || state is MiniPlayerProcessing) {
-          child = const CircularProgressIndicator(
+          child = CircularProgressIndicator(
               color: Default_Theme.primaryColor1);
           buttonColor = Default_Theme.accentColor2;
         } else if (state is MiniPlayerCompleted) {
-          child = const Icon(FontAwesome.rotate_right_solid,
+          child = Icon(FontAwesome.rotate_right_solid,
               color: Default_Theme.primaryColor1, size: 35);
           buttonColor =
               Default_Theme.accentColor1; // Sky blue for completed/repeat
         } else if (state is MiniPlayerError) {
-          child = const Icon(MingCute.warning_line,
+          child = Icon(MingCute.warning_line,
               color: Default_Theme.primaryColor1);
           buttonColor = Default_Theme.accentColor2;
         } else if (state is MiniPlayerWorking) {
           if (state.isBuffering) {
-            child = const CircularProgressIndicator(
+            child = CircularProgressIndicator(
                 color: Default_Theme.primaryColor1);
             buttonColor = state.isPlaying
                 ? Default_Theme.accentColor1
@@ -818,7 +818,7 @@ class _AudioSettingsControl extends StatelessWidget {
         constraints: const BoxConstraints(),
         style:
             const ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-        icon: const Icon(MingCute.settings_3_line,
+        icon: Icon(MingCute.settings_3_line,
             color: Default_Theme.primaryColor1, size: 24),
         onPressed: () {
           showModalBottomSheet(

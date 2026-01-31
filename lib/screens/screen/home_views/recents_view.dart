@@ -21,7 +21,7 @@ class HistoryView extends StatelessWidget {
           centerTitle: true,
           actions: [
             IconButton(
-              icon: const Icon(
+              icon: Icon(
                 MingCute.settings_1_line,
                 color: Default_Theme.primaryColor1,
               ),
@@ -37,7 +37,7 @@ class HistoryView extends StatelessWidget {
           ],
           title: Text(
             'History',
-            style: const TextStyle(
+            style: TextStyle(
                     color: Default_Theme.primaryColor1,
                     fontSize: 20,
                     fontWeight: FontWeight.bold)
@@ -97,7 +97,7 @@ class HistoryView extends StatelessWidget {
       ),
       title: Text(
         title,
-        style: const TextStyle(color: Default_Theme.primaryColor1, fontSize: 17)
+        style: TextStyle(color: Default_Theme.primaryColor1, fontSize: 17)
             .merge(Default_Theme.secondoryTextStyleMedium),
       ),
       subtitle: Text(

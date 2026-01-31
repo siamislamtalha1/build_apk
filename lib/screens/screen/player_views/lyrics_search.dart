@@ -25,14 +25,14 @@ class LyricsSearchDelegate extends SearchDelegate {
   @override
   ThemeData appBarTheme(BuildContext context) {
     return Theme.of(context).copyWith(
-      appBarTheme: const AppBarTheme(
-        shape: RoundedRectangleBorder(
+      appBarTheme: AppBarTheme(
+        shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(20))),
-        backgroundColor: Color.fromARGB(255, 19, 19, 19),
+        backgroundColor: const Color.fromARGB(255, 19, 19, 19),
         iconTheme: IconThemeData(color: Default_Theme.primaryColor1),
       ),
       textTheme: TextTheme(
-        titleLarge: const TextStyle(
+        titleLarge: TextStyle(
           color: Default_Theme.primaryColor1,
         ).merge(Default_Theme.secondoryTextStyleMedium),
       ),
@@ -71,7 +71,7 @@ class LyricsSearchDelegate extends SearchDelegate {
       future: LyricsRepository.searchLyrics(query, ""),
       builder: (context, snapshot) {
         if (!snapshot.hasData || snapshot.data == null) {
-          return const Center(
+          return Center(
               child: CircularProgressIndicator(
             color: Default_Theme.accentColor2,
           ));
@@ -90,7 +90,7 @@ class LyricsSearchDelegate extends SearchDelegate {
                 title: Text(
                   lyrics[index].title,
                   style:
-                      const TextStyle(color: Default_Theme.primaryColor1).merge(
+                      TextStyle(color: Default_Theme.primaryColor1).merge(
                     Default_Theme.secondoryTextStyleMedium,
                   ),
                 ),
@@ -183,7 +183,7 @@ class LyricsSearchDelegate extends SearchDelegate {
       future: LyricsRepository.searchLyrics(query, ""),
       builder: (context, snapshot) {
         if (!snapshot.hasData || snapshot.data == null) {
-          return const Center(
+          return Center(
               child: CircularProgressIndicator(
             color: Default_Theme.accentColor2,
           ));
@@ -202,7 +202,7 @@ class LyricsSearchDelegate extends SearchDelegate {
                 title: Text(
                   lyrics[index].title,
                   style:
-                      const TextStyle(color: Default_Theme.primaryColor1).merge(
+                      TextStyle(color: Default_Theme.primaryColor1).merge(
                     Default_Theme.secondoryTextStyleMedium,
                   ),
                 ),

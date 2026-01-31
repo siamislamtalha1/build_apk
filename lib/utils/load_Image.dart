@@ -21,14 +21,14 @@ Image loadImage(coverImageUrl,
                 return SizedBox(
                   height: constraints.maxWidth,
                   width: constraints.maxWidth,
-                  child: const CircularProgressIndicator(
+                  child: CircularProgressIndicator(
                       color: Default_Theme.accentColor2),
                 );
               } else {
                 return SizedBox(
                   height: constraints.maxHeight,
                   width: constraints.maxHeight,
-                  child: const CircularProgressIndicator(
+                  child: CircularProgressIndicator(
                       color: Default_Theme.accentColor2),
                 );
               }

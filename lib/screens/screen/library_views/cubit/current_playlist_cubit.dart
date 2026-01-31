@@ -18,28 +18,37 @@ class CurrentPlaylistCubit extends Cubit<CurrentPlaylistState> {
   CurrentPlaylistCubit({
     this.mediaPlaylist,
     required this.bloomeeDBCubit,
-  }) : super(CurrentPlaylistInitial());
+  }) : super(const CurrentPlaylistInitial());
 
   Future<void> setupPlaylist(String playlistName) async {
-    emit(CurrentPlaylistLoading());
-    mediaPlaylist = await bloomeeDBCubit
-        .getPlaylistItems(MediaPlaylistDB(playlistName: playlistName));
-
-    if (mediaPlaylist?.mediaItems.isNotEmpty ?? false) {
-      paletteGenerator = await getPalleteFromImage(
-          mediaPlaylist!.mediaItems[0].artUri.toString());
+    emit(const CurrentPlaylistLoading());
+    try {
+      mediaPlaylist = await bloomeeDBCubit
+          .getPlaylistItems(MediaPlaylistDB(playlistName: playlistName));
+    } catch (_) {
+      mediaPlaylist = null;
     }
-    // log(paletteGenerator.toString());
+
+    final resolved = mediaPlaylist ??
+        MediaPlaylist(mediaItems: const [], playlistName: playlistName);
+
+    if (resolved.mediaItems.isNotEmpty) {
+      paletteGenerator = await getPalleteFromImage(
+          resolved.mediaItems[0].artUri.toString());
+    } else {
+      paletteGenerator = null;
+    }
+
     emit(state.copyWith(
-        playlistName: mediaPlaylist?.playlistName,
-        isFetched: true,
-        mediaPlaylist: mediaPlaylist,
-        mediaItem: List<MediaItemModel>.from(mediaPlaylist!.mediaItems)));
+      isFetched: true,
+      mediaPlaylist: resolved,
+    ));
   }
 
   Future<List<int>> getItemOrder() async {
-    return await BloomeeDBService.getPlaylistItemsRankByName(
-        mediaPlaylist!.playlistName);
+    final name = mediaPlaylist?.playlistName ?? state.mediaPlaylist.playlistName;
+    if (name.isEmpty) return [];
+    return await BloomeeDBService.getPlaylistItemsRankByName(name);
   }
 
   String getTitle() {
@@ -57,6 +66,32 @@ class CurrentPlaylistCubit extends Cubit<CurrentPlaylistState> {
           MediaPlaylistDB(playlistName: mediaPlaylist!.playlistName));
       setupPlaylist(playlist.playlistName);
     }
+  }
+
+  Future<bool> renamePlaylist(String newPlaylistName) async {
+    final oldName = state.mediaPlaylist.playlistName;
+    final next = newPlaylistName.trim();
+    if (oldName.isEmpty || next.isEmpty) return false;
+    final ok = await BloomeeDBService.renamePlaylist(oldName, next);
+    if (ok) {
+      await setupPlaylist(next);
+    }
+    return ok;
+  }
+
+  Future<void> updatePlaylistInfo({
+    String? description,
+    String? artURL,
+  }) async {
+    final name = state.mediaPlaylist.playlistName;
+    if (name.isEmpty) return;
+    await BloomeeDBService.upsertPlaylistInfo(
+      name,
+      description: description,
+      artURL: artURL,
+      isAlbum: state.mediaPlaylist.isAlbum,
+    );
+    await setupPlaylist(name);
   }
 
   int getPlaylistLength() {

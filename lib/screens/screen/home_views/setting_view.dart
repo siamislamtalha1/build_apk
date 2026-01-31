@@ -21,7 +21,7 @@ class SettingsView extends StatelessWidget {
         centerTitle: true,
         title: Text(
           'Settings',
-          style: const TextStyle(
+          style: TextStyle(
                   color: Default_Theme.primaryColor1,
                   fontSize: 20,
                   fontWeight: FontWeight.bold)
@@ -153,7 +153,7 @@ class SettingsView extends StatelessWidget {
       ),
       title: Text(
         title,
-        style: const TextStyle(color: Default_Theme.primaryColor1, fontSize: 16)
+        style: TextStyle(color: Default_Theme.primaryColor1, fontSize: 16)
             .merge(Default_Theme.secondoryTextStyleMedium),
       ),
       subtitle: Text(

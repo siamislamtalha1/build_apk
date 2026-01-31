@@ -9,7 +9,9 @@ import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 Future<AudioOnlyStreamInfo> getStreamInfoBG(
     String videoId, RootIsolateToken? token, String quality) async {
-  BackgroundIsolateBinaryMessenger.ensureInitialized(token!);
+  if (token != null) {
+    BackgroundIsolateBinaryMessenger.ensureInitialized(token);
+  }
   final ytExplode = YoutubeExplode();
   final manifest = await ytExplode.videos.streams.getManifest(videoId,
       requireWatchPage: true, ytClients: [YoutubeApiClient.androidVr]);
@@ -34,17 +36,57 @@ class YouTubeAudioSource extends StreamAudioSource {
     super.tag,
   }) : ytExplode = YoutubeExplode();
 
+  String get _streamInfoCacheKey => 'streaminfo:$videoId';
+
+  Future<List<AudioOnlyStreamInfo>> _fetchLowHighStreams() async {
+    final manifest = await ytExplode.videos.streams.getManifest(
+      videoId,
+      requireWatchPage: true,
+      ytClients: [YoutubeApiClient.androidVr],
+    );
+    final supportedStreams = manifest.audioOnly.sortByBitrate();
+    final low = supportedStreams.firstOrNull;
+    final high = supportedStreams.lastOrNull;
+    if (low == null || high == null) {
+      throw Exception('No audio stream available for this video.');
+    }
+    return [low, high];
+  }
+
+  Future<void> _cacheIfPossible({
+    required AudioOnlyStreamInfo low,
+    required AudioOnlyStreamInfo high,
+  }) async {
+    try {
+      await cacheYtStreams(id: _streamInfoCacheKey, hURL: high, lURL: low);
+    } catch (_) {
+      // Best-effort only.
+    }
+  }
+
   Future<AudioOnlyStreamInfo> getStreamInfo() async {
-    final cachedStreams = await getStreamFromCache(videoId);
+    // Use a dedicated key to avoid clobbering/being clobbered by the URL cache
+    // used elsewhere in the app.
+    final cachedStreams = await getStreamFromCache(_streamInfoCacheKey);
     if (cachedStreams != null) {
       return quality == 'high' ? cachedStreams[1] : cachedStreams[0];
     }
-    final vidId = videoId;
-    final qlty = quality;
-    final token = RootIsolateToken.instance;
-    final audioStream =
-        await Isolate.run(() => getStreamInfoBG(vidId, token, qlty));
-    return audioStream;
+
+    // Prefer isolate for heavy work, but fall back to non-isolate path if isolate
+    // initialization fails (observed to crash on some desktop/mobile builds).
+    try {
+      final vidId = videoId;
+      final qlty = quality;
+      final token = RootIsolateToken.instance;
+      final audioStream =
+          await Isolate.run(() => getStreamInfoBG(vidId, token, qlty));
+      return audioStream;
+    } catch (e) {
+      // Fallback: fetch manifest on main isolate and cache both low/high.
+      final streams = await _fetchLowHighStreams();
+      await _cacheIfPossible(low: streams[0], high: streams[1]);
+      return quality == 'high' ? streams[1] : streams[0];
+    }
   }
 
   @override
@@ -52,18 +94,15 @@ class YouTubeAudioSource extends StreamAudioSource {
     try {
       final audioStream = await getStreamInfo();
 
-      start ??= 0;
-      if (end != null && end > audioStream.size.totalBytes) {
-        end = audioStream.size.totalBytes;
-      }
-
+      // youtube_explode_dart (path dependency) does not support ranged stream
+      // fetching via start/end in streams.get(). We still keep the StreamAudioSource
+      // implementation for fallback use.
       final stream = ytExplode.videos.streams.get(audioStream);
 
       return StreamAudioResponse(
         sourceLength: audioStream.size.totalBytes,
-        contentLength:
-            end != null ? end - start : audioStream.size.totalBytes - start,
-        offset: start,
+        contentLength: audioStream.size.totalBytes,
+        offset: 0,
         stream: stream,
         contentType: audioStream.codec.mimeType,
       );
@@ -78,9 +117,8 @@ Future<void> cacheYtStreams({
   required AudioOnlyStreamInfo hURL,
   required AudioOnlyStreamInfo lURL,
 }) async {
-  final expireAt = RegExp('expire=(.*?)&')
-          .firstMatch(lURL.url.toString())!
-          .group(1) ??
+  final match = RegExp('expire=(.*?)&').firstMatch(lURL.url.toString());
+  final expireAt = match?.group(1) ??
       (DateTime.now().millisecondsSinceEpoch ~/ 1000 + 3600 * 5.5).toString();
 
   try {
@@ -102,10 +140,18 @@ Future<List<AudioOnlyStreamInfo>?> getStreamFromCache(String id) async {
     final expireAt = cache.expireAt;
     if (expireAt > DateTime.now().millisecondsSinceEpoch ~/ 1000) {
       // dev.log("Cache found: $id", name: "CacheYtStreams");
-      return [
-        AudioOnlyStreamInfo.fromJson(jsonDecode(cache.lowQURL!)),
-        AudioOnlyStreamInfo.fromJson(jsonDecode(cache.highQURL)),
-      ];
+      if (cache.lowQURL == null) return null;
+
+      // The ytLinkCacheDB is also used elsewhere to store plain URL strings.
+      // If the stored value is not valid JSON for AudioOnlyStreamInfo, ignore it.
+      try {
+        return [
+          AudioOnlyStreamInfo.fromJson(jsonDecode(cache.lowQURL!)),
+          AudioOnlyStreamInfo.fromJson(jsonDecode(cache.highQURL)),
+        ];
+      } catch (_) {
+        return null;
+      }
     }
   }
   return null;

@@ -46,7 +46,7 @@ class _AIPlaylistScreenState extends State<AIPlaylistScreen> {
         title: Text(
           'AI Playlist Generator',
           style: Default_Theme.primaryTextStyle.merge(
-            const TextStyle(
+            TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
               color: Default_Theme.primaryColor1,
@@ -77,7 +77,7 @@ class _AIPlaylistScreenState extends State<AIPlaylistScreen> {
               ),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     MingCute.sparkles_fill,
                     size: 40,
                     color: Default_Theme.accentColor2,
@@ -90,7 +90,7 @@ class _AIPlaylistScreenState extends State<AIPlaylistScreen> {
                         Text(
                           'AI-Powered Playlists',
                           style: Default_Theme.primaryTextStyle.merge(
-                            const TextStyle(
+                            TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                               color: Default_Theme.primaryColor1,
@@ -101,7 +101,7 @@ class _AIPlaylistScreenState extends State<AIPlaylistScreen> {
                         Text(
                           'Let AI create the perfect playlist for your mood',
                           style: Default_Theme.secondoryTextStyle.merge(
-                            const TextStyle(
+                            TextStyle(
                               fontSize: 14,
                               color: Default_Theme.primaryColor2,
                             ),
@@ -120,7 +120,7 @@ class _AIPlaylistScreenState extends State<AIPlaylistScreen> {
             Text(
               'Select Your Mood',
               style: Default_Theme.primaryTextStyle.merge(
-                const TextStyle(
+                TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Default_Theme.primaryColor1,
@@ -241,7 +241,7 @@ class _AIPlaylistScreenState extends State<AIPlaylistScreen> {
                   Text(
                     'Generated Playlist',
                     style: Default_Theme.primaryTextStyle.merge(
-                      const TextStyle(
+                      TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: Default_Theme.primaryColor1,
@@ -291,7 +291,7 @@ class _AIPlaylistScreenState extends State<AIPlaylistScreen> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
             image: DecorationImage(
-                    image: NetworkImage(song.artURL!),
+                    image: NetworkImage(song.artURL),
                     fit: BoxFit.cover,
                   ),
             color: Default_Theme.accentColor2.withValues(alpha: 0.2),
@@ -301,7 +301,7 @@ class _AIPlaylistScreenState extends State<AIPlaylistScreen> {
         title: Text(
           song.title ?? 'Unknown',
           style: Default_Theme.primaryTextStyle.merge(
-            const TextStyle(
+            TextStyle(
               fontSize: 14,
               color: Default_Theme.primaryColor1,
             ),
@@ -312,7 +312,7 @@ class _AIPlaylistScreenState extends State<AIPlaylistScreen> {
         subtitle: Text(
           song.artist ?? 'Unknown Artist',
           style: Default_Theme.secondoryTextStyle.merge(
-            const TextStyle(
+            TextStyle(
               fontSize: 12,
               color: Default_Theme.primaryColor2,
             ),

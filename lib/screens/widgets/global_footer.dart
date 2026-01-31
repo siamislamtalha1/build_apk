@@ -35,6 +35,7 @@ class GlobalFooter extends StatelessWidget {
           }
         },
         child: Scaffold(
+          extendBody: true,
           body: ResponsiveBreakpoints.of(context).isMobile
               ? _AnimatedPageView(navigationShell: navigationShell)
               : Row(
@@ -49,8 +50,8 @@ class GlobalFooter extends StatelessWidget {
                     ),
                   ],
                 ),
-          backgroundColor: Default_Theme.themeColor,
-          drawerScrimColor: Default_Theme.themeColor,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          drawerScrimColor: Theme.of(context).scaffoldBackgroundColor,
           bottomNavigationBar: SafeArea(
               child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -170,11 +171,16 @@ class VerticalNavBar extends StatelessWidget {
           child: Container(
             // Glassmorphism overlay
             decoration: BoxDecoration(
-              color:
-                  Default_Theme.themeColor.withValues(alpha: 0.05), // Was 0.15
+              color: Theme.of(context)
+                  .colorScheme
+                  .surface
+                  .withValues(alpha: 0.06),
               borderRadius: BorderRadius.circular(32),
               border: Border.all(
-                color: Colors.white.withValues(alpha: 0.1),
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: 0.12),
                 width: 1.0,
               ),
               // No shadow
@@ -200,10 +206,13 @@ class VerticalNavBar extends StatelessWidget {
                 navigationShell.goBranch(value);
               },
               groupAlignment: 0.0,
-              unselectedIconTheme:
-                  const IconThemeData(color: Default_Theme.primaryColor2),
+              unselectedIconTheme: IconThemeData(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withValues(alpha: 0.65)),
               indicatorColor:
-                  Default_Theme.accentColor2.withValues(alpha: 0.25),
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.18),
               indicatorShape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
@@ -225,6 +234,9 @@ class HorizontalNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final glassTint = Colors.white
+        .withValues(alpha: Theme.of(context).brightness == Brightness.dark ? 0.14 : 0.65);
     return ClipRRect(
       borderRadius: BorderRadius.circular(30),
       child: BackdropFilter(
@@ -232,13 +244,13 @@ class HorizontalNavBar extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             // Pure glassmorphic - transparent background like mini player
-            color: Colors.transparent,
+            color: glassTint,
             borderRadius: BorderRadius.circular(30),
             border: Border.all(
-              color: Colors.white.withValues(alpha: 0.1),
+              color: scheme.onSurface.withValues(alpha: 0.12),
               width: 1.0,
             ),
-            boxShadow: [],
+            boxShadow: const [],
           ),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           child: Row(
@@ -287,6 +299,7 @@ class HorizontalNavBar extends StatelessWidget {
     required String label,
     required int index,
   }) {
+    final scheme = Theme.of(context).colorScheme;
     final isSelected = navigationShell.currentIndex == index;
 
     return Expanded(
@@ -298,7 +311,7 @@ class HorizontalNavBar extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
             color: isSelected
-                ? Default_Theme.accentColor2.withValues(alpha: 0.22)
+                ? scheme.primary.withValues(alpha: 0.18)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(20),
           ),
@@ -309,8 +322,8 @@ class HorizontalNavBar extends StatelessWidget {
               Icon(
                 icon,
                 color: isSelected
-                    ? Default_Theme.accentColor2
-                    : Default_Theme.primaryColor2,
+                    ? scheme.primary
+                    : scheme.onSurface.withValues(alpha: 0.65),
                 size: 24,
               ),
               if (isSelected) ...{
@@ -319,8 +332,8 @@ class HorizontalNavBar extends StatelessWidget {
                   child: Text(
                     label,
                     style: Default_Theme.secondoryTextStyleMedium.merge(
-                      const TextStyle(
-                        color: Default_Theme.accentColor2,
+                      TextStyle(
+                        color: scheme.primary,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),

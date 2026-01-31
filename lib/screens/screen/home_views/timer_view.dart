@@ -67,7 +67,7 @@ class _TimerViewState extends State<TimerView> {
         centerTitle: true,
         title: Text(
           'Sleep Timer',
-          style: const TextStyle(
+          style: TextStyle(
                   color: Default_Theme.primaryColor1,
                   fontSize: 20,
                   fontWeight: FontWeight.bold)
@@ -92,7 +92,7 @@ class _TimerViewState extends State<TimerView> {
                             "Preparing for a peaceful interlude in…",
                             maxLines: 2,
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
+                            style: TextStyle(
                                     color: Default_Theme.primaryColor2,
                                     fontSize: 25,
                                     fontWeight: FontWeight.bold)
@@ -128,8 +128,8 @@ class _TimerViewState extends State<TimerView> {
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Padding(
-                                  padding: EdgeInsets.only(right: 10),
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 10),
                                   child: Icon(
                                     MingCute.stop_circle_fill,
                                     color: Default_Theme.primaryColor2,
@@ -138,7 +138,7 @@ class _TimerViewState extends State<TimerView> {
                                 ),
                                 Text(
                                   "Stop Timer",
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                           color: Default_Theme.primaryColor2,
                                           fontSize: 20,
                                           fontWeight: FontWeight.bold)
@@ -157,9 +157,9 @@ class _TimerViewState extends State<TimerView> {
                       child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Padding(
-                        padding:
-                            EdgeInsets.only(bottom: 60, left: 10, right: 10),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            bottom: 60, left: 10, right: 10),
                         child: Text(
                           "The tunes have rested. Sweet Dreams 🥰.",
                           textAlign: TextAlign.center,
@@ -184,7 +184,7 @@ class _TimerViewState extends State<TimerView> {
                         ),
                         child: Text(
                           "Got it!",
-                          style: const TextStyle(
+                          style: TextStyle(
                                   color: Default_Theme.primaryColor2,
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold)
@@ -218,7 +218,7 @@ class _TimerViewState extends State<TimerView> {
                 children: [
                   Text("Hours",
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                               color: Default_Theme.primaryColor2, fontSize: 25)
                           .merge(Default_Theme.secondoryTextStyleMedium)),
                   Expanded(
@@ -236,7 +236,7 @@ class _TimerViewState extends State<TimerView> {
                                     .withValues(alpha: 0.7),
                                 fontSize: 20)
                             .merge(Default_Theme.secondoryTextStyle),
-                        selectedTextStyle: const TextStyle(
+                        selectedTextStyle: TextStyle(
                                 color: Default_Theme.primaryColor2,
                                 fontSize: 40)
                             .merge(Default_Theme.secondoryTextStyleMedium),
@@ -260,7 +260,7 @@ class _TimerViewState extends State<TimerView> {
                 children: [
                   Text("Minutes",
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                               color: Default_Theme.primaryColor2, fontSize: 25)
                           .merge(Default_Theme.secondoryTextStyleMedium)),
                   Expanded(
@@ -278,7 +278,7 @@ class _TimerViewState extends State<TimerView> {
                                     .withValues(alpha: 0.7),
                                 fontSize: 20)
                             .merge(Default_Theme.secondoryTextStyle),
-                        selectedTextStyle: const TextStyle(
+                        selectedTextStyle: TextStyle(
                                 color: Default_Theme.primaryColor2,
                                 fontSize: 40)
                             .merge(Default_Theme.secondoryTextStyleMedium),
@@ -302,7 +302,7 @@ class _TimerViewState extends State<TimerView> {
                 children: [
                   Text("Seconds",
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                               color: Default_Theme.primaryColor2, fontSize: 25)
                           .merge(Default_Theme.secondoryTextStyleMedium)),
                   Expanded(
@@ -320,7 +320,7 @@ class _TimerViewState extends State<TimerView> {
                                     .withValues(alpha: 0.7),
                                 fontSize: 20)
                             .merge(Default_Theme.secondoryTextStyle),
-                        selectedTextStyle: const TextStyle(
+                        selectedTextStyle: TextStyle(
                                 color: Default_Theme.primaryColor2,
                                 fontSize: 40)
                             .merge(Default_Theme.secondoryTextStyleMedium),
@@ -388,7 +388,7 @@ class _TimerViewState extends State<TimerView> {
         children: [
           Text(label,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                       color: Default_Theme.primaryColor2, fontSize: 25)
                   .merge(Default_Theme.secondoryTextStyleMedium)),
           Container(
@@ -403,7 +403,7 @@ class _TimerViewState extends State<TimerView> {
               padding: const EdgeInsets.all(20.0),
               child: Text(time.toString().padLeft(2, '0'),
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                           color: Default_Theme.primaryColor2, fontSize: 35)
                       .merge(Default_Theme.secondoryTextStyleMedium)),
             ),

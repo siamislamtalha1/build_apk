@@ -109,7 +109,7 @@ class LibItemCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       maxLines: 2,
                       style: Default_Theme.secondoryTextStyle.merge(
-                          const TextStyle(
+                          TextStyle(
                               fontSize: 16.5,
                               fontWeight: FontWeight.w700,
                               color: Default_Theme.primaryColor1)),
@@ -118,7 +118,7 @@ class LibItemCard extends StatelessWidget {
                       subtitle,
                       maxLines: 1,
                       style: Default_Theme.secondoryTextStyle.merge(
-                          const TextStyle(
+                          TextStyle(
                               fontSize: 14,
                               overflow: TextOverflow.fade,
                               fontWeight: FontWeight.w500,

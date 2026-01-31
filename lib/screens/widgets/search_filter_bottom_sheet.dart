@@ -55,7 +55,7 @@ class _SearchFilterBottomSheetState extends State<SearchFilterBottomSheet> {
                   Text(
                     'Search Filters',
                     style: Default_Theme.primaryTextStyle.merge(
-                      const TextStyle(
+                      TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                         color: Default_Theme.primaryColor1,
@@ -64,7 +64,7 @@ class _SearchFilterBottomSheetState extends State<SearchFilterBottomSheet> {
                   ),
                   IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(
+                    icon: Icon(
                       MingCute.close_circle_fill,
                       color: Default_Theme.primaryColor1,
                     ),
@@ -77,7 +77,7 @@ class _SearchFilterBottomSheetState extends State<SearchFilterBottomSheet> {
               Text(
                 'Sources',
                 style: Default_Theme.secondoryTextStyle.merge(
-                  const TextStyle(
+                  TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: Default_Theme.accentColor2,
@@ -125,7 +125,7 @@ class _SearchFilterBottomSheetState extends State<SearchFilterBottomSheet> {
               Text(
                 'Sort By',
                 style: Default_Theme.secondoryTextStyle.merge(
-                  const TextStyle(
+                  TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: Default_Theme.accentColor2,
@@ -180,7 +180,7 @@ class _SearchFilterBottomSheetState extends State<SearchFilterBottomSheet> {
                       Navigator.pop(context);
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
+                        SnackBar(
                           content: Text('Please select at least one source'),
                           backgroundColor: Default_Theme.accentColor2,
                         ),
@@ -197,7 +197,7 @@ class _SearchFilterBottomSheetState extends State<SearchFilterBottomSheet> {
                   ),
                   child: const Text(
                     'Apply Filters',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -235,7 +235,7 @@ class _SearchFilterBottomSheetState extends State<SearchFilterBottomSheet> {
             Text(
               title,
               style: Default_Theme.primaryTextStyle.merge(
-                const TextStyle(
+                TextStyle(
                   fontSize: 15,
                   color: Default_Theme.primaryColor1,
                 ),
@@ -245,7 +245,7 @@ class _SearchFilterBottomSheetState extends State<SearchFilterBottomSheet> {
         ),
         value: value,
         onChanged: onChanged,
-        activeColor: Default_Theme.accentColor2,
+        activeThumbColor: Default_Theme.accentColor2,
         activeTrackColor: Default_Theme.accentColor2.withValues(alpha: 0.3),
       ),
     );

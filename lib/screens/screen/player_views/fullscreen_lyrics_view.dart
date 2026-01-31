@@ -356,7 +356,7 @@ class _FullscreenLyricsViewState extends State<FullscreenLyricsView>
 
                   if (isBuffering) {
                     return Container(
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         boxShadow: [
                           BoxShadow(
                             color: Default_Theme.accentColor2,
@@ -369,7 +369,7 @@ class _FullscreenLyricsViewState extends State<FullscreenLyricsView>
                       ),
                       width: 70,
                       height: 70,
-                      child: const Center(
+                      child: Center(
                         child: SizedBox(
                           width: 30,
                           height: 30,

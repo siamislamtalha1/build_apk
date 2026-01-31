@@ -23,7 +23,7 @@ class SettingTile extends StatelessWidget {
       enabled: onTap != null,
       title: Text(
         title,
-        style: const TextStyle(color: Default_Theme.primaryColor1, fontSize: 16)
+        style: TextStyle(color: Default_Theme.primaryColor1, fontSize: 16)
             .merge(Default_Theme.secondoryTextStyleMedium),
       ),
       subtitle: Text(

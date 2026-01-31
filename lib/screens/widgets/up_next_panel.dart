@@ -35,7 +35,7 @@ class _UpNextStyles {
   );
 
   static final legacyHeaderStyle = Default_Theme.secondoryTextStyleMedium.merge(
-    const TextStyle(
+    TextStyle(
       color: Default_Theme.primaryColor2,
       fontSize: 17,
       fontWeight: FontWeight.bold,
@@ -503,10 +503,10 @@ class _QueueInfoRow extends StatelessWidget {
             child: TextFormField(
               controller: controller,
               autofocus: true,
-              style: const TextStyle(color: Default_Theme.primaryColor1),
-              decoration: const InputDecoration(
+              style: TextStyle(color: Default_Theme.primaryColor1),
+              decoration: InputDecoration(
                 hintText: 'Playlist Name',
-                hintStyle: TextStyle(color: Colors.grey),
+                hintStyle: const TextStyle(color: Colors.grey),
                 enabledBorder: UnderlineInputBorder(
                     borderSide: BorderSide(color: Default_Theme.accentColor2)),
                 focusedBorder: UnderlineInputBorder(
@@ -604,7 +604,7 @@ class _QueueInfoRow extends StatelessWidget {
                           child: IconButton(
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
-                            icon: const Icon(Icons.save_alt_rounded,
+                            icon: Icon(Icons.save_alt_rounded,
                                 size: 20, color: Default_Theme.primaryColor1),
                             onPressed: () =>
                                 _saveQueueAsPlaylist(context, queue),
@@ -695,9 +695,9 @@ class _DesktopSongListState extends State<_DesktopSongList> {
       stream: widget.playerCubit.bloomeePlayer.queue,
       builder: (context, queueSnapshot) {
         if (!queueSnapshot.hasData) {
-          return const Center(
+          return Center(
             child: Padding(
-              padding: EdgeInsets.all(20),
+              padding: const EdgeInsets.all(20),
               child: CircularProgressIndicator(
                 color: Default_Theme.primaryColor2,
               ),
@@ -878,10 +878,10 @@ class _SongListSliverState extends State<_SongListSliver> {
       stream: widget.playerCubit.bloomeePlayer.queue,
       builder: (context, queueSnapshot) {
         if (!queueSnapshot.hasData) {
-          return const SliverToBoxAdapter(
+          return SliverToBoxAdapter(
             child: Center(
               child: Padding(
-                padding: EdgeInsets.all(20),
+                padding: const EdgeInsets.all(20),
                 child: CircularProgressIndicator(
                   color: Default_Theme.primaryColor2,
                 ),
@@ -1206,7 +1206,7 @@ class _LegacySongListState extends State<_LegacySongList> {
       stream: widget.playerCubit.bloomeePlayer.queue,
       builder: (context, queueSnapshot) {
         if (!queueSnapshot.hasData) {
-          return const Center(
+          return Center(
             child: CircularProgressIndicator(
               color: Default_Theme.primaryColor2,
             ),

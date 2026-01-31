@@ -67,8 +67,8 @@ class SquareImgCard extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Padding(
-                                  padding: EdgeInsets.only(right: 5),
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 5),
                                   child: Icon(
                                     MingCute.playlist_2_line,
                                     size: 18,
@@ -77,7 +77,7 @@ class SquareImgCard extends StatelessWidget {
                                 ),
                                 Text(
                                   "$tag",
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.bold,
                                           color: Default_Theme.primaryColor2)
@@ -89,8 +89,8 @@ class SquareImgCard extends StatelessWidget {
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Padding(
-                                  padding: EdgeInsets.only(right: 5),
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 5),
                                   child: Icon(
                                     MingCute.eye_2_line,
                                     size: 18,
@@ -99,7 +99,7 @@ class SquareImgCard extends StatelessWidget {
                                 ),
                                 Text(
                                   "$tag",
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.bold,
                                           color: Default_Theme.primaryColor2)
@@ -117,7 +117,7 @@ class SquareImgCard extends StatelessWidget {
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: Default_Theme.secondoryTextStyle.merge(const TextStyle(
+              style: Default_Theme.secondoryTextStyle.merge(TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
                   color: Default_Theme.primaryColor1,

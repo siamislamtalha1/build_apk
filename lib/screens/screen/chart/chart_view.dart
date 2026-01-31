@@ -40,7 +40,7 @@ class _ChartScreenState extends State<ChartScreen> {
           builder: (context, state) {
             if (state.connectionState == ConnectionState.waiting ||
                 state.data == null) {
-              return const Center(
+              return Center(
                 child: SizedBox(
                     height: 50,
                     width: 50,

@@ -10,7 +10,8 @@ Future<void> cacheYtStreams({
   required String hURL,
   required String lURL,
 }) async {
-  final expireAt = RegExp('expire=(.*?)&').firstMatch(lURL)!.group(1) ??
+  final match = RegExp('expire=(.*?)&').firstMatch(lURL);
+  final expireAt = match?.group(1) ??
       (DateTime.now().millisecondsSinceEpoch ~/ 1000 + 3600 * 5.5).toString();
 
   try {

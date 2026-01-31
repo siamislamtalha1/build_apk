@@ -66,7 +66,7 @@ class LibraryItemsCubit extends Cubit<LibraryItemsState> {
       ));
     } catch (e) {
       log("Error fetching playlists: $e", name: "LibraryItemsCubit");
-      emit(const LibraryItemsError("Failed to load your playlists."));
+      SnackbarService.showMessage("Failed to load your playlists.");
     }
   }
 
@@ -85,7 +85,7 @@ class LibraryItemsCubit extends Cubit<LibraryItemsState> {
       ));
     } catch (e) {
       log("Error fetching saved collections: $e", name: "LibraryItemsCubit");
-      emit(const LibraryItemsError("Failed to load your saved items."));
+      SnackbarService.showMessage("Failed to load your saved items.");
     }
   }
 

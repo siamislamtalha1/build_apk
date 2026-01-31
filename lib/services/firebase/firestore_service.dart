@@ -5,9 +5,248 @@ import 'package:Bloomee/services/db/GlobalDB.dart';
 class FirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  static const String shareUrlPrefix = 'https://bloomee.app/p/';
+
   /// Get user document reference
   DocumentReference _userDoc(String userId) {
     return _firestore.collection('users').doc(userId);
+  }
+
+  DocumentReference _usernameDoc(String usernameLower) {
+    return _firestore.collection('usernames').doc(usernameLower);
+  }
+
+  DocumentReference _sharedPlaylistDoc(String shareId) {
+    return _firestore.collection('sharedPlaylists').doc(shareId);
+  }
+
+  static String normalizeUsername(String raw) {
+    var u = raw.trim();
+    if (u.startsWith('@')) u = u.substring(1);
+    return u.trim().toLowerCase();
+  }
+
+  static bool isValidUsername(String raw) {
+    final u = normalizeUsername(raw);
+    if (u.length < 3 || u.length > 20) return false;
+    final re = RegExp(r'^[a-z0-9_]+$');
+    return re.hasMatch(u);
+  }
+
+  String formatUsername(String raw) {
+    final u = normalizeUsername(raw);
+    return '@$u';
+  }
+
+  Future<String?> getUsername(String userId) async {
+    final profile = await getUserProfile(userId);
+    final username = profile?['username'] as String?;
+    return username;
+  }
+
+  Stream<Map<String, dynamic>?> watchUserProfile(String userId) {
+    return _userDoc(userId).snapshots().map((doc) => doc.data() as Map<String, dynamic>?);
+  }
+
+  Future<String> _generateRandomUsername({String? displayName}) async {
+    final base = (displayName ?? 'user')
+        .trim()
+        .toLowerCase()
+        .replaceAll(RegExp(r'\s+'), '')
+        .replaceAll(RegExp(r'[^a-z0-9_]'), '');
+    final prefix = base.isEmpty ? 'user' : base;
+    final seed = DateTime.now().millisecondsSinceEpoch;
+    final suffix = (seed % 1000000).toString().padLeft(6, '0');
+    return '$prefix$suffix';
+  }
+
+  Future<String> ensureUsername({
+    required String userId,
+    String? displayName,
+  }) async {
+    final current = await getUsername(userId);
+    if (current != null && current.trim().isNotEmpty) return current;
+    var attempt = await _generateRandomUsername(displayName: displayName);
+    var tries = 0;
+    while (tries < 6) {
+      try {
+        return await claimUsername(
+          userId: userId,
+          desiredUsername: attempt,
+        );
+      } catch (_) {
+        final seed = DateTime.now().microsecondsSinceEpoch;
+        attempt = 'user${seed % 100000000}';
+        tries++;
+      }
+    }
+    return await claimUsername(
+      userId: userId,
+      desiredUsername: 'user${DateTime.now().millisecondsSinceEpoch}',
+    );
+  }
+
+  Future<String> claimUsername({
+    required String userId,
+    required String desiredUsername,
+  }) async {
+    if (!isValidUsername(desiredUsername)) {
+      throw Exception('Invalid username');
+    }
+    final desiredLower = normalizeUsername(desiredUsername);
+
+    return _firestore.runTransaction((txn) async {
+      final userRef = _userDoc(userId);
+      final userSnap = await txn.get(userRef);
+      final prevLower = (userSnap.data() as Map<String, dynamic>?)?['usernameLower'] as String?;
+
+      final usernameRef = _usernameDoc(desiredLower);
+      final usernameSnap = await txn.get(usernameRef);
+      if (usernameSnap.exists) {
+        final data = usernameSnap.data() as Map<String, dynamic>?;
+        final existingUid = data?['uid'] as String?;
+        if (existingUid != userId) {
+          throw Exception('Username already taken');
+        }
+      }
+
+      if (prevLower != null && prevLower.isNotEmpty && prevLower != desiredLower) {
+        txn.delete(_usernameDoc(prevLower));
+      }
+
+      txn.set(usernameRef, {
+        'uid': userId,
+        'username': '@$desiredLower',
+        'usernameLower': desiredLower,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      txn.set(userRef, {
+        'username': '@$desiredLower',
+        'usernameLower': desiredLower,
+        'lastUpdated': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      return '@$desiredLower';
+    });
+  }
+
+  Future<void> releaseUsername(String userId) async {
+    try {
+      final doc = await _userDoc(userId).get();
+      final data = doc.data() as Map<String, dynamic>?;
+      final lower = data?['usernameLower'] as String?;
+      if (lower != null && lower.isNotEmpty) {
+        final batch = _firestore.batch();
+        batch.delete(_usernameDoc(lower));
+        batch.set(_userDoc(userId), {
+          'username': FieldValue.delete(),
+          'usernameLower': FieldValue.delete(),
+          'lastUpdated': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+        await batch.commit();
+      }
+    } catch (_) {}
+  }
+
+  Future<String?> getUserIdByUsername(String username) async {
+    final lower = normalizeUsername(username);
+    if (lower.isEmpty) return null;
+    final doc = await _usernameDoc(lower).get();
+    if (!doc.exists) return null;
+    final data = doc.data() as Map<String, dynamic>?;
+    return data?['uid'] as String?;
+  }
+
+  Future<void> setPlaylistVisibility({
+    required String userId,
+    required String playlistName,
+    required bool isPublic,
+  }) async {
+    final playlistRef = _userDoc(userId).collection('playlists').doc(playlistName);
+    await playlistRef.set(
+      {
+        'isPublic': isPublic,
+        'updatedAt': FieldValue.serverTimestamp(),
+      },
+      SetOptions(merge: true),
+    );
+  }
+
+  Future<String> ensurePlaylistShareId({
+    required String userId,
+    required String playlistName,
+  }) async {
+    final playlistRef = _userDoc(userId).collection('playlists').doc(playlistName);
+    final snap = await playlistRef.get();
+    final data = snap.data();
+    final existing = data?['shareId'] as String?;
+    if (existing != null && existing.trim().isNotEmpty) return existing;
+
+    final shareId = _firestore.collection('_').doc().id;
+    await playlistRef.set(
+      {
+        'shareId': shareId,
+        'updatedAt': FieldValue.serverTimestamp(),
+      },
+      SetOptions(merge: true),
+    );
+
+    final userProfile = await getUserProfile(userId);
+    final usernameLower = userProfile?['usernameLower'] as String?;
+    await _sharedPlaylistDoc(shareId).set(
+      {
+        'ownerUid': userId,
+        'playlistName': playlistName,
+        'usernameLower': usernameLower,
+        'updatedAt': FieldValue.serverTimestamp(),
+      },
+      SetOptions(merge: true),
+    );
+
+    return shareId;
+  }
+
+  String buildPlaylistShareUrl(String shareId) {
+    return '$shareUrlPrefix$shareId';
+  }
+
+  String? parseShareId(String input) {
+    final s = input.trim();
+    if (s.isEmpty) return null;
+    if (s.startsWith(shareUrlPrefix)) {
+      return s.substring(shareUrlPrefix.length).trim();
+    }
+    try {
+      final uri = Uri.parse(s);
+      if (uri.host.isEmpty) return null;
+      final seg = uri.pathSegments;
+      if (seg.isEmpty) return null;
+      if (seg.length >= 2 && seg[0] == 'p') return seg[1];
+      return seg.last;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> resolveSharedPlaylist(String shareId) async {
+    final doc = await _sharedPlaylistDoc(shareId).get();
+    return doc.data() as Map<String, dynamic>?;
+  }
+
+  Future<List<Map<String, dynamic>>> getPublicPlaylistsByUserId(String userId) async {
+    final snap = await _userDoc(userId)
+        .collection('playlists')
+        .where('isPublic', isEqualTo: true)
+        .get();
+    return snap.docs.map((d) => d.data()).toList();
+  }
+
+  Future<List<Map<String, dynamic>>> getPublicPlaylistsByUsername(
+      String username) async {
+    final uid = await getUserIdByUsername(username);
+    if (uid == null) return [];
+    return getPublicPlaylistsByUserId(uid);
   }
 
   // ==================== Liked Songs Sync ====================
@@ -66,7 +305,10 @@ class FirestoreService {
           'playlistName': playlist.playlistName,
           'lastUpdated': playlist.lastUpdated?.millisecondsSinceEpoch,
           'mediaRanks': playlist.mediaRanks,
-        });
+          // Cross-device stable ordering is handled by SyncService via syncPlaylistToCloud.
+          // Keeping this field here for forward compatibility.
+          'mediaOrder': <String>[],
+        }, SetOptions(merge: true));
       }
 
       await batch.commit();
@@ -74,6 +316,60 @@ class FirestoreService {
     } catch (e) {
       print('❌ Failed to sync playlists: $e');
       rethrow;
+    }
+  }
+
+  Future<void> syncPlaylistToCloud(
+    String userId, {
+    required String playlistName,
+    required Map<String, dynamic> playlistDoc,
+    required List<MediaItemDB> items,
+  }) async {
+    try {
+      final playlistRef = _userDoc(userId).collection('playlists').doc(
+            playlistName,
+          );
+
+      await playlistRef.set(
+        {
+          ...playlistDoc,
+          'playlistName': playlistName,
+          'updatedAt': FieldValue.serverTimestamp(),
+        },
+        SetOptions(merge: true),
+      );
+
+      final itemsRef = playlistRef.collection('items');
+      final existing = await itemsRef.get();
+      final batch = _firestore.batch();
+      for (final doc in existing.docs) {
+        batch.delete(doc.reference);
+      }
+      for (final song in items) {
+        final docRef = itemsRef.doc(song.mediaID);
+        batch.set(docRef, song.toMap());
+      }
+      await batch.commit();
+    } catch (e) {
+      print('❌ Failed to sync playlist "$playlistName": $e');
+      rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getPlaylistItemsFromCloud(
+    String userId,
+    String playlistName,
+  ) async {
+    try {
+      final snapshot = await _userDoc(userId)
+          .collection('playlists')
+          .doc(playlistName)
+          .collection('items')
+          .get();
+      return snapshot.docs.map((doc) => doc.data()).toList();
+    } catch (e) {
+      print('❌ Failed to get playlist items from cloud: $e');
+      return [];
     }
   }
 
@@ -86,6 +382,22 @@ class FirestoreService {
     } catch (e) {
       print('❌ Failed to get playlists from cloud: $e');
       return [];
+    }
+  }
+
+  Future<Map<String, dynamic>?> getPlaylistHeaderFromCloud(
+    String userId,
+    String playlistName,
+  ) async {
+    try {
+      final doc = await _userDoc(userId)
+          .collection('playlists')
+          .doc(playlistName)
+          .get();
+      return doc.data();
+    } catch (e) {
+      print('❌ Failed to get playlist header from cloud: $e');
+      return null;
     }
   }
 
@@ -266,6 +578,20 @@ class FirestoreService {
         .orderBy('syncedAt', descending: true)
         .snapshots()
         .map(
+          (snapshot) => snapshot.docs.map((doc) => doc.data()).toList(),
+        );
+  }
+
+  Stream<Map<String, dynamic>?> watchUserPreferences(String userId) {
+    return _userDoc(userId)
+        .collection('preferences')
+        .doc('settings')
+        .snapshots()
+        .map((doc) => doc.data());
+  }
+
+  Stream<List<Map<String, dynamic>>> watchStatistics(String userId) {
+    return _userDoc(userId).collection('statistics').snapshots().map(
           (snapshot) => snapshot.docs.map((doc) => doc.data()).toList(),
         );
   }

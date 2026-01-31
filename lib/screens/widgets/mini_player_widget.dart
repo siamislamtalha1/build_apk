@@ -70,6 +70,9 @@ class MiniPlayerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final glassTint = Colors.white
+        .withValues(alpha: Theme.of(context).brightness == Brightness.dark ? 0.14 : 0.65);
     return GestureDetector(
       onTap: () {
         context.read<PlayerOverlayCubit>().showPlayer();
@@ -94,10 +97,10 @@ class MiniPlayerCard extends StatelessWidget {
                 color: Colors.transparent,
                 borderRadius: BorderRadius.circular(30),
                 border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.1),
+                  color: scheme.onSurface.withValues(alpha: 0.12),
                   width: 1.0,
                 ),
-                boxShadow: [],
+                boxShadow: const [],
               ),
               child: Stack(
                 clipBehavior: Clip.hardEdge,
@@ -107,8 +110,7 @@ class MiniPlayerCard extends StatelessWidget {
                     child: Container(
                       decoration: BoxDecoration(
                         // Extremely subtle tint for better readability, almost fully transparent
-                        color: Default_Theme.themeColor
-                            .withValues(alpha: 0.02), // Reduced from 0.05
+                        color: glassTint,
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
@@ -142,10 +144,10 @@ class MiniPlayerCard extends StatelessWidget {
                               Text(
                                 state.song.title,
                                 style: Default_Theme.secondoryTextStyle.merge(
-                                    const TextStyle(
+                                    TextStyle(
                                         fontSize: 15,
                                         fontWeight: FontWeight.bold,
-                                        color: Default_Theme.primaryColor1)),
+                                        color: scheme.onSurface)),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -155,7 +157,7 @@ class MiniPlayerCard extends StatelessWidget {
                                     TextStyle(
                                         fontWeight: FontWeight.w500,
                                         fontSize: 12.5,
-                                        color: Default_Theme.primaryColor1
+                                        color: scheme.onSurface
                                             .withValues(alpha: 0.7))),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -169,8 +171,8 @@ class MiniPlayerCard extends StatelessWidget {
                             icon: const Icon(
                               FontAwesome.backward_step_solid,
                               size: 20,
-                              color: Default_Theme.primaryColor1,
                             ),
+                            color: scheme.onSurface,
                             onPressed: () {
                               context
                                   .read<BloomeePlayerCubit>()
@@ -181,8 +183,8 @@ class MiniPlayerCard extends StatelessWidget {
                         ],
                         // Play/Pause button
                         (state.isBuffering || isProcessing)
-                            ? const Padding(
-                                padding: EdgeInsets.all(10.0),
+                            ? Padding(
+                                padding: const EdgeInsets.all(10.0),
                                 child: SizedBox.square(
                                     dimension: 20,
                                     child: CircularProgressIndicator(
@@ -198,10 +200,10 @@ class MiniPlayerCard extends StatelessWidget {
                                           .bloomeePlayer
                                           .rewind();
                                     },
+                                    color: scheme.primary,
                                     icon: const Icon(
                                       FontAwesome.rotate_right_solid,
                                       size: 22,
-                                      color: Default_Theme.accentColor2,
                                     ))
                                 : IconButton(
                                     icon: Icon(
@@ -209,7 +211,7 @@ class MiniPlayerCard extends StatelessWidget {
                                           ? FontAwesome.pause_solid
                                           : FontAwesome.play_solid,
                                       size: 22,
-                                      color: Default_Theme.accentColor2,
+                                      color: scheme.primary,
                                     ),
                                     onPressed: () {
                                       state.isPlaying
@@ -229,8 +231,8 @@ class MiniPlayerCard extends StatelessWidget {
                             icon: const Icon(
                               FontAwesome.forward_step_solid,
                               size: 20,
-                              color: Default_Theme.primaryColor1,
                             ),
+                            color: scheme.onSurface,
                             onPressed: () {
                               context
                                   .read<BloomeePlayerCubit>()
@@ -253,8 +255,8 @@ class MiniPlayerCard extends StatelessWidget {
                           icon: const Icon(
                             MingCute.close_circle_fill,
                             size: 24,
-                            color: Default_Theme.primaryColor1,
                           ),
+                          color: scheme.onSurface,
                         ),
                       ],
                     ),
@@ -285,7 +287,7 @@ class MiniPlayerCard extends StatelessWidget {
                                 value: progressFraction.clamp(0.0, 1.0),
                                 backgroundColor:
                                     Colors.white.withValues(alpha: 0.1),
-                                valueColor: const AlwaysStoppedAnimation<Color>(
+                                valueColor: AlwaysStoppedAnimation<Color>(
                                   Default_Theme.accentColor2,
                                 ),
                                 minHeight: 3,

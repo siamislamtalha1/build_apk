@@ -67,7 +67,7 @@ class _AIRecommendationsWidgetState extends State<AIRecommendationsWidget> {
             children: [
               Row(
                 children: [
-                  const Icon(
+                  Icon(
                     MingCute.sparkles_fill,
                     color: Default_Theme.accentColor2,
                     size: 24,
@@ -76,7 +76,7 @@ class _AIRecommendationsWidgetState extends State<AIRecommendationsWidget> {
                   Text(
                     'AI Recommendations',
                     style: Default_Theme.primaryTextStyle.merge(
-                      const TextStyle(
+                      TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: Default_Theme.primaryColor1,
@@ -90,7 +90,7 @@ class _AIRecommendationsWidgetState extends State<AIRecommendationsWidget> {
                 child: Text(
                   'Create Playlist',
                   style: Default_Theme.secondoryTextStyle.merge(
-                    const TextStyle(
+                    TextStyle(
                       color: Default_Theme.accentColor2,
                       fontWeight: FontWeight.bold,
                     ),
@@ -126,7 +126,7 @@ class _AIRecommendationsWidgetState extends State<AIRecommendationsWidget> {
                   Text(
                     'No recommendations yet',
                     style: Default_Theme.secondoryTextStyle.merge(
-                      const TextStyle(
+                      TextStyle(
                         color: Default_Theme.primaryColor2,
                       ),
                     ),
@@ -173,7 +173,7 @@ class _AIRecommendationsWidgetState extends State<AIRecommendationsWidget> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
                 image: DecorationImage(
-                        image: NetworkImage(song.artURL!),
+                        image: NetworkImage(song.artURL),
                         fit: BoxFit.cover,
                       ),
                 color: Default_Theme.accentColor2.withValues(alpha: 0.2),
@@ -185,7 +185,7 @@ class _AIRecommendationsWidgetState extends State<AIRecommendationsWidget> {
             Text(
               song.title ?? 'Unknown',
               style: Default_Theme.primaryTextStyle.merge(
-                const TextStyle(
+                TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: Default_Theme.primaryColor1,
@@ -199,7 +199,7 @@ class _AIRecommendationsWidgetState extends State<AIRecommendationsWidget> {
             Text(
               song.artist ?? 'Unknown Artist',
               style: Default_Theme.secondoryTextStyle.merge(
-                const TextStyle(
+                TextStyle(
                   fontSize: 12,
                   color: Default_Theme.primaryColor2,
                 ),
@@ -316,7 +316,7 @@ class _DailyMixWidgetState extends State<DailyMixWidget> {
                     Text(
                       'Daily Mix',
                       style: Default_Theme.primaryTextStyle.merge(
-                        const TextStyle(
+                        TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color: Default_Theme.primaryColor1,
@@ -327,7 +327,7 @@ class _DailyMixWidgetState extends State<DailyMixWidget> {
                     Text(
                       '${_dailyMix.length} songs curated for you',
                       style: Default_Theme.secondoryTextStyle.merge(
-                        const TextStyle(
+                        TextStyle(
                           fontSize: 14,
                           color: Default_Theme.primaryColor2,
                         ),
@@ -336,7 +336,7 @@ class _DailyMixWidgetState extends State<DailyMixWidget> {
                   ],
                 ),
               ),
-              const Icon(
+              Icon(
                 MingCute.play_circle_fill,
                 color: Default_Theme.accentColor2,
                 size: 40,

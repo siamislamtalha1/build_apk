@@ -29,7 +29,7 @@ class _AppUISettingsState extends State<AppUISettings> {
         centerTitle: true,
         title: Text(
           'UI & Services Settings',
-          style: const TextStyle(
+          style: TextStyle(
                   color: Default_Theme.primaryColor1,
                   fontSize: 20,
                   fontWeight: FontWeight.bold)
@@ -49,15 +49,14 @@ class _AppUISettingsState extends State<AppUISettings> {
                   children: [
                     Text(
                       "App Theme",
-                      style: const TextStyle(
+                      style: TextStyle(
                               color: Default_Theme.primaryColor1, fontSize: 16)
                           .merge(Default_Theme.secondoryTextStyleMedium),
                     ),
                     DropdownButton<ThemeMode>(
                       value: state.themeMode,
                       dropdownColor: Default_Theme.themeColor,
-                      style:
-                          const TextStyle(color: Default_Theme.primaryColor1),
+                      style: TextStyle(color: Default_Theme.primaryColor1),
                       items: const [
                         DropdownMenuItem(
                           value: ThemeMode.system,
@@ -94,7 +93,7 @@ class _AppUISettingsState extends State<AppUISettings> {
                   ),
                   title: Text(
                     "Auto slide charts",
-                    style: const TextStyle(
+                    style: TextStyle(
                             color: Default_Theme.primaryColor1, fontSize: 16)
                         .merge(Default_Theme.secondoryTextStyleMedium),
                   ),
@@ -113,7 +112,7 @@ class _AppUISettingsState extends State<AppUISettings> {
                   ),
                   title: Text(
                     "Last.FM Suggested Picks",
-                    style: const TextStyle(
+                    style: TextStyle(
                             color: Default_Theme.primaryColor1, fontSize: 16)
                         .merge(Default_Theme.secondoryTextStyleMedium),
                   ),
@@ -130,7 +129,7 @@ class _AppUISettingsState extends State<AppUISettings> {
               ExpansionTile(
                 title: Text(
                   "Source Engines",
-                  style: const TextStyle(
+                  style: TextStyle(
                           color: Default_Theme.primaryColor1, fontSize: 16)
                       .merge(Default_Theme.secondoryTextStyleMedium),
                 ),
@@ -150,7 +149,7 @@ class _AppUISettingsState extends State<AppUISettings> {
                           .sourceEngineSwitches[SourceEngine.values.indexOf(e)],
                       title: Text(
                         e.value,
-                        style: const TextStyle(
+                        style: TextStyle(
                                 color: Default_Theme.primaryColor1,
                                 fontSize: 17)
                             .merge(Default_Theme.secondoryTextStyleMedium),
@@ -164,7 +163,7 @@ class _AppUISettingsState extends State<AppUISettings> {
               ExpansionTile(
                 title: Text(
                   "Allowed Chart Sources",
-                  style: const TextStyle(
+                  style: TextStyle(
                           color: Default_Theme.primaryColor1, fontSize: 16)
                       .merge(Default_Theme.secondoryTextStyleMedium),
                 ),
@@ -182,7 +181,7 @@ class _AppUISettingsState extends State<AppUISettings> {
                       value: state.chartMap[e.title] ?? true,
                       title: Text(
                         e.title,
-                        style: const TextStyle(
+                        style: TextStyle(
                                 color: Default_Theme.primaryColor1,
                                 fontSize: 17)
                             .merge(Default_Theme.secondoryTextStyleMedium),

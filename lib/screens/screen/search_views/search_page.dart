@@ -22,14 +22,14 @@ class SearchPageDelegate extends SearchDelegate {
   @override
   ThemeData appBarTheme(BuildContext context) {
     return Theme.of(context).copyWith(
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(20))),
         backgroundColor: Color.fromARGB(255, 19, 19, 19),
         iconTheme: IconThemeData(color: Default_Theme.primaryColor1),
       ),
       textTheme: TextTheme(
-        titleLarge: const TextStyle(
+        titleLarge: TextStyle(
           color: Default_Theme.primaryColor1,
         ).merge(Default_Theme.secondoryTextStyleMedium),
       ),
@@ -107,7 +107,7 @@ class SearchPageDelegate extends SearchDelegate {
               minHeight: MediaQuery.of(context).size.height,
             ),
             child: switch (state) {
-              SearchSuggestionLoading() => const Center(
+              SearchSuggestionLoading() => Center(
                   child: CircularProgressIndicator(
                     color: Default_Theme.accentColor2,
                   ),
@@ -132,7 +132,7 @@ class SearchPageDelegate extends SearchDelegate {
                                 (e) => ListTile(
                                   title: Text(
                                     e.values.first,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       color: Default_Theme.primaryColor1,
                                     ).merge(Default_Theme.secondoryTextStyle),
                                   ),
@@ -173,7 +173,7 @@ class SearchPageDelegate extends SearchDelegate {
                             return ListTile(
                               title: Text(
                                 state.suggestionList[index],
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Default_Theme.primaryColor1,
                                 ).merge(Default_Theme.secondoryTextStyle),
                               ),

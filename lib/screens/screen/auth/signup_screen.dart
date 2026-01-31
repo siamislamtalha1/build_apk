@@ -16,6 +16,7 @@ class SignupScreen extends StatefulWidget {
 class _SignupScreenState extends State<SignupScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -25,6 +26,7 @@ class _SignupScreenState extends State<SignupScreen> {
   @override
   void dispose() {
     _nameController.dispose();
+    _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -37,6 +39,7 @@ class _SignupScreenState extends State<SignupScreen> {
             email: _emailController.text.trim(),
             password: _passwordController.text,
             displayName: _nameController.text.trim(),
+            desiredUsername: _usernameController.text.trim(),
           );
     }
   }
@@ -80,7 +83,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     Text(
                       'Create Account',
                       style: Default_Theme.primaryTextStyle.merge(
-                        const TextStyle(
+                        TextStyle(
                           fontSize: 32,
                           fontWeight: FontWeight.bold,
                           color: Default_Theme.primaryColor1,
@@ -91,7 +94,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     Text(
                       'Sign up to get started',
                       style: Default_Theme.secondoryTextStyle.merge(
-                        const TextStyle(
+                        TextStyle(
                           fontSize: 16,
                           color: Default_Theme.primaryColor2,
                         ),
@@ -122,6 +125,36 @@ class _SignupScreenState extends State<SignupScreen> {
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Please enter your name';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Username Field
+                          TextFormField(
+                            controller: _usernameController,
+                            enabled: !isLoading,
+                            decoration: InputDecoration(
+                              labelText: 'Username',
+                              hintText: '@yourname',
+                              prefixIcon: const Icon(MingCute.at_line),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              filled: true,
+                              fillColor: Default_Theme.primaryColor1
+                                  .withValues(alpha: 0.05),
+                            ),
+                            validator: (value) {
+                              final v = (value ?? '').trim();
+                              if (v.isEmpty) {
+                                return null; // optional (random username will be assigned)
+                              }
+                              final raw = v.startsWith('@') ? v.substring(1) : v;
+                              final re = RegExp(r'^[a-zA-Z0-9_]{3,20}$');
+                              if (!re.hasMatch(raw)) {
+                                return 'Username must be 3-20 chars (letters, numbers, _)';
                               }
                               return null;
                             },
@@ -281,7 +314,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         Text(
                           'Already have an account? ',
                           style: Default_Theme.secondoryTextStyle.merge(
-                            const TextStyle(
+                            TextStyle(
                               color: Default_Theme.primaryColor2,
                             ),
                           ),
@@ -295,7 +328,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           child: Text(
                             'Sign In',
                             style: Default_Theme.secondoryTextStyle.merge(
-                              const TextStyle(
+                              TextStyle(
                                 color: Default_Theme.accentColor2,
                                 fontWeight: FontWeight.bold,
                               ),

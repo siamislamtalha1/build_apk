@@ -170,7 +170,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       ),
                     );
                   },
-                  icon: const Icon(
+                  icon: Icon(
                     MingCute.filter_2_fill,
                     color: Default_Theme.primaryColor1,
                   ),
@@ -284,7 +284,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             FetchSearchResultsState>(
                             builder: (context, state) {
                               if (state is FetchSearchResultsLoading) {
-                                return const Center(
+                                return Center(
                                   child: CircularProgressIndicator(
                                     color: Default_Theme.accentColor2,
                                   ),
@@ -302,7 +302,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                         : state.mediaItems.length + 1,
                                     itemBuilder: (context, index) {
                                       if (index == state.mediaItems.length) {
-                                        return const Center(
+                                        return Center(
                                           child: SizedBox(
                                             height: 30,
                                             width: 30,

@@ -72,7 +72,7 @@ class SongInfoScreen extends StatelessWidget {
                   color: Default_Theme.themeColor.withValues(alpha: 0.7),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.arrow_back_rounded,
                   color: Default_Theme.primaryColor1,
                   size: 20,
@@ -390,7 +390,7 @@ class _InfoPill extends StatelessWidget {
           Text(
             label,
             style: Default_Theme.secondoryTextStyleMedium.merge(
-              const TextStyle(
+              TextStyle(
                 color: Default_Theme.primaryColor1,
                 fontSize: 13,
               ),
@@ -496,7 +496,7 @@ class _DetailRow extends StatelessWidget {
                           ? Default_Theme.tertiaryTextStyle
                           : Default_Theme.secondoryTextStyleMedium)
                       .merge(
-                    const TextStyle(
+                    TextStyle(
                       color: Default_Theme.primaryColor1,
                       fontSize: 15,
                     ),

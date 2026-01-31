@@ -13,7 +13,7 @@ class TestView extends StatelessWidget {
         foregroundColor: Default_Theme.primaryColor1,
         title: Text(
           'Tests',
-          style: const TextStyle(
+          style: TextStyle(
                   color: Default_Theme.primaryColor1,
                   fontSize: 25,
                   fontWeight: FontWeight.bold)

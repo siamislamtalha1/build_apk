@@ -73,7 +73,7 @@ class DownloadingCardWidget extends StatelessWidget {
             value: progress,
             backgroundColor: Default_Theme.primaryColor2.withValues(alpha: 0.2),
             valueColor:
-                const AlwaysStoppedAnimation<Color>(Default_Theme.accentColor2),
+                AlwaysStoppedAnimation<Color>(Default_Theme.accentColor2),
             strokeWidth: 5,
           ),
         ),
@@ -104,7 +104,7 @@ class DownloadingCardWidget extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
             style: Default_Theme.tertiaryTextStyle.merge(
-              const TextStyle(
+              TextStyle(
                 fontWeight: FontWeight.w600,
                 color: Default_Theme.primaryColor1,
                 fontSize: 14,

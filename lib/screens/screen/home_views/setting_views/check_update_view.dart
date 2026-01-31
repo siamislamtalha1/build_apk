@@ -14,7 +14,7 @@ class CheckUpdateView extends StatelessWidget {
         centerTitle: true,
         title: Text(
           'Check for Updates',
-          style: const TextStyle(
+          style: TextStyle(
                   color: Default_Theme.primaryColor1,
                   fontSize: 20,
                   fontWeight: FontWeight.bold)
@@ -33,7 +33,7 @@ class CheckUpdateView extends StatelessWidget {
                     const Spacer(),
                     Text(
                       'Bloomee🌸 is up-to-date!!!',
-                      style: const TextStyle(
+                      style: TextStyle(
                               color: Default_Theme.accentColor2, fontSize: 20)
                           .merge(Default_Theme.secondoryTextStyleMedium),
                     ),
@@ -88,7 +88,7 @@ class CheckUpdateView extends StatelessWidget {
                     const Spacer(),
                     Text(
                       'New Version of Bloomee🌸 is now available!!',
-                      style: const TextStyle(
+                      style: TextStyle(
                               color: Default_Theme.accentColor2, fontSize: 20)
                           .merge(Default_Theme.tertiaryTextStyle),
                       textAlign: TextAlign.center,
@@ -148,8 +148,8 @@ class CheckUpdateView extends StatelessWidget {
               return Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.all(15.0),
+                  Padding(
+                    padding: const EdgeInsets.all(15.0),
                     child: SizedBox(
                         height: 50,
                         width: 50,
@@ -163,7 +163,7 @@ class CheckUpdateView extends StatelessWidget {
                         width: constraints.maxWidth * 0.6,
                         child: Text(
                             'Checking if newer version are availible or not!',
-                            style: const TextStyle(
+                            style: TextStyle(
                                     color: Default_Theme.accentColor2,
                                     fontSize: 20)
                                 .merge(Default_Theme.tertiaryTextStyle),

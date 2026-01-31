@@ -75,7 +75,7 @@ class ProfileScreen extends StatelessWidget {
                         Text(
                           user.displayName ?? (isGuest ? 'Guest User' : 'User'),
                           style: Default_Theme.primaryTextStyle.merge(
-                            const TextStyle(
+                            TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
                               color: Default_Theme.primaryColor1,
@@ -86,7 +86,7 @@ class ProfileScreen extends StatelessWidget {
                           Text(
                             user.email!,
                             style: Default_Theme.secondoryTextStyle.merge(
-                              const TextStyle(
+                              TextStyle(
                                 fontSize: 14,
                                 color: Default_Theme.primaryColor2,
                               ),
@@ -107,7 +107,7 @@ class ProfileScreen extends StatelessWidget {
                             child: Text(
                               'Guest Mode',
                               style: Default_Theme.secondoryTextStyle.merge(
-                                const TextStyle(
+                                TextStyle(
                                   fontSize: 12,
                                   color: Default_Theme.accentColor2,
                                 ),
@@ -184,7 +184,7 @@ class ProfileScreen extends StatelessWidget {
             Text(
               'Not Logged In',
               style: Default_Theme.primaryTextStyle.merge(
-                const TextStyle(
+                TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Default_Theme.primaryColor1,
@@ -196,7 +196,7 @@ class ProfileScreen extends StatelessWidget {
               'Sign in to sync your music across devices',
               textAlign: TextAlign.center,
               style: Default_Theme.secondoryTextStyle.merge(
-                const TextStyle(
+                TextStyle(
                   fontSize: 16,
                   color: Default_Theme.primaryColor2,
                 ),
@@ -247,7 +247,7 @@ class ProfileScreen extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(
+          Icon(
             MingCute.information_line,
             color: Default_Theme.accentColor2,
             size: 24,
@@ -260,7 +260,7 @@ class ProfileScreen extends StatelessWidget {
                 Text(
                   'Upgrade Your Account',
                   style: Default_Theme.primaryTextStyle.merge(
-                    const TextStyle(
+                    TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: Default_Theme.primaryColor1,
@@ -271,7 +271,7 @@ class ProfileScreen extends StatelessWidget {
                 Text(
                   'Create an account to save your data permanently',
                   style: Default_Theme.secondoryTextStyle.merge(
-                    const TextStyle(
+                    TextStyle(
                       fontSize: 14,
                       color: Default_Theme.primaryColor2,
                     ),
@@ -286,7 +286,7 @@ class ProfileScreen extends StatelessWidget {
             child: Text(
               'Upgrade',
               style: Default_Theme.secondoryTextStyle.merge(
-                const TextStyle(
+                TextStyle(
                   color: Default_Theme.accentColor2,
                   fontWeight: FontWeight.bold,
                 ),
@@ -302,7 +302,7 @@ class ProfileScreen extends StatelessWidget {
     return Text(
       title,
       style: Default_Theme.primaryTextStyle.merge(
-        const TextStyle(
+        TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.bold,
           color: Default_Theme.primaryColor1,
@@ -471,7 +471,7 @@ class ProfileScreen extends StatelessWidget {
               Text(
                 label,
                 style: Default_Theme.secondoryTextStyle.merge(
-                  const TextStyle(
+                  TextStyle(
                     fontSize: 12,
                     color: Default_Theme.primaryColor2,
                   ),
@@ -481,7 +481,7 @@ class ProfileScreen extends StatelessWidget {
               Text(
                 value,
                 style: Default_Theme.primaryTextStyle.merge(
-                  const TextStyle(
+                  TextStyle(
                     fontSize: 14,
                     color: Default_Theme.primaryColor1,
                   ),
@@ -513,7 +513,7 @@ class ProfileScreen extends StatelessWidget {
           child: Text(
             label,
             style: Default_Theme.primaryTextStyle.merge(
-              const TextStyle(
+              TextStyle(
                 fontSize: 14,
                 color: Default_Theme.primaryColor1,
               ),
@@ -568,7 +568,7 @@ class ProfileScreen extends StatelessWidget {
         Text(
           value,
           style: Default_Theme.primaryTextStyle.merge(
-            const TextStyle(
+            TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: Default_Theme.primaryColor1,
@@ -579,7 +579,7 @@ class ProfileScreen extends StatelessWidget {
         Text(
           label,
           style: Default_Theme.secondoryTextStyle.merge(
-            const TextStyle(
+            TextStyle(
               fontSize: 12,
               color: Default_Theme.primaryColor2,
             ),
@@ -602,7 +602,7 @@ class ProfileScreen extends StatelessWidget {
               title: Text(
                 'Sign Out',
                 style: Default_Theme.primaryTextStyle.merge(
-                  const TextStyle(
+                  TextStyle(
                     color: Default_Theme.primaryColor1,
                   ),
                 ),
@@ -610,7 +610,7 @@ class ProfileScreen extends StatelessWidget {
               content: Text(
                 'Are you sure you want to sign out?',
                 style: Default_Theme.secondoryTextStyle.merge(
-                  const TextStyle(
+                  TextStyle(
                     color: Default_Theme.primaryColor2,
                   ),
                 ),
@@ -621,7 +621,7 @@ class ProfileScreen extends StatelessWidget {
                   child: Text(
                     'Cancel',
                     style: Default_Theme.secondoryTextStyle.merge(
-                      const TextStyle(
+                      TextStyle(
                         color: Default_Theme.primaryColor2,
                       ),
                     ),
@@ -636,7 +636,7 @@ class ProfileScreen extends StatelessWidget {
                   child: Text(
                     'Sign Out',
                     style: Default_Theme.secondoryTextStyle.merge(
-                      const TextStyle(
+                      TextStyle(
                         color: Colors.red,
                         fontWeight: FontWeight.bold,
                       ),

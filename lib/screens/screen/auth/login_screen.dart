@@ -83,7 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Text(
                       'Welcome to Musicly',
                       style: Default_Theme.primaryTextStyle.merge(
-                        const TextStyle(
+                        TextStyle(
                           fontSize: 32,
                           fontWeight: FontWeight.bold,
                           color: Default_Theme.primaryColor1,
@@ -94,7 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Text(
                       'Your music, everywhere',
                       style: Default_Theme.secondoryTextStyle.merge(
-                        const TextStyle(
+                        TextStyle(
                           fontSize: 16,
                           color: Default_Theme.primaryColor2,
                         ),
@@ -222,7 +222,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Text(
                         'Forgot Password?',
                         style: Default_Theme.secondoryTextStyle.merge(
-                          const TextStyle(
+                          TextStyle(
                             color: Default_Theme.accentColor2,
                           ),
                         ),
@@ -240,7 +240,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: Text(
                             'OR',
                             style: Default_Theme.secondoryTextStyle.merge(
-                              const TextStyle(
+                              TextStyle(
                                 color: Default_Theme.primaryColor2,
                               ),
                             ),
@@ -305,7 +305,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Text(
                           "Don't have an account? ",
                           style: Default_Theme.secondoryTextStyle.merge(
-                            const TextStyle(
+                            TextStyle(
                               color: Default_Theme.primaryColor2,
                             ),
                           ),
@@ -319,7 +319,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: Text(
                             'Sign Up',
                             style: Default_Theme.secondoryTextStyle.merge(
-                              const TextStyle(
+                              TextStyle(
                                 color: Default_Theme.accentColor2,
                                 fontWeight: FontWeight.bold,
                               ),

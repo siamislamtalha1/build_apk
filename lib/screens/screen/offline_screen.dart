@@ -182,7 +182,7 @@ class _OfflineScreenState extends State<OfflineScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text("Offline",
-              style: Default_Theme.primaryTextStyle.merge(const TextStyle(
+              style: Default_Theme.primaryTextStyle.merge(TextStyle(
                   fontSize: 34, color: Default_Theme.primaryColor1))),
           const Spacer(),
         ],
@@ -205,7 +205,7 @@ class _OfflineScreenState extends State<OfflineScreen> {
               color: Default_Theme.primaryColor1.withValues(alpha: 0.7)),
         ),
         style: Default_Theme.secondoryTextStyle.merge(
-          const TextStyle(
+          TextStyle(
             color: Default_Theme.primaryColor1,
             fontSize: 15.0,
           ),
