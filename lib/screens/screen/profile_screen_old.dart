@@ -636,7 +636,7 @@ class ProfileScreen extends StatelessWidget {
                   child: Text(
                     'Sign Out',
                     style: Default_Theme.secondoryTextStyle.merge(
-                      TextStyle(
+                      const TextStyle(
                         color: Colors.red,
                         fontWeight: FontWeight.bold,
                       ),

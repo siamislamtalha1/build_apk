@@ -47,6 +47,7 @@ import 'package:Bloomee/services/sync/sync_service.dart';
 import 'package:Bloomee/blocs/auth/auth_cubit.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:Bloomee/l10n/app_localizations.dart';
+import 'package:Bloomee/services/crash_reporter.dart';
 
 void processIncomingIntent(SharedMedia sharedMedia) {
   // Check if there's text content that might be a URL
@@ -140,50 +141,170 @@ Future<void> main() async {
 
   FlutterError.onError = (details) {
     FlutterError.dumpErrorToConsole(details);
+    CrashReporter.record(
+      details.exception,
+      details.stack,
+      source: 'FlutterError.onError',
+    );
   };
 
   WidgetsBinding.instance.platformDispatcher.onError = (error, stack) {
     debugPrint('Uncaught platformDispatcher error: $error');
     debugPrintStack(stackTrace: stack);
+    CrashReporter.record(error, stack, source: 'platformDispatcher.onError');
     return true;
   };
 
   runZonedGuarded(() async {
     try {
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-
-      if (io.Platform.isLinux || io.Platform.isWindows) {
-        JustAudioMediaKit.ensureInitialized(
-          linux: true,
-          windows: true,
-        );
-      }
-
-      await initServices();
-      await FirebaseService.initialize();
-
-      final authCubit = AuthCubit();
-      final globalEventsCubit = GlobalEventsCubit();
-
-      SyncService().init();
-      await setHighRefreshRate();
-      setupPlayerCubit();
-      DiscordService.initialize();
-
-      runApp(MyApp(
-        authCubit: authCubit,
-        globalEventsCubit: globalEventsCubit,
-      ));
+      runApp(const _BootstrapApp());
     } catch (e, st) {
-      debugPrint('Fatal error during app init: $e');
+      debugPrint('Fatal error during app bootstrap: $e');
       debugPrintStack(stackTrace: st);
-      runApp(_FatalErrorApp(error: e.toString()));
+      CrashReporter.record(e, st, source: 'main.bootstrap');
+      runApp(CrashReportScreen(error: e.toString()));
     }
   }, (error, stack) {
     debugPrint('Uncaught zoned error: $error');
     debugPrintStack(stackTrace: stack);
-    runApp(_FatalErrorApp(error: error.toString()));
+    CrashReporter.record(error, stack, source: 'runZonedGuarded');
+    runApp(CrashReportScreen(error: error.toString()));
   });
+}
+
+class _BootstrapData {
+  final AuthCubit authCubit;
+  final GlobalEventsCubit globalEventsCubit;
+  const _BootstrapData({
+    required this.authCubit,
+    required this.globalEventsCubit,
+  });
+}
+
+class _BootstrapApp extends StatefulWidget {
+  const _BootstrapApp();
+
+  @override
+  State<_BootstrapApp> createState() => _BootstrapAppState();
+}
+
+class _BootstrapAppState extends State<_BootstrapApp> {
+  late final Future<_BootstrapData> _bootstrapFuture = _bootstrap();
+
+  Future<_BootstrapData> _bootstrap() async {
+    if (io.Platform.isLinux || io.Platform.isWindows) {
+      try {
+        JustAudioMediaKit.ensureInitialized(
+          linux: true,
+          windows: true,
+        );
+      } catch (e, st) {
+        debugPrint('JustAudioMediaKit init failed: $e');
+        debugPrintStack(stackTrace: st);
+      }
+    }
+
+    await initServices();
+    await FirebaseService.initialize();
+
+    final authCubit = AuthCubit();
+    final globalEventsCubit = GlobalEventsCubit();
+
+    try {
+      SyncService().init();
+    } catch (e, st) {
+      debugPrint('SyncService init failed: $e');
+      debugPrintStack(stackTrace: st);
+    }
+
+    await setHighRefreshRate();
+    setupPlayerCubit();
+    DiscordService.initialize();
+
+    return _BootstrapData(
+      authCubit: authCubit,
+      globalEventsCubit: globalEventsCubit,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<_BootstrapData>(
+      future: _bootstrapFuture,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          final err = snapshot.error ?? 'Unknown bootstrap error';
+          CrashReporter.record(err, StackTrace.current, source: 'bootstrap');
+          return CrashReportScreen(error: err.toString());
+        }
+        if (!snapshot.hasData) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            home: Scaffold(
+              backgroundColor: Default_Theme.themeColor,
+              body: Center(
+                child: SizedBox(
+                  height: 48,
+                  width: 48,
+                  child: CircularProgressIndicator(
+                    color: Default_Theme.accentColor2,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+
+        final data = snapshot.data!;
+        return MyApp(
+          authCubit: data.authCubit,
+          globalEventsCubit: data.globalEventsCubit,
+        );
+      },
+    );
+  }
+}
+
+class CrashReportScreen extends StatelessWidget {
+  final String error;
+  const CrashReportScreen({super.key, required this.error});
+
+  @override
+  Widget build(BuildContext context) {
+    final txt = CrashReporter.lastCrashText ?? error;
+    final path = CrashReporter.lastCrashFilePath;
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'App crashed',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                if (path != null) ...[
+                  SelectableText('Saved to: $path'),
+                  const SizedBox(height: 8),
+                ],
+                const Divider(),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: SelectableText(txt),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _FatalErrorApp extends StatelessWidget {
@@ -223,7 +344,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   // Initialize the player
   // This widget is the root of your application.
-  late StreamSubscription _intentSub;
+  StreamSubscription? _intentSub;
   SharedMedia? sharedMedia;
   late final GoRouter _router;
   VoidCallback? _previousPlatformBrightnessHandler;
@@ -243,7 +364,10 @@ class _MyAppState extends State<MyApp> {
     };
 
     if (io.Platform.isAndroid) {
-      initPlatformState();
+      initPlatformState().catchError((e, st) {
+        debugPrint('initPlatformState failed: $e');
+        debugPrintStack(stackTrace: st);
+      });
     }
 
     // Check for Weekly Popup
@@ -305,31 +429,36 @@ class _MyAppState extends State<MyApp> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-    final handler = ShareHandlerPlatform.instance;
-    sharedMedia = await handler.getInitialSharedMedia();
+    try {
+      final handler = ShareHandlerPlatform.instance;
+      sharedMedia = await handler.getInitialSharedMedia();
 
-    _intentSub = handler.sharedMediaStream.listen((SharedMedia media) {
-      if (!mounted) return;
-      setState(() {
-        sharedMedia = media;
+      _intentSub = handler.sharedMediaStream.listen((SharedMedia media) {
+        if (!mounted) return;
+        setState(() {
+          sharedMedia = media;
+        });
+        if (sharedMedia != null) {
+          processIncomingIntent(sharedMedia!);
+        }
       });
-      if (sharedMedia != null) {
-        processIncomingIntent(sharedMedia!);
-      }
-    });
-    if (!mounted) return;
+      if (!mounted) return;
 
-    setState(() {
-      // If there's initial shared media, process it
-      if (sharedMedia != null) {
-        processIncomingIntent(sharedMedia!);
-      }
-    });
+      setState(() {
+        // If there's initial shared media, process it
+        if (sharedMedia != null) {
+          processIncomingIntent(sharedMedia!);
+        }
+      });
+    } catch (e, st) {
+      debugPrint('initPlatformState exception: $e');
+      debugPrintStack(stackTrace: st);
+    }
   }
 
   @override
   void dispose() {
-    _intentSub.cancel();
+    _intentSub?.cancel();
     bloomeePlayerCubit.close();
     // Do not close authCubit or globalEventsCubit if they are meant to persist or be closed elsewhere.
     // Usually standard BLOC provider closes them.

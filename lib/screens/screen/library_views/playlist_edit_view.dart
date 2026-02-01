@@ -140,7 +140,7 @@ class _PlaylistEditViewState extends State<PlaylistEditView> {
                             }
                           },
                           padding: const EdgeInsets.only(right: 8, left: 8),
-                          icon: Icon(MingCute.check_fill)),
+                          icon: const Icon(MingCute.check_fill)),
                     )
                   ],
                 ),

@@ -181,7 +181,7 @@ class _SearchFilterBottomSheetState extends State<SearchFilterBottomSheet> {
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Please select at least one source'),
+                          content: const Text('Please select at least one source'),
                           backgroundColor: Default_Theme.accentColor2,
                         ),
                       );
@@ -197,7 +197,7 @@ class _SearchFilterBottomSheetState extends State<SearchFilterBottomSheet> {
                   ),
                   child: const Text(
                     'Apply Filters',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),

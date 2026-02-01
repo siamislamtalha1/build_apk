@@ -122,6 +122,7 @@ flutter:
     - assets/icons/bloomee_new_logo_c.png
     - assets/icons/lazy_loading.png
     - assets/icons/BloomeeLogoFG.png
+    - assets/crash_probe.txt
 
   fonts:
     - family: Unageo

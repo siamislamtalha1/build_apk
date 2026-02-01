@@ -1,0 +1,2 @@
+Musicly crash probe asset.
+You can delete this file later.

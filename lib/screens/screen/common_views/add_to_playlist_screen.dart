@@ -527,13 +527,13 @@ class _PlaylistTile extends StatelessWidget {
 
               // Checkmark indicator (only when in playlist)
               AnimatedSwitcher(
-                duration: Duration(milliseconds: 200),
+                duration: const Duration(milliseconds: 200),
                 transitionBuilder: (child, animation) {
                   return ScaleTransition(scale: animation, child: child);
                 },
                 child: isInPlaylist
                     ? Container(
-                        key: ValueKey('checked'),
+                        key: const ValueKey('checked'),
                         width: 32,
                         height: 32,
                         decoration: BoxDecoration(

@@ -23,9 +23,9 @@ class SearchPageDelegate extends SearchDelegate {
   ThemeData appBarTheme(BuildContext context) {
     return Theme.of(context).copyWith(
       appBarTheme: AppBarTheme(
-        shape: RoundedRectangleBorder(
+        shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(20))),
-        backgroundColor: Color.fromARGB(255, 19, 19, 19),
+        backgroundColor: const Color.fromARGB(255, 19, 19, 19),
         iconTheme: IconThemeData(color: Default_Theme.primaryColor1),
       ),
       textTheme: TextTheme(

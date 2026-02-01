@@ -258,11 +258,11 @@ Future getIdAndShowBottomSheet(BuildContext context,
                                   hintStyle: TextStyle(
                                       color: Default_Theme.primaryColor2
                                           .withValues(alpha: 0.3)),
-                                  enabledBorder: OutlineInputBorder(
+                                  enabledBorder: const OutlineInputBorder(
                                     borderSide:
                                         BorderSide(style: BorderStyle.none),
                                   ),
-                                  focusedBorder: OutlineInputBorder(
+                                  focusedBorder: const OutlineInputBorder(
                                     borderSide: BorderSide.none,
                                   )),
                               onSubmitted: (value) {

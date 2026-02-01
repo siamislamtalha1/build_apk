@@ -172,7 +172,7 @@ void createPlaylistBottomSheet(BuildContext context) {
                                                     .withOpacity(0.7),
                                                 fontSize: 12)),
                                       ),
-                                      activeColor: Default_Theme.accentColor2,
+                                      activeThumbColor: Default_Theme.accentColor2,
                                     ),
                                   ),
                                   Padding(

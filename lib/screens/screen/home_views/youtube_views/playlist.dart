@@ -120,7 +120,7 @@ class _YoutubePlaylistState extends State<YoutubePlaylist> {
                                       surfaceTintColor:
                                           Default_Theme.themeColor,
                                     ),
-                                    SliverFillRemaining(
+                                    const SliverFillRemaining(
                                       child: Center(
                                         child: SignBoardWidget(
                                           message:
@@ -145,7 +145,7 @@ class _YoutubePlaylistState extends State<YoutubePlaylist> {
                                                   subject: "Youtube Playlist");
                                             },
                                             padding: const EdgeInsets.all(5),
-                                            constraints: BoxConstraints(),
+                                            constraints: const BoxConstraints(),
                                             icon: Icon(
                                               MingCute.share_forward_line,
                                               color:
