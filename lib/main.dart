@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:isolate';
 import 'dart:io' as io;
 import 'package:Bloomee/blocs/downloader/cubit/downloader_cubit.dart';
 import 'package:Bloomee/blocs/global_events/global_events_cubit.dart';
@@ -129,6 +130,8 @@ void setupPlayerCubit() {
   bloomeePlayerCubit = BloomeePlayerCubit();
 }
 
+RawReceivePort? _isolateErrorPort;
+
 Future<void> initServices() async {
   String appDocPath = (await getApplicationDocumentsDirectory()).path;
   String appSuppPath = (await getApplicationSupportDirectory()).path;
@@ -139,6 +142,45 @@ Future<void> initServices() async {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   GestureBinding.instance.resamplingEnabled = true;
+
+  CrashReporter.writeStartupProbe();
+
+  ErrorWidget.builder = (FlutterErrorDetails details) {
+    CrashReporter.record(
+      details.exception,
+      details.stack,
+      source: 'ErrorWidget.builder',
+    );
+    return Material(
+      color: Colors.black,
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: SingleChildScrollView(
+            child: SelectableText(
+              CrashReporter.lastCrashText ?? details.toString(),
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+        ),
+      ),
+    );
+  };
+
+  _isolateErrorPort = RawReceivePort((dynamic pair) {
+    try {
+      final list = pair as List<dynamic>;
+      final error = list.isNotEmpty ? list[0] : 'Unknown isolate error';
+      StackTrace? st;
+      if (list.length > 1 && list[1] != null) {
+        st = StackTrace.fromString(list[1].toString());
+      }
+      CrashReporter.record(error, st, source: 'Isolate.errorListener');
+    } catch (e, st) {
+      CrashReporter.record(e, st, source: 'Isolate.errorListener.parse');
+    }
+  });
+  Isolate.current.addErrorListener(_isolateErrorPort!.sendPort);
 
   FlutterError.onError = (details) {
     FlutterError.dumpErrorToConsole(details);

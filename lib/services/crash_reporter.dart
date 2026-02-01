@@ -10,6 +10,23 @@ class CrashReporter {
   static String? lastCrashFilePath;
   static bool _handling = false;
 
+  static void writeStartupProbe() {
+    if (!Platform.isWindows) return;
+    try {
+      final ts = DateTime.now()
+          .toIso8601String()
+          .replaceAll(':', '-')
+          .replaceAll('.', '-');
+      final text = 'Musicly startup probe: $ts\n';
+      final file = _tryWriteWindowsSync(text, prefix: 'Musicly_startup_');
+      if (file != null) {
+        lastCrashFilePath = file.path;
+      }
+    } catch (_) {
+      // ignore
+    }
+  }
+
   static void record(
     Object error,
     StackTrace? stack, {
@@ -21,19 +38,11 @@ class CrashReporter {
     final text = _format(error, stack, source: source);
     lastCrashText = text;
 
-    // Best-effort, immediate write on Windows so the file exists even if the
-    // process terminates quickly.
     if (Platform.isWindows) {
       try {
-        final desktop = _tryGetWindowsDesktopDirectory();
-        if (desktop != null) {
-          final ts = DateTime.now()
-              .toIso8601String()
-              .replaceAll(':', '-')
-              .replaceAll('.', '-');
-          final desktopFile = File(p.join(desktop.path, 'Musicly_crash_$ts.txt'));
-          desktopFile.writeAsStringSync(text, flush: true);
-          lastCrashFilePath = desktopFile.path;
+        final file = _tryWriteWindowsSync(text, prefix: 'Musicly_crash_');
+        if (file != null) {
+          lastCrashFilePath = file.path;
         }
       } catch (_) {
         // ignore
@@ -119,6 +128,51 @@ class CrashReporter {
     } catch (_) {
       // ignore
     }
+    return null;
+  }
+
+  static File? _tryWriteWindowsSync(String text, {required String prefix}) {
+    final ts = DateTime.now()
+        .toIso8601String()
+        .replaceAll(':', '-')
+        .replaceAll('.', '-');
+    final fileName = '$prefix$ts.txt';
+
+    final candidates = <Directory>[];
+
+    final desktop = _tryGetWindowsDesktopDirectory();
+    if (desktop != null) candidates.add(desktop);
+
+    try {
+      final exeDir = Directory(p.dirname(Platform.resolvedExecutable));
+      candidates.add(exeDir);
+    } catch (_) {
+      // ignore
+    }
+
+    try {
+      candidates.add(Directory.current);
+    } catch (_) {
+      // ignore
+    }
+
+    try {
+      candidates.add(Directory.systemTemp);
+    } catch (_) {
+      // ignore
+    }
+
+    for (final dir in candidates) {
+      try {
+        if (!dir.existsSync()) continue;
+        final file = File(p.join(dir.path, fileName));
+        file.writeAsStringSync(text, flush: true);
+        return file;
+      } catch (_) {
+        // ignore
+      }
+    }
+
     return null;
   }
 
