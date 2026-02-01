@@ -32,7 +32,7 @@ class CheckUpdateView extends StatelessWidget {
                   children: [
                     const Spacer(),
                     Text(
-                      'Bloomee🌸 is up-to-date!!!',
+                      'Musicly is up-to-date!!!',
                       style: TextStyle(
                               color: Default_Theme.accentColor2, fontSize: 20)
                           .merge(Default_Theme.secondoryTextStyleMedium),
@@ -87,7 +87,7 @@ class CheckUpdateView extends StatelessWidget {
                   children: [
                     const Spacer(),
                     Text(
-                      'New Version of Bloomee🌸 is now available!!',
+                      'New Version of Musicly is now available!!',
                       style: TextStyle(
                               color: Default_Theme.accentColor2, fontSize: 20)
                           .merge(Default_Theme.tertiaryTextStyle),

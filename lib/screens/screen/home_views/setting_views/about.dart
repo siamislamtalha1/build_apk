@@ -91,7 +91,7 @@ class AboutHub extends StatelessWidget {
                       subtitle: 'Open source licenses',
                       onTap: () => showLicensePage(
                         context: context,
-                        applicationName: 'BloomeeTunes',
+                        applicationName: 'Musicly',
                       ),
                     ),
                     const Spacer(),
@@ -247,7 +247,7 @@ class AppAbout extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const Text(
-                                'BloomeeTunes',
+                                'Musicly',
                                 style: TextStyle(
                                   color: kPrimaryTextColor,
                                   fontSize: 22,
@@ -278,7 +278,7 @@ class AppAbout extends StatelessWidget {
                                 subtitle: 'View third-party licenses',
                                 onTap: () => showLicensePage(
                                   context: context,
-                                  applicationName: 'BloomeeTunes',
+                                  applicationName: 'Musicly',
                                 ),
                               ),
                             ],
@@ -434,7 +434,7 @@ class About extends StatelessWidget {
                       spacing: 6,
                       children: [
                         Text(
-                          'BloomeeTunes',
+                          'Musicly',
                           style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,

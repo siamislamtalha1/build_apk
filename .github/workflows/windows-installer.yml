@@ -1,0 +1,44 @@
+name: Build Windows Installer
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build-windows-installer:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: master
+          cache: true
+
+      - name: Disable analytics
+        run: flutter config --no-analytics
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Build Windows Release
+        run: flutter build windows --release
+
+      - name: Install Inno Setup
+        run: choco install innosetup -y
+
+      - name: Compile Installer
+        shell: pwsh
+        run: |
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" installer_script.iss
+
+      - name: Upload Installer Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Musicly-Setup-${{ github.run_number }}
+          path: Output/*.exe
+        

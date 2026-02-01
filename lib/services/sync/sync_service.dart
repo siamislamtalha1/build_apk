@@ -572,7 +572,7 @@ class SyncService {
         'str': strMap,
       };
 
-      await _firestoreService.syncUserPreferencesToCloud(userId, prefs);
+      await _firestoreService.saveUserPreferences(userId, prefs);
     } catch (e) {
       print('Sync Error (Preferences): $e');
     } finally {

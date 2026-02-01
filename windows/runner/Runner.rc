@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "Bloomee" "\0"
-            VALUE "FileDescription", "bloomee" "\0"
+            VALUE "CompanyName", "Musicly" "\0"
+            VALUE "FileDescription", "Musicly" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "bloomee" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2025 BloomeeTunes. All rights reserved." "\0"
-            VALUE "OriginalFilename", "bloomee.exe" "\0"
-            VALUE "ProductName", "bloomee" "\0"
+            VALUE "InternalName", "Musicly" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2025 Musicly. All rights reserved." "\0"
+            VALUE "OriginalFilename", "Musicly.exe" "\0"
+            VALUE "ProductName", "Musicly" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

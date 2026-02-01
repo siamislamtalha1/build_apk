@@ -541,6 +541,11 @@ class FirestoreService {
     }
   }
 
+  Future<void> syncUserPreferencesToCloud(
+      String userId, Map<String, dynamic> preferences) {
+    return saveUserPreferences(userId, preferences);
+  }
+
   /// Get user preferences from Firestore
   Future<Map<String, dynamic>?> getUserPreferences(String userId) async {
     try {

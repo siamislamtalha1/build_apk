@@ -80,9 +80,19 @@ jobs:
       - name: Build Windows EXE
         run: flutter build windows --release
 
-      # 7️⃣ Upload Windows artifact
-      - name: Upload Windows EXE
+      # 7️⃣ Install Inno Setup
+      - name: Install Inno Setup
+        run: choco install innosetup -y
+
+      # 8️⃣ Create Installer
+      - name: Create Installer
+        shell: pwsh
+        run: |
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" installer_script.iss
+
+      # 9️⃣ Upload Windows Installer
+      - name: Upload Windows Installer
         uses: actions/upload-artifact@v4
         with:
-          name: windows-exe-${{ github.run_number }}
-          path: build/windows/x64/runner/Release/
+          name: windows-installer-${{ github.run_number }}
+          path: Output/*.exe
