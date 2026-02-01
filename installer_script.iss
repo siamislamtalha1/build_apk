@@ -10,13 +10,12 @@
  
  [Setup]
  AppId={{8E2B5C7B-0F2C-4A35-9B0F-9D4C8E9A1A1B}
- AppName={#AppName}
- AppVersion=2.13.3
- AppPublisher=Musicly
- DefaultDirName={localappdata}\{#AppName}
- DefaultGroupName={#AppName}
+ AppName=Musicly
+ AppVersion=1.0
+ AppPublisher=Your Name
+ DefaultDirName={localappdata}\Musicly
+ DefaultGroupName=Musicly
  DisableProgramGroupPage=yes
- DisableDirPage=yes
  OutputDir=Output
  OutputBaseFilename=Musicly-Setup
  Compression=lzma2
@@ -24,7 +23,7 @@
  ArchitecturesInstallIn64BitMode=x64
  PrivilegesRequired=lowest
  SetupIconFile=windows\runner\resources\app_icon.ico
- UninstallDisplayIcon={app}\{#AppExe}
+ UninstallDisplayIcon={app}\musicly.exe
  WizardStyle=modern
  CloseApplications=yes
  CloseApplicationsFilter={#AppExe}
@@ -32,20 +31,20 @@
  RestartIfNeededByRun=no
  
  [Files]
- Source: "build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+ Source: "build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
  
  [Icons]
- Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppExe}"; Tasks: desktopicon
- Name: "{group}\{#AppName}"; Filename: "{app}\{#AppExe}"
- Name: "{group}\Uninstall {#AppName}"; Filename: "{uninstallexe}"
+ Name: "{autodesktop}\Musicly"; Filename: "{app}\musicly.exe"; Tasks: desktopicon
+ Name: "{group}\Musicly"; Filename: "{app}\musicly.exe"
+ Name: "{group}\Uninstall Musicly"; Filename: "{uninstallexe}"
  
  [Tasks]
- Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription: "Additional icons:"; Flags: checked
+ Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription: "Additional icons:"
  
  [Run]
- Filename: "{app}\{#AppExe}"; Description: "Launch {#AppName}"; Flags: postinstall nowait skipifsilent unchecked
+ Filename: "{app}\musicly.exe"; Description: "Launch Musicly"; Flags: postinstall nowait skipifsilent unchecked
  
  [UninstallDelete]
  Type: filesandordirs; Name: "{app}"
- Type: filesandordirs; Name: "{userappdata}\{#AppName}"
- Type: filesandordirs; Name: "{localappdata}\{#AppName}"
+ Type: filesandordirs; Name: "{userappdata}\Musicly"
+ Type: filesandordirs; Name: "{localappdata}\Musicly"
