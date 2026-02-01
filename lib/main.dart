@@ -10,6 +10,7 @@ import 'package:Bloomee/blocs/player_overlay/player_overlay_cubit.dart';
 import 'package:Bloomee/blocs/search_suggestions/search_suggestion_bloc.dart';
 import 'package:Bloomee/blocs/settings_cubit/cubit/settings_cubit.dart';
 import 'package:Bloomee/blocs/timer/timer_bloc.dart';
+import 'package:Bloomee/blocs/notification/notification_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Bloomee/repository/Youtube/youtube_api.dart';
@@ -496,6 +497,10 @@ class _MyAppState extends State<MyApp> {
         ),
         BlocProvider(
           create: (context) => SettingsCubit(),
+          lazy: false,
+        ),
+        BlocProvider(
+          create: (context) => NotificationCubit(),
           lazy: false,
         ),
         BlocProvider.value(
