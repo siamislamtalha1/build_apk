@@ -12,6 +12,59 @@ import 'package:go_router/go_router.dart';
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
+  Future<void> _showUsernameDialog(
+    BuildContext context, {
+    required String title,
+    String? initial,
+  }) async {
+    final controller = TextEditingController(text: initial ?? '');
+    final next = await showDialog<String>(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          backgroundColor: Default_Theme.themeColor,
+          title: Text(title),
+          content: TextField(
+            controller: controller,
+            decoration: const InputDecoration(
+              hintText: '@username',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(ctx, controller.text),
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+
+    final v = (next ?? '').trim();
+    if (v.isEmpty) return;
+    try {
+      await context.read<AuthCubit>().updateUsername(v);
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Username updated'),
+        ),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString()),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -172,14 +225,13 @@ class ProfileScreen extends StatelessWidget {
                         stream: firestore.watchUserProfile(user.uid),
                         builder: (context, snap) {
                           final username = snap.data?['username'] as String?;
-                          if (username == null || username.trim().isEmpty) {
-                            return const SizedBox.shrink();
-                          }
                           return Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                username,
+                                (username == null || username.trim().isEmpty)
+                                    ? 'Set username'
+                                    : username,
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: Default_Theme.accentColor2
@@ -190,53 +242,14 @@ class ProfileScreen extends StatelessWidget {
                               const SizedBox(width: 6),
                               InkWell(
                                 onTap: () async {
-                                  final controller = TextEditingController(
-                                      text: username);
-                                  final next = await showDialog<String>(
-                                    context: context,
-                                    builder: (ctx) {
-                                      return AlertDialog(
-                                        backgroundColor: Default_Theme.themeColor,
-                                        title: const Text('Change username'),
-                                        content: TextField(
-                                          controller: controller,
-                                          decoration: const InputDecoration(
-                                            hintText: '@username',
-                                          ),
-                                        ),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () => Navigator.pop(ctx),
-                                            child: const Text('Cancel'),
-                                          ),
-                                          ElevatedButton(
-                                            onPressed: () => Navigator.pop(
-                                                ctx, controller.text),
-                                            child: const Text('Save'),
-                                          ),
-                                        ],
-                                      );
-                                    },
+                                  await _showUsernameDialog(
+                                    context,
+                                    title: (username == null ||
+                                            username.trim().isEmpty)
+                                        ? 'Set username'
+                                        : 'Change username',
+                                    initial: username,
                                   );
-                                  final v = (next ?? '').trim();
-                                  if (v.isEmpty) return;
-                                  try {
-                                    await context
-                                        .read<AuthCubit>()
-                                        .updateUsername(v);
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Username updated'),
-                                      ),
-                                    );
-                                  } catch (e) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(e.toString()),
-                                        backgroundColor: Colors.red,
-                                      ),
-                                    );
-                                  }
                                 },
                                 borderRadius: BorderRadius.circular(12),
                                 child: Padding(
@@ -467,12 +480,55 @@ class ProfileScreen extends StatelessWidget {
             onTap: () => _showSignOutDialog(context),
             isDestructive: true,
           ),
+          const SizedBox(height: 12),
+          _buildMenuItem(
+            context: context,
+            icon: MingCute.delete_2_fill,
+            title: 'Delete Account',
+            subtitle: 'Permanently delete your account',
+            onTap: () => _showDeleteAccountDialog(context),
+            isDestructive: true,
+          ),
         ],
         if (isGuest) ...[
           const SizedBox(height: 20),
           _buildSignInButton(context),
         ],
       ],
+    );
+  }
+
+  void _showDeleteAccountDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: Default_Theme.themeColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(
+          'Delete Account',
+          style: TextStyle(color: Default_Theme.primaryColor1),
+        ),
+        content: Text(
+          'This will permanently delete your account. Your username will become available again.',
+          style: TextStyle(color: Default_Theme.primaryColor2),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+              await context.read<AuthCubit>().deleteAccount();
+            },
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

@@ -24,6 +24,7 @@ import 'package:Bloomee/screens/screen/home_views/setting_view.dart';
 
 import 'package:Bloomee/blocs/auth/auth_cubit.dart';
 import 'package:Bloomee/routes_and_consts/go_router_refresh_stream.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class GlobalRoutes {
   static final globalRouterKey = GlobalKey<NavigatorState>();
@@ -42,19 +43,21 @@ class GlobalRoutes {
           return '$trimmedPath$query';
         }
         final authState = authCubit.state;
-        final bool isAuthenticated = authState is Authenticated;
-        final bool isRegistered = authState is Authenticated &&
-            !(authState).user.isAnonymous;
-        final bool isLoggingIn = state.uri.toString() == '/Login' ||
-            state.uri.toString() == '/Signup';
+        if (authState is AuthInitial || authState is AuthLoading) {
+          return null;
+        }
+
+        final firebaseUser = FirebaseAuth.instance.currentUser;
+        final bool isAuthenticated = firebaseUser != null;
+        final bool isLoggingIn = path == '/Login' || path == '/Signup';
 
         // 1. If not logged in and not on login/signup page -> Redirect to Login
         if (!isAuthenticated && !isLoggingIn) {
           return '/Login';
         }
 
-        // 2. If logged in and on login/signup page -> Redirect to Explore
-        if (isRegistered && isLoggingIn) {
+        // 2. If logged in (including guest) and on login/signup page -> Redirect to Explore
+        if (isAuthenticated && isLoggingIn) {
           return '/Explore';
         }
 

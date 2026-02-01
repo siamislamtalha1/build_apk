@@ -16,57 +16,131 @@ class GlobalFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PlayerOverlayWrapper(
-      child: PopScope(
-        canPop: !context.watch<PlayerOverlayCubit>().state &&
-            navigationShell.currentIndex == 0,
-        onPopInvokedWithResult: (didPop, result) {
-          if (!didPop) {
-            final playerOverlayCubit = context.read<PlayerOverlayCubit>();
-            // First check if player overlay is open
-            if (playerOverlayCubit.state) {
-              // First try to collapse UpNext panel if expanded
-              if (!playerOverlayCubit.collapseUpNextPanel()) {
-                // If panel was not expanded, hide the player
-                playerOverlayCubit.hidePlayer();
+      child: Stack(
+        children: [
+          const _GlobalBackdrop(),
+          PopScope(
+            canPop: !context.watch<PlayerOverlayCubit>().state &&
+                navigationShell.currentIndex == 0,
+            onPopInvokedWithResult: (didPop, result) {
+              if (!didPop) {
+                final playerOverlayCubit = context.read<PlayerOverlayCubit>();
+                // First check if player overlay is open
+                if (playerOverlayCubit.state) {
+                  // First try to collapse UpNext panel if expanded
+                  if (!playerOverlayCubit.collapseUpNextPanel()) {
+                    // If panel was not expanded, hide the player
+                    playerOverlayCubit.hidePlayer();
+                  }
+                } else {
+                  navigationShell.goBranch(0);
+                }
               }
-            } else {
-              navigationShell.goBranch(0);
-            }
-          }
-        },
-        child: Scaffold(
-          extendBody: true,
-          body: ResponsiveBreakpoints.of(context).isMobile
-              ? _AnimatedPageView(navigationShell: navigationShell)
-              : Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 4),
-                      child: VerticalNavBar(navigationShell: navigationShell),
+            },
+            child: Scaffold(
+              extendBody: true,
+              backgroundColor: Colors.transparent,
+              drawerScrimColor: Colors.transparent,
+              body: ResponsiveBreakpoints.of(context).isMobile
+                  ? _AnimatedPageView(navigationShell: navigationShell)
+                  : Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 4),
+                          child: VerticalNavBar(
+                              navigationShell: navigationShell),
+                        ),
+                        Expanded(
+                          child: _AnimatedPageView(
+                              navigationShell: navigationShell),
+                        ),
+                      ],
                     ),
-                    Expanded(
-                      child:
-                          _AnimatedPageView(navigationShell: navigationShell),
+              bottomNavigationBar: SafeArea(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const MiniPlayerWidget(),
+                    Container(
+                      color: Colors.transparent,
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 5, horizontal: 10),
+                      child: ResponsiveBreakpoints.of(context).isMobile
+                          ? HorizontalNavBar(navigationShell: navigationShell)
+                          : const Wrap(),
                     ),
                   ],
                 ),
-          backgroundColor: Default_Theme.themeColor,
-          drawerScrimColor: Default_Theme.themeColor,
-          bottomNavigationBar: SafeArea(
-              child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const MiniPlayerWidget(),
-              Container(
-                color: Colors.transparent,
-                margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                child: ResponsiveBreakpoints.of(context).isMobile
-                    ? HorizontalNavBar(navigationShell: navigationShell)
-                    : const Wrap(),
               ),
-            ],
-          )),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _GlobalBackdrop extends StatelessWidget {
+  const _GlobalBackdrop();
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final base = Default_Theme.themeColor;
+    final c1 = (isDark ? Default_Theme.accentColor2 : Default_Theme.accentColor1)
+        .withValues(alpha: isDark ? 0.18 : 0.12);
+    final c2 = (isDark ? Default_Theme.accentColor1 : Default_Theme.accentColor2)
+        .withValues(alpha: isDark ? 0.14 : 0.10);
+
+    return Positioned.fill(
+      child: IgnorePointer(
+        child: Stack(
+          children: [
+            DecoratedBox(
+              decoration: BoxDecoration(
+                color: base,
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    base,
+                    base,
+                    base.withValues(alpha: 0.96),
+                  ],
+                ),
+              ),
+              child: const SizedBox.expand(),
+            ),
+            Positioned(
+              top: -180,
+              left: -160,
+              child: Container(
+                width: 420,
+                height: 420,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [c1, Colors.transparent],
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: -220,
+              right: -180,
+              child: Container(
+                width: 520,
+                height: 520,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [c2, Colors.transparent],
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

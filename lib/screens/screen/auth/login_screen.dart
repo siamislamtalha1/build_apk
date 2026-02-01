@@ -35,10 +35,6 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  void _signInWithGoogle() {
-    context.read<AuthCubit>().signInWithGoogle();
-  }
-
   void _signInAsGuest() {
     context.read<AuthCubit>().signInAsGuest();
   }
@@ -251,29 +247,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
 
                     const SizedBox(height: 24),
-
-                    // Google Sign-In Button
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: OutlinedButton.icon(
-                        onPressed: isLoading ? null : _signInWithGoogle,
-                        icon: const Icon(Bootstrap.google, size: 20),
-                        label: const Text('Continue with Google'),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Default_Theme.primaryColor1,
-                          side: BorderSide(
-                            color: Default_Theme.primaryColor1
-                                .withValues(alpha: 0.3),
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 16),
 
                     // Guest Mode Button
                     SizedBox(

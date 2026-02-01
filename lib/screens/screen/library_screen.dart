@@ -20,6 +20,7 @@ import 'package:Bloomee/blocs/library/cubit/library_items_cubit.dart';
 import 'package:Bloomee/routes_and_consts/global_str_consts.dart';
 import 'package:Bloomee/screens/widgets/createPlaylist_bottomsheet.dart';
 import 'package:Bloomee/screens/widgets/libitem_tile.dart';
+import 'package:Bloomee/screens/screen/library_views/cloud_playlist_import.dart';
 import 'package:Bloomee/theme_data/default.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:Bloomee/blocs/library/search_cubit/library_search_cubit.dart';
@@ -453,6 +454,18 @@ class _LibraryScreenViewState extends State<_LibraryScreenView> {
               color: _isSearching
                   ? Default_Theme.accentColor2
                   : Default_Theme.primaryColor1,
+            ),
+          ),
+          IconButton(
+            padding: const EdgeInsets.all(8),
+            tooltip: 'Import playlist',
+            onPressed: () async {
+              await showCloudPlaylistImportDialog(context);
+            },
+            icon: Icon(
+              MingCute.download_2_line,
+              size: 24,
+              color: Default_Theme.primaryColor1,
             ),
           ),
           IconButton(

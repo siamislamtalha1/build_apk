@@ -29,6 +29,17 @@ class SyncService {
   bool _suppressLocalPrefsPush = false;
   bool _suppressLocalStatsPush = false;
 
+  bool _initialized = false;
+  String? _activeUserId;
+  Completer<void>? _startSyncCompleter;
+  Timer? _localDebounce;
+
+  bool _syncingPlaylists = false;
+  bool _syncingPrefs = false;
+  bool _syncingHistory = false;
+  bool _syncingLikedSongs = false;
+  bool _syncingStatistics = false;
+
   // Stream controller for sync status
   final BehaviorSubject<SyncStatus> _syncStatusController =
       BehaviorSubject<SyncStatus>.seeded(SyncStatus.idle);
@@ -42,6 +53,8 @@ class SyncService {
 
   /// Initialize sync service
   void init() {
+    if (_initialized) return;
+    _initialized = true;
     _authSubscription = _authService.authStateChanges.listen((user) {
       if (user != null && !user.isAnonymous) {
         _startSync(user.uid);
@@ -54,20 +67,38 @@ class SyncService {
   /// Start sync for a user
   void _startSync(String userId) async {
     print('🔄 Starting sync for user: $userId');
+    if (_activeUserId == userId && _startSyncCompleter != null) {
+      // Already starting/started for this user.
+      return;
+    }
+    _activeUserId = userId;
+
+    _startSyncCompleter ??= Completer<void>();
+
+    _stopSync();
     _syncStatusController.add(SyncStatus.syncing);
 
     // 1. Initial Pull from Cloud (pessimistic strategy: cloud wins if conflict/empty)
-    _performInitialSync(userId);
+    try {
+      await _performInitialSync(userId);
+    } catch (e) {
+      print('❌ Initial sync failed: $e');
+      _syncStatusController.add(SyncStatus.error);
+    }
 
     // 2. Listen to Local Changes -> Push to Cloud
     _watchLocalChanges(userId);
 
     // 3. Listen to Cloud Changes -> Update Local (Realtime)
     _watchCloudChanges(userId);
+
+    _startSyncCompleter?.complete();
+    _startSyncCompleter = null;
   }
 
   void _stopSync() {
     print('⏹️ Stopping sync');
+    _localDebounce?.cancel();
     _likedSongsSubscription?.cancel();
     _playlistsSubscription?.cancel();
     _settingsBoolSubscription?.cancel();
@@ -242,6 +273,8 @@ class SyncService {
         _firestoreService.watchLikedSongs(userId).listen((cloudSongs) async {
       if (cloudSongs.isEmpty) return;
       print('☁️ Cloud liked songs changed: ${cloudSongs.length} items');
+
+      _suppressLocalLikedPush = true;
 
       // Update Local DB
       // Note: This might trigger _watchLocalChanges -> _syncLikeSongsToCloud
@@ -418,9 +451,13 @@ class SyncService {
       print('💾 Local playlists changed, scheduling sync...');
       // Simple debounce or just fire
       if (_suppressLocalPlaylistPush) return;
-      _syncPlaylistsToCloud(userId);
-      if (!_suppressLocalHistoryPush) _syncHistoryToCloud(userId);
-      if (!_suppressLocalLikedPush) _syncLikedSongsToCloud(userId);
+
+      _localDebounce?.cancel();
+      _localDebounce = Timer(const Duration(milliseconds: 600), () {
+        _syncPlaylistsToCloud(userId);
+        if (!_suppressLocalHistoryPush) _syncHistoryToCloud(userId);
+        if (!_suppressLocalLikedPush) _syncLikedSongsToCloud(userId);
+      });
     });
 
     // Watch settings changes -> push to cloud preferences
@@ -446,6 +483,8 @@ class SyncService {
   // ... (Rest of existing sync methods)
 
   Future<void> _syncPlaylistsToCloud(String userId) async {
+    if (_syncingPlaylists) return;
+    _syncingPlaylists = true;
     final playlists = await BloomeeDBService.getAllPlaylistsDB();
     _syncStatusController.add(SyncStatus.syncing);
     try {
@@ -492,55 +531,85 @@ class SyncService {
     } catch (e) {
       print('Sync Error (Playlists): $e');
       _syncStatusController.add(SyncStatus.error);
+    } finally {
+      _syncingPlaylists = false;
     }
   }
 
   Future<void> _syncHistoryToCloud(String userId) async {
+    if (_syncingHistory) return;
+    _syncingHistory = true;
     final historyItems = await BloomeeDBService.getRecentlyPlayedDBItems();
 
     try {
       await _firestoreService.syncHistoryToCloud(userId, historyItems);
     } catch (e) {
       print('Sync Error (History): $e');
+    } finally {
+      _syncingHistory = false;
     }
   }
 
   Future<void> _syncPreferencesToCloud(String userId) async {
+    if (_syncingPrefs) return;
+    _syncingPrefs = true;
     try {
       final isar = await BloomeeDBService.db;
       final boolSettings = await isar.appSettingsBoolDBs.where().findAll();
       final strSettings = await isar.appSettingsStrDBs.where().findAll();
 
+      final boolMap = <String, bool>{};
+      final strMap = <String, String>{};
+      for (final s in boolSettings) {
+        boolMap[s.settingName] = s.settingValue;
+      }
+      for (final s in strSettings) {
+        strMap[s.settingName] = s.settingValue;
+      }
+
       final prefs = <String, dynamic>{
-        'bool': {for (final s in boolSettings) s.settingName: s.settingValue},
-        'str': {for (final s in strSettings) s.settingName: s.settingValue},
+        'bool': boolMap,
+        'str': strMap,
       };
 
-      await _firestoreService.saveUserPreferences(userId, prefs);
+      await _firestoreService.syncUserPreferencesToCloud(userId, prefs);
     } catch (e) {
       print('Sync Error (Preferences): $e');
+    } finally {
+      _syncingPrefs = false;
     }
   }
 
   Future<void> _syncLikedSongsToCloud(String userId) async {
+    if (_syncingLikedSongs) return;
+    _syncingLikedSongs = true;
     final likedItems = await BloomeeDBService.getPlaylistItemsByName(
         BloomeeDBService.likedPlaylist);
-    if (likedItems == null) return;
+    if (likedItems == null) {
+      _syncingLikedSongs = false;
+      return;
+    }
 
     try {
       await _firestoreService.syncLikedSongsToCloud(userId, likedItems);
     } catch (e) {
       print('Sync Error (Liked Songs): $e');
+    } finally {
+      _syncingLikedSongs = false;
     }
   }
 
   Future<void> _syncStatisticsToCloud(String userId) async {
+    if (_syncingStatistics) return;
+    _syncingStatistics = true;
     try {
       final isar = await BloomeeDBService.db;
       final stats = await isar.playStatisticsDBs.where().findAll();
       await _firestoreService.syncStatisticsToCloud(userId, stats);
     } catch (e) {
       print('Sync Error (Statistics): $e');
+    } finally {
+      _syncingStatistics = false;
     }
   }
 }

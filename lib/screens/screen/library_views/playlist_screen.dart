@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:Bloomee/blocs/mediaPlayer/bloomee_player_cubit.dart';
+import 'package:Bloomee/blocs/auth/auth_cubit.dart';
 import 'package:Bloomee/model/MediaPlaylistModel.dart';
 import 'package:Bloomee/model/songModel.dart';
 import 'package:Bloomee/screens/screen/library_views/cubit/current_playlist_cubit.dart';
@@ -13,6 +14,7 @@ import 'package:Bloomee/screens/widgets/song_tile.dart';
 import 'package:Bloomee/services/db/GlobalDB.dart';
 import 'package:Bloomee/services/db/cubit/bloomee_db_cubit.dart';
 import 'package:Bloomee/services/db/bloomee_db_service.dart';
+import 'package:Bloomee/screens/screen/library_views/cloud_playlist_import.dart';
 import 'package:Bloomee/services/firebase/firestore_service.dart';
 import 'package:Bloomee/theme_data/default.dart';
 import 'package:Bloomee/utils/imgurl_formator.dart';
@@ -808,24 +810,113 @@ class PlaylistView extends StatelessWidget {
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            IconButton(
+                                            TextButton.icon(
                                               icon: const Icon(
                                                 MingCute.download_2_line,
+                                                size: 18,
                                               ),
-                                              tooltip: 'Import playlist',
-                                              hoverColor: getFBColor(context)[1]
-                                                  .withValues(alpha: 0.2),
-                                              color: getFBColor(context)[0],
+                                              label: const Text('Import'),
                                               style: ButtonStyle(
+                                                foregroundColor:
+                                                    WidgetStatePropertyAll(
+                                                        getFBColor(context)[0]),
                                                 backgroundColor:
                                                     WidgetStatePropertyAll(
                                                         getFBColor(context)[1]
                                                             .withValues(
                                                                 alpha: 0.05)),
+                                                overlayColor:
+                                                    WidgetStatePropertyAll(
+                                                        getFBColor(context)[1]
+                                                            .withValues(
+                                                                alpha: 0.2)),
+                                                padding:
+                                                    const WidgetStatePropertyAll(
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 10,
+                                                            vertical: 10)),
+                                                shape:
+                                                    WidgetStatePropertyAll(
+                                                        RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                )),
                                               ),
                                               onPressed: () async {
-                                                await _showCloudImportDialog(
+                                                await showCloudPlaylistImportDialog(
                                                     context);
+                                              },
+                                            ),
+                                            const SizedBox(width: 8),
+                                            TextButton.icon(
+                                              icon: const Icon(
+                                                MingCute.link_2_line,
+                                                size: 18,
+                                              ),
+                                              label: const Text('Share'),
+                                              style: ButtonStyle(
+                                                foregroundColor:
+                                                    WidgetStatePropertyAll(
+                                                        getFBColor(context)[0]),
+                                                backgroundColor:
+                                                    WidgetStatePropertyAll(
+                                                        getFBColor(context)[1]
+                                                            .withValues(
+                                                                alpha: 0.05)),
+                                                overlayColor:
+                                                    WidgetStatePropertyAll(
+                                                        getFBColor(context)[1]
+                                                            .withValues(
+                                                                alpha: 0.2)),
+                                                padding:
+                                                    const WidgetStatePropertyAll(
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 10,
+                                                            vertical: 10)),
+                                                shape:
+                                                    WidgetStatePropertyAll(
+                                                        RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                )),
+                                              ),
+                                              onPressed: () async {
+                                                final auth =
+                                                    context.read<AuthCubit>();
+                                                final user = auth.currentUser;
+                                                if (user == null ||
+                                                    user.isAnonymous) {
+                                                  SnackbarService.showMessage(
+                                                      'Login required to share playlists');
+                                                  return;
+                                                }
+                                                final fs = FirestoreService();
+                                                try {
+                                                  await fs.setPlaylistVisibility(
+                                                    userId: user.uid,
+                                                    playlistName: state
+                                                        .mediaPlaylist
+                                                        .playlistName,
+                                                    isPublic: true,
+                                                  );
+                                                  final shareId =
+                                                      await fs.ensurePlaylistShareId(
+                                                    userId: user.uid,
+                                                    playlistName: state
+                                                        .mediaPlaylist
+                                                        .playlistName,
+                                                  );
+                                                  final url =
+                                                      fs.buildPlaylistShareUrl(
+                                                          shareId);
+                                                  await Clipboard.setData(
+                                                      ClipboardData(text: url));
+                                                  SnackbarService.showMessage(
+                                                      'Link copied to clipboard');
+                                                } catch (e) {
+                                                  SnackbarService.showMessage(
+                                                      'Failed: $e');
+                                                }
                                               },
                                             ),
                                             IconButton(
