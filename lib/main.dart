@@ -113,7 +113,12 @@ Future<void> importItems(String path) async {
 
 Future<void> setHighRefreshRate() async {
   if (io.Platform.isAndroid) {
-    await FlutterDisplayMode.setHighRefreshRate();
+    try {
+      await FlutterDisplayMode.setHighRefreshRate();
+    } catch (e, st) {
+      debugPrint('setHighRefreshRate failed: $e');
+      debugPrintStack(stackTrace: st);
+    }
   }
 }
 
@@ -133,29 +138,72 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   GestureBinding.instance.resamplingEnabled = true;
 
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  FlutterError.onError = (details) {
+    FlutterError.dumpErrorToConsole(details);
+  };
 
-  if (io.Platform.isLinux || io.Platform.isWindows) {
-    JustAudioMediaKit.ensureInitialized(
-      linux: true,
-      windows: true,
+  WidgetsBinding.instance.platformDispatcher.onError = (error, stack) {
+    debugPrint('Uncaught platformDispatcher error: $error');
+    debugPrintStack(stackTrace: stack);
+    return true;
+  };
+
+  runZonedGuarded(() async {
+    try {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+
+      if (io.Platform.isLinux || io.Platform.isWindows) {
+        JustAudioMediaKit.ensureInitialized(
+          linux: true,
+          windows: true,
+        );
+      }
+
+      await initServices();
+      await FirebaseService.initialize();
+
+      final authCubit = AuthCubit();
+      final globalEventsCubit = GlobalEventsCubit();
+
+      SyncService().init();
+      await setHighRefreshRate();
+      setupPlayerCubit();
+      DiscordService.initialize();
+
+      runApp(MyApp(
+        authCubit: authCubit,
+        globalEventsCubit: globalEventsCubit,
+      ));
+    } catch (e, st) {
+      debugPrint('Fatal error during app init: $e');
+      debugPrintStack(stackTrace: st);
+      runApp(_FatalErrorApp(error: e.toString()));
+    }
+  }, (error, stack) {
+    debugPrint('Uncaught zoned error: $error');
+    debugPrintStack(stackTrace: stack);
+    runApp(_FatalErrorApp(error: error.toString()));
+  });
+}
+
+class _FatalErrorApp extends StatelessWidget {
+  final String error;
+  const _FatalErrorApp({required this.error});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: SelectableText(error),
+          ),
+        ),
+      ),
     );
   }
-  await initServices();
-  await FirebaseService.initialize(); // Initialize Firebase
-
-  // Initialize Cubits that need to be accessed globally or before UI
-  final authCubit = AuthCubit();
-  final globalEventsCubit = GlobalEventsCubit();
-
-  SyncService().init(); // Initialize Sync Service
-  setHighRefreshRate();
-  setupPlayerCubit();
-  DiscordService.initialize();
-  runApp(MyApp(
-    authCubit: authCubit,
-    globalEventsCubit: globalEventsCubit,
-  ));
 }
 
 class MyApp extends StatefulWidget {
