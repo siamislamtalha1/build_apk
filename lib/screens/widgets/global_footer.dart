@@ -309,8 +309,8 @@ class HorizontalNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final glassTint = Colors.white
-        .withValues(alpha: Theme.of(context).brightness == Brightness.dark ? 0.14 : 0.65);
+    final glassTint = Colors.white.withValues(
+        alpha: Theme.of(context).brightness == Brightness.dark ? 0.10 : 0.18);
     return ClipRRect(
       borderRadius: BorderRadius.circular(30),
       child: BackdropFilter(
@@ -420,6 +420,9 @@ class HorizontalNavBar extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
     );
   }
 }

@@ -422,8 +422,8 @@ class _LibraryScreenViewState extends State<_LibraryScreenView> {
 
   SliverAppBar customDiscoverBar(BuildContext context) {
     return SliverAppBar(
-      floating: true,
-      pinned: false, // Set to false if you don't want it to stick at the top
+      floating: false,
+      pinned: true, // Set to false if you don't want it to stick at the top
       surfaceTintColor: Default_Theme.themeColor,
       backgroundColor: Default_Theme.themeColor,
       title: Row(

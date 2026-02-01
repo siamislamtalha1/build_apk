@@ -73,36 +73,69 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: MultiBlocProvider(
-        providers: [
-          BlocProvider<RecentlyCubit>(
-            create: (context) => RecentlyCubit(),
-            lazy: false,
+    final user = context.read<AuthCubit>().currentUser;
+    final String displayName = user?.displayName != null && user!.displayName!.isNotEmpty
+        ? user.displayName!.split(' ')[0]
+        : 'User';
+    final String titleText =
+        user == null || user.isAnonymous ? _getGreeting() : "${_getGreeting()}, $displayName";
+
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<RecentlyCubit>(
+          create: (context) => RecentlyCubit(),
+          lazy: false,
+        ),
+        BlocProvider(
+          create: (context) => yTMusicCubit,
+          lazy: false,
+        ),
+        BlocProvider(
+          create: (context) => FetchChartCubit(),
+          lazy: false,
+        ),
+      ],
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Default_Theme.themeColor,
+          surfaceTintColor: Default_Theme.themeColor,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          titleSpacing: 16,
+          title: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  titleText,
+                  overflow: TextOverflow.ellipsis,
+                  style: Default_Theme.primaryTextStyle.merge(
+                    TextStyle(
+                      fontSize: 34,
+                      color: Default_Theme.primaryColor1,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              const _TopActionsPill(),
+            ],
           ),
-          BlocProvider(
-            create: (context) => yTMusicCubit,
-            lazy: false,
-          ),
-          BlocProvider(
-            create: (context) => FetchChartCubit(),
-            lazy: false,
-          ),
-        ],
-        child: Scaffold(
-          body: RefreshIndicator(
-            onRefresh: () async {
-              await yTMusicCubit.fetchYTMusic();
-            },
-            child: CustomScrollView(
-              shrinkWrap: true,
-              physics: const ClampingScrollPhysics(),
-              slivers: [
-                CustomDiscoverBar(greeting: _getGreeting()),
-                SliverList(
-                  delegate: SliverChildListDelegate(
-                    [
-                      CaraouselWidget(),
+          toolbarHeight: 72,
+        ),
+        body: SafeArea(
+          top: false,
+          child: Column(
+            children: [
+              CaraouselWidget(),
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: () async {
+                    await yTMusicCubit.fetchYTMusic();
+                  },
+                  child: ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: [
                       Padding(
                         padding: const EdgeInsets.only(top: 15.0),
                         child: SizedBox(
@@ -229,12 +262,12 @@ class _ExploreScreenState extends State<ExploreScreen> {
                       ),
                     ],
                   ),
-                )
-              ],
-            ),
+                ),
+              ),
+            ],
           ),
-          backgroundColor: Default_Theme.themeColor,
         ),
+        backgroundColor: Default_Theme.themeColor,
       ),
     );
   }
@@ -259,8 +292,8 @@ class CustomDiscoverBar extends StatelessWidget {
         user == null || user.isAnonymous ? greeting : "$greeting, $displayName";
 
     return SliverAppBar(
-      floating: true,
-      pinned: false,
+      floating: false,
+      pinned: true,
       surfaceTintColor: Default_Theme.themeColor,
       backgroundColor: Default_Theme.themeColor,
       title: Row(

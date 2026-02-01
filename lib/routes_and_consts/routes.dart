@@ -48,17 +48,24 @@ class GlobalRoutes {
         }
 
         final firebaseUser = FirebaseAuth.instance.currentUser;
-        final bool isAuthenticated = firebaseUser != null;
+        final bool isAuthenticated = firebaseUser != null && !firebaseUser.isAnonymous;
+        final bool isGuest = firebaseUser != null && firebaseUser.isAnonymous;
         final bool isLoggingIn = path == '/Login' || path == '/Signup';
 
         // 1. If not logged in and not on login/signup page -> Redirect to Login
-        if (!isAuthenticated && !isLoggingIn) {
+        if (firebaseUser == null && !isLoggingIn) {
           return '/Login';
         }
 
-        // 2. If logged in (including guest) and on login/signup page -> Redirect to Explore
+        // 2. If fully logged in (non-guest) and on login/signup page -> Redirect to Explore
+        // Guests must be allowed to open Login/Signup to upgrade their account.
         if (isAuthenticated && isLoggingIn) {
           return '/Explore';
+        }
+
+        // 3. Guest users are allowed to stay on Login/Signup
+        if (isGuest && isLoggingIn) {
+          return null;
         }
 
         // No redirect needed

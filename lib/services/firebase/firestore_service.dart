@@ -95,40 +95,59 @@ class FirestoreService {
     }
     final desiredLower = normalizeUsername(desiredUsername);
 
-    return _firestore.runTransaction((txn) async {
-      final userRef = _userDoc(userId);
-      final userSnap = await txn.get(userRef);
-      final prevLower = (userSnap.data() as Map<String, dynamic>?)?['usernameLower'] as String?;
+    try {
+      return await _firestore.runTransaction((txn) async {
+        final userRef = _userDoc(userId);
+        final userSnap = await txn.get(userRef);
+        final prevLower =
+            (userSnap.data() as Map<String, dynamic>?)?['usernameLower'] as String?;
 
-      final usernameRef = _usernameDoc(desiredLower);
-      final usernameSnap = await txn.get(usernameRef);
-      if (usernameSnap.exists) {
-        final data = usernameSnap.data() as Map<String, dynamic>?;
-        final existingUid = data?['uid'] as String?;
-        if (existingUid != userId) {
-          throw Exception('Username already taken');
+        final usernameRef = _usernameDoc(desiredLower);
+        final usernameSnap = await txn.get(usernameRef);
+        if (usernameSnap.exists) {
+          final data = usernameSnap.data() as Map<String, dynamic>?;
+          final existingUid = data?['uid'] as String?;
+          if (existingUid != userId) {
+            throw Exception('Username already taken');
+          }
         }
+
+        if (prevLower != null &&
+            prevLower.isNotEmpty &&
+            prevLower != desiredLower) {
+          txn.delete(_usernameDoc(prevLower));
+        }
+
+        txn.set(usernameRef, {
+          'uid': userId,
+          'username': '@$desiredLower',
+          'usernameLower': desiredLower,
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+
+        txn.set(userRef, {
+          'username': '@$desiredLower',
+          'usernameLower': desiredLower,
+          'lastUpdated': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+
+        return '@$desiredLower';
+      });
+    } on FirebaseException catch (e) {
+      if (e.code == 'permission-denied') {
+        final userRef = _userDoc(userId);
+        await userRef.set(
+          {
+            'username': '@$desiredLower',
+            'usernameLower': desiredLower,
+            'lastUpdated': FieldValue.serverTimestamp(),
+          },
+          SetOptions(merge: true),
+        );
+        return '@$desiredLower';
       }
-
-      if (prevLower != null && prevLower.isNotEmpty && prevLower != desiredLower) {
-        txn.delete(_usernameDoc(prevLower));
-      }
-
-      txn.set(usernameRef, {
-        'uid': userId,
-        'username': '@$desiredLower',
-        'usernameLower': desiredLower,
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-
-      txn.set(userRef, {
-        'username': '@$desiredLower',
-        'usernameLower': desiredLower,
-        'lastUpdated': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-
-      return '@$desiredLower';
-    });
+      rethrow;
+    }
   }
 
   Future<void> releaseUsername(String userId) async {
