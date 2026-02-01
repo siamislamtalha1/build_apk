@@ -21,6 +21,25 @@ class CrashReporter {
     final text = _format(error, stack, source: source);
     lastCrashText = text;
 
+    // Best-effort, immediate write on Windows so the file exists even if the
+    // process terminates quickly.
+    if (Platform.isWindows) {
+      try {
+        final desktop = _tryGetWindowsDesktopDirectory();
+        if (desktop != null) {
+          final ts = DateTime.now()
+              .toIso8601String()
+              .replaceAll(':', '-')
+              .replaceAll('.', '-');
+          final desktopFile = File(p.join(desktop.path, 'Musicly_crash_$ts.txt'));
+          desktopFile.writeAsStringSync(text, flush: true);
+          lastCrashFilePath = desktopFile.path;
+        }
+      } catch (_) {
+        // ignore
+      }
+    }
+
     unawaited(_persist(text));
 
     scheduleMicrotask(() {
@@ -46,6 +65,7 @@ class CrashReporter {
 
   static Future<void> _persist(String text) async {
     try {
+      // 1) Always write to app-support (or temp) so it exists on every platform.
       Directory dir;
       try {
         dir = await getApplicationSupportDirectory();
@@ -56,9 +76,50 @@ class CrashReporter {
       final file = File(p.join(dir.path, 'last_crash.txt'));
       await file.writeAsString(text, flush: true);
       lastCrashFilePath = file.path;
+
+      // 2) Best-effort: also write to Desktop on Windows.
+      if (Platform.isWindows) {
+        final desktop = _tryGetWindowsDesktopDirectory();
+        if (desktop != null) {
+          final ts = DateTime.now()
+              .toIso8601String()
+              .replaceAll(':', '-')
+              .replaceAll('.', '-');
+          final desktopFile = File(p.join(desktop.path, 'Musicly_crash_$ts.txt'));
+          await desktopFile.writeAsString(text, flush: true);
+          // Prefer the desktop path so the crash screen shows it.
+          lastCrashFilePath = desktopFile.path;
+        }
+      }
     } catch (e) {
       debugPrint('CrashReporter persist failed: $e');
     }
+  }
+
+  static Directory? _tryGetWindowsDesktopDirectory() {
+    try {
+      final oneDrive = Platform.environment['OneDrive'];
+      if (oneDrive != null && oneDrive.isNotEmpty) {
+        final d = Directory(p.join(oneDrive, 'Desktop'));
+        if (d.existsSync()) return d;
+      }
+
+      final userProfile = Platform.environment['USERPROFILE'];
+      if (userProfile != null && userProfile.isNotEmpty) {
+        final d = Directory(p.join(userProfile, 'Desktop'));
+        if (d.existsSync()) return d;
+      }
+
+      final homeDrive = Platform.environment['HOMEDRIVE'];
+      final homePath = Platform.environment['HOMEPATH'];
+      if ((homeDrive ?? '').isNotEmpty && (homePath ?? '').isNotEmpty) {
+        final d = Directory(p.join('$homeDrive$homePath', 'Desktop'));
+        if (d.existsSync()) return d;
+      }
+    } catch (_) {
+      // ignore
+    }
+    return null;
   }
 
   static Future<String?> loadLastCrashFromDisk() async {
