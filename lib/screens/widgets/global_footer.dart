@@ -423,6 +423,3 @@ class HorizontalNavBar extends StatelessWidget {
     );
   }
 }
-    );
-  }
-}

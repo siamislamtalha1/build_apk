@@ -1,7 +1,5 @@
 import 'dart:developer';
-import 'dart:ui';
 import 'package:Bloomee/blocs/explore/cubit/explore_cubits.dart';
-import 'package:Bloomee/blocs/auth/auth_cubit.dart';
 import 'package:Bloomee/blocs/internet_connectivity/cubit/connectivity_cubit.dart';
 import 'package:Bloomee/blocs/lastdotfm/lastdotfm_cubit.dart';
 import 'package:Bloomee/blocs/mediaPlayer/bloomee_player_cubit.dart';
@@ -9,12 +7,13 @@ import 'package:Bloomee/blocs/notification/notification_cubit.dart';
 import 'package:Bloomee/blocs/settings_cubit/cubit/settings_cubit.dart';
 import 'package:Bloomee/model/MediaPlaylistModel.dart';
 import 'package:Bloomee/screens/screen/home_views/recents_view.dart';
+import 'package:Bloomee/screens/screen/home_views/setting_views/about.dart';
 import 'package:Bloomee/screens/widgets/more_bottom_sheet.dart';
 import 'package:Bloomee/screens/widgets/sign_board_widget.dart';
 import 'package:Bloomee/screens/widgets/song_tile.dart';
-
 import 'package:flutter/material.dart';
 import 'package:Bloomee/screens/screen/home_views/notification_view.dart';
+import 'package:Bloomee/screens/screen/home_views/setting_view.dart';
 import 'package:Bloomee/screens/screen/home_views/timer_view.dart';
 import 'package:Bloomee/theme_data/default.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -60,82 +59,38 @@ class _ExploreScreenState extends State<ExploreScreen> {
     return const MediaPlaylist(mediaItems: [], playlistName: "");
   }
 
-  String _getGreeting() {
-    final hour = DateTime.now().hour;
-    if (hour < 12) {
-      return 'Good Morning';
-    } else if (hour < 17) {
-      return 'Good Afternoon';
-    } else {
-      return 'Good Evening';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final user = context.read<AuthCubit>().currentUser;
-    final String displayName = user?.displayName != null && user!.displayName!.isNotEmpty
-        ? user.displayName!.split(' ')[0]
-        : 'User';
-    final String titleText =
-        user == null || user.isAnonymous ? _getGreeting() : "${_getGreeting()}, $displayName";
-
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider<RecentlyCubit>(
-          create: (context) => RecentlyCubit(),
-          lazy: false,
-        ),
-        BlocProvider(
-          create: (context) => yTMusicCubit,
-          lazy: false,
-        ),
-        BlocProvider(
-          create: (context) => FetchChartCubit(),
-          lazy: false,
-        ),
-      ],
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Default_Theme.themeColor,
-          surfaceTintColor: Default_Theme.themeColor,
-          elevation: 0,
-          scrolledUnderElevation: 0,
-          titleSpacing: 16,
-          title: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  titleText,
-                  overflow: TextOverflow.ellipsis,
-                  style: Default_Theme.primaryTextStyle.merge(
-                    TextStyle(
-                      fontSize: 34,
-                      color: Default_Theme.primaryColor1,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              const _TopActionsPill(),
-            ],
+    return SafeArea(
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider<RecentlyCubit>(
+            create: (context) => RecentlyCubit(),
+            lazy: false,
           ),
-          toolbarHeight: 72,
-        ),
-        body: SafeArea(
-          top: false,
-          child: Column(
-            children: [
-              CaraouselWidget(),
-              Expanded(
-                child: RefreshIndicator(
-                  onRefresh: () async {
-                    await yTMusicCubit.fetchYTMusic();
-                  },
-                  child: ListView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    children: [
+          BlocProvider(
+            create: (context) => yTMusicCubit,
+            lazy: false,
+          ),
+          BlocProvider(
+            create: (context) => FetchChartCubit(),
+            lazy: false,
+          ),
+        ],
+        child: Scaffold(
+          body: RefreshIndicator(
+            onRefresh: () async {
+              await yTMusicCubit.fetchYTMusic();
+            },
+            child: CustomScrollView(
+              shrinkWrap: true,
+              physics: const ClampingScrollPhysics(),
+              slivers: [
+                const CustomDiscoverBar(),
+                SliverList(
+                  delegate: SliverChildListDelegate(
+                    [
+                      CaraouselWidget(),
                       Padding(
                         padding: const EdgeInsets.only(top: 15.0),
                         child: SizedBox(
@@ -161,8 +116,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
                                                 const HistoryView()));
                                   },
                                   child: TabSongListWidget(
-                                    list: state.mediaPlaylist.mediaItems
-                                        .map((e) {
+                                    list:
+                                        state.mediaPlaylist.mediaItems.map((e) {
                                       return SongCardWidget(
                                         song: e,
                                         onTap: () {
@@ -217,7 +172,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
                                                     );
                                               },
                                               onOptionsTap: () =>
-                                                  showMoreBottomSheet(context, e),
+                                                  showMoreBottomSheet(
+                                                      context, e),
                                             );
                                           }).toList(),
                                           category: "Last.Fm Picks",
@@ -236,8 +192,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                             return BlocBuilder<ConnectivityCubit,
                                 ConnectivityState>(
                               builder: (context, state2) {
-                                if (state2 ==
-                                    ConnectivityState.disconnected) {
+                                if (state2 == ConnectivityState.disconnected) {
                                   return const SignBoardWidget(
                                     message: "No Internet Connection!",
                                     icon: MingCute.wifi_off_line,
@@ -262,102 +217,47 @@ class _ExploreScreenState extends State<ExploreScreen> {
                       ),
                     ],
                   ),
-                ),
-              ),
-            ],
+                )
+              ],
+            ),
           ),
+          backgroundColor: Default_Theme.themeColor,
         ),
-        backgroundColor: Default_Theme.themeColor,
       ),
     );
   }
 }
 
 class CustomDiscoverBar extends StatelessWidget {
-  final String greeting;
   const CustomDiscoverBar({
     super.key,
-    required this.greeting,
   });
 
   @override
   Widget build(BuildContext context) {
-    final user = context.read<AuthCubit>().currentUser;
-    final String displayName =
-        user?.displayName != null && user!.displayName!.isNotEmpty
-            ? user.displayName!.split(' ')[0]
-            : 'User';
-
-    final String titleText =
-        user == null || user.isAnonymous ? greeting : "$greeting, $displayName";
-
     return SliverAppBar(
-      floating: false,
-      pinned: true,
+      floating: true,
       surfaceTintColor: Default_Theme.themeColor,
       backgroundColor: Default_Theme.themeColor,
       title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(
-            child: Text(
-              titleText,
-              overflow: TextOverflow.ellipsis,
-              style: Default_Theme.primaryTextStyle.merge(
-                TextStyle(
-                  fontSize: 34,
-                  color: Default_Theme.primaryColor1,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-          const _TopActionsPill(),
+          Text("Discover",
+              style: Default_Theme.primaryTextStyle.merge(TextStyle(
+                  fontSize: 34, color: Default_Theme.primaryColor1))),
+          const Spacer(),
+          const NotificationIcon(),
+          const SiteIcon(),
+          const TimerIcon(),
+          const SettingsIcon(),
         ],
       ),
     );
   }
 }
 
-class _TopActionsPill extends StatelessWidget {
-  const _TopActionsPill();
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final glassTint = Colors.white.withValues(
-        alpha: Theme.of(context).brightness == Brightness.dark ? 0.14 : 0.65);
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(30),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: glassTint,
-            borderRadius: BorderRadius.circular(30),
-            border: Border.all(
-              color: scheme.onSurface.withValues(alpha: 0.12),
-              width: 1.0,
-            ),
-          ),
-          child: const Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              NotificationIcon(size: 26),
-              SizedBox(width: 2),
-              TimerIcon(size: 26),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class NotificationIcon extends StatelessWidget {
-  final double size;
-  const NotificationIcon({super.key, this.size = 30});
+  const NotificationIcon({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -374,7 +274,7 @@ class NotificationIcon extends StatelessWidget {
                       builder: (context) => const NotificationView()));
             },
             icon: Icon(MingCute.notification_line,
-                color: Default_Theme.primaryColor1, size: size),
+                color: Default_Theme.primaryColor1, size: 30.0),
           );
         }
         return badges.Badge(
@@ -403,7 +303,7 @@ class NotificationIcon extends StatelessWidget {
                       builder: (context) => const NotificationView()));
             },
             icon: Icon(MingCute.notification_line,
-                color: Default_Theme.primaryColor1, size: size),
+                color: Default_Theme.primaryColor1, size: 30.0),
           ),
         );
       },
@@ -412,8 +312,7 @@ class NotificationIcon extends StatelessWidget {
 }
 
 class TimerIcon extends StatelessWidget {
-  final double size;
-  const TimerIcon({super.key, this.size = 30});
+  const TimerIcon({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -425,7 +324,43 @@ class TimerIcon extends StatelessWidget {
             MaterialPageRoute(builder: (context) => const TimerView()));
       },
       icon: Icon(MingCute.stopwatch_line,
-          color: Default_Theme.primaryColor1, size: size),
+          color: Default_Theme.primaryColor1, size: 30.0),
+    );
+  }
+}
+
+class SettingsIcon extends StatelessWidget {
+  const SettingsIcon({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      padding: const EdgeInsets.all(5),
+      constraints: const BoxConstraints(),
+      onPressed: () {
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const SettingsView()));
+      },
+      icon: Icon(MingCute.settings_3_line,
+          color: Default_Theme.primaryColor1, size: 30.0),
+    );
+  }
+}
+
+class SiteIcon extends StatelessWidget {
+  const SiteIcon({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      padding: const EdgeInsets.all(5),
+      constraints: const BoxConstraints(),
+      onPressed: () {
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => const About()));
+      },
+      icon: Icon(MingCute.flower_4_fill,
+          color: Default_Theme.primaryColor1, size: 28.0),
     );
   }
 }

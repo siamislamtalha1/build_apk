@@ -23,7 +23,7 @@
  ArchitecturesInstallIn64BitMode=x64
  PrivilegesRequired=lowest
  SetupIconFile=windows\runner\resources\app_icon.ico
- UninstallDisplayIcon={app}\musicly.exe
+ UninstallDisplayIcon={app}\{#AppExe}
  WizardStyle=modern
  CloseApplications=yes
  CloseApplicationsFilter={#AppExe}
@@ -34,15 +34,15 @@
  Source: "build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
  
  [Icons]
- Name: "{autodesktop}\Musicly"; Filename: "{app}\musicly.exe"; Tasks: desktopicon
- Name: "{group}\Musicly"; Filename: "{app}\musicly.exe"
+ Name: "{autodesktop}\Musicly"; Filename: "{app}\{#AppExe}"; Tasks: desktopicon
+ Name: "{group}\Musicly"; Filename: "{app}\{#AppExe}"
  Name: "{group}\Uninstall Musicly"; Filename: "{uninstallexe}"
  
  [Tasks]
  Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription: "Additional icons:"
  
  [Run]
- Filename: "{app}\musicly.exe"; Description: "Launch Musicly"; Flags: postinstall nowait skipifsilent unchecked
+ Filename: "{app}\{#AppExe}"; Description: "Launch Musicly"; Flags: postinstall nowait skipifsilent unchecked
  
  [UninstallDelete]
  Type: filesandordirs; Name: "{app}"

@@ -18,6 +18,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _didSubmit = false;
 
   @override
   void dispose() {
@@ -28,6 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _signInWithEmail() {
     if (_formKey.currentState!.validate()) {
+      _didSubmit = true;
       context.read<AuthCubit>().signInWithEmail(
             email: _emailController.text.trim(),
             password: _passwordController.text,
@@ -36,6 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _signInAsGuest() {
+    _didSubmit = true;
     context.read<AuthCubit>().signInAsGuest();
   }
 
@@ -53,8 +56,9 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             );
           } else if (state is Authenticated) {
-            // Navigate to main app
-            context.go('/Explore');
+            if (_didSubmit) {
+              context.go('/Explore');
+            }
           }
         },
         builder: (context, state) {

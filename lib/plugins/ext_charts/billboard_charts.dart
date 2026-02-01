@@ -105,7 +105,7 @@ class BillboardCharts {
       url: BillboardChartLinks.BILLBOARD_GLOBAL_200);
 }
 
-enum Status { NEW, UP, DOWN, SAME, REENTRY, ERROR }
+enum Status { NEW, UP, DOWN, SAME, REENTRY, Error }
 
 Status getStatus(Element element) {
   var svg = element.querySelector('svg');
@@ -117,7 +117,7 @@ Status getStatus(Element element) {
       if (dataName == 'Group 7170') return Status.UP;
       if (dataName == 'Group 3') return Status.SAME;
     }
-    return Status.ERROR;
+    return Status.Error;
   }
   var span = element.querySelector('span');
   if (span != null) {
@@ -125,7 +125,7 @@ Status getStatus(Element element) {
     if (spanText.toLowerCase().contains('new')) return Status.NEW;
     if (spanText.toLowerCase().contains('re-entry')) return Status.REENTRY;
   }
-  return Status.ERROR;
+  return Status.Error;
 }
 
 Future<ChartModel> getBillboardChart(ChartURL url) async {
