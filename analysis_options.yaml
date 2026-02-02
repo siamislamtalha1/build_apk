@@ -34,7 +34,7 @@ linter:
     package_names: false
     camel_case_types: false
     non_constant_identifier_names: false
-    deprecated_member_use: false
+
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

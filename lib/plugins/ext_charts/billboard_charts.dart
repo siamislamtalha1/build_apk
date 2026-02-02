@@ -187,19 +187,25 @@ Future<ChartModel> getBillboardChart(ChartURL url) async {
         lastUpdated: DateTime.now(),
       );
     }
-  } catch (e) {
+  } catch (e, st) {
     // final chart = await BloomeeDBService.getChart(url.title);
     // if (chart != null) {
     //   log('Billboard Charts: ${chart.chartItems!.length} tracks loaded from cache',
     //       name: "Billboard");
     //   return chart;
     // }
-    log('Error while getting data from:${url.url}', name: "Billboard");
+    log(
+      'Error while getting data from:${url.url} - $e',
+      name: "Billboard",
+      stackTrace: st,
+    );
     return ChartModel(
       chartName: url.title,
       chartItems: const <ChartItemModel>[],
       url: url.url,
       lastUpdated: DateTime.now(),
     );
+  } finally {
+    client.close();
   }
 }

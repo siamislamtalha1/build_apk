@@ -270,21 +270,30 @@ class _BootstrapAppState extends State<_BootstrapApp> {
     CrashReporter.markStage('_bootstrap:after_init_services');
 
     CrashReporter.markStage('_bootstrap:before_firebase_init');
-    await FirebaseService.initialize();
-    CrashReporter.markStage('_bootstrap:after_firebase_init');
+    final firebaseOk = await FirebaseService.initializeSafe();
+    CrashReporter.markStage(
+        '_bootstrap:after_firebase_init:${firebaseOk ? 'ok' : 'failed'}');
 
     final authCubit = AuthCubit();
     final globalEventsCubit = GlobalEventsCubit();
 
     CrashReporter.markStage('_bootstrap:after_create_auth_global_events');
 
-    try {
-      CrashReporter.markStage('_bootstrap:before_sync_service_init');
-      SyncService().init();
-      CrashReporter.markStage('_bootstrap:after_sync_service_init');
-    } catch (e, st) {
-      debugPrint('SyncService init failed: $e');
-      debugPrintStack(stackTrace: st);
+    if (firebaseOk) {
+      try {
+        CrashReporter.markStage('_bootstrap:before_sync_service_init');
+        SyncService().init();
+        CrashReporter.markStage('_bootstrap:after_sync_service_init');
+      } catch (e, st) {
+        debugPrint('SyncService init failed: $e');
+        debugPrintStack(stackTrace: st);
+      }
+    } else {
+      CrashReporter.record(
+        FirebaseService.lastInitError ?? 'Firebase init failed',
+        FirebaseService.lastInitStack,
+        source: 'FirebaseService.initializeSafe',
+      );
     }
 
     CrashReporter.markStage('_bootstrap:before_set_high_refresh_rate');
@@ -378,26 +387,6 @@ class CrashReportScreen extends StatelessWidget {
                 ),
               ],
             ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _FatalErrorApp extends StatelessWidget {
-  final String error;
-  const _FatalErrorApp({required this.error});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: SelectableText(error),
           ),
         ),
       ),
@@ -537,15 +526,9 @@ class _MyAppState extends State<MyApp> {
   @override
   void dispose() {
     _intentSub?.cancel();
+    SyncService().dispose();
     bloomeePlayerCubit.close();
     // Do not close authCubit or globalEventsCubit if they are meant to persist or be closed elsewhere.
-    // Usually standard BLOC provider closes them.
-    // If we passed them to BlocProvider(create: (_) => cubit), provider closes them.
-    // If we use BlocProvider.value(value: cubit), provider does NOT close them.
-    // We will use BlocProvider.value, so we should close them here IF we own them.
-    // Yes, we created them in main.
-    widget.authCubit.close();
-    widget.globalEventsCubit.close();
 
     if (io.Platform.isWindows || io.Platform.isLinux || io.Platform.isMacOS) {
       DiscordService.clearPresence();

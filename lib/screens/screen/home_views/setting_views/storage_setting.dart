@@ -150,35 +150,29 @@ class BackupSettings extends StatelessWidget {
                 title: "Create Backup",
                 subtitle:
                     "Create a backup of your data and settings in a backup location.",
-                onTap: () {
-                  BloomeeDBService.createBackUp().then((value) {
-                    if (value != null) {
-                      SnackbarService.showMessage("Backup created at $value");
-                      if (Platform.isAndroid) {
-                        // Temporary workaround for Android
-                        try {
-                          final file = XFile(value);
-                          SharePlus.instance
-                              .share(
-                            ShareParams(
-                              files: [file],
-                              text: 'Bloomee backup file',
-                              subject: 'Bloomee Backup',
-                            ),
-                          )
-                              .catchError((e) {
-                            SnackbarService.showMessage(
-                                'Failed to share backup: $e');
-                          });
-                        } catch (e) {
-                          SnackbarService.showMessage(
-                              'Failed to share backup: $e');
-                        }
+                onTap: () async {
+                  final value = await BloomeeDBService.createBackUp();
+                  if (value != null) {
+                    SnackbarService.showMessage("Backup created at $value");
+                    if (Platform.isAndroid) {
+                      // Temporary workaround for Android
+                      try {
+                        final file = XFile(value);
+                        await SharePlus.instance.share(
+                          ShareParams(
+                            files: [file],
+                            text: 'Bloomee backup file',
+                            subject: 'Bloomee Backup',
+                          ),
+                        );
+                      } catch (e) {
+                        SnackbarService.showMessage(
+                            'Failed to share backup: $e');
                       }
-                    } else {
-                      SnackbarService.showMessage("Backup Failed!");
                     }
-                  });
+                  } else {
+                    SnackbarService.showMessage("Backup Failed!");
+                  }
                 },
               ),
               SettingTile(

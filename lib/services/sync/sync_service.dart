@@ -3,6 +3,7 @@ import 'package:Bloomee/services/db/bloomee_db_service.dart';
 import 'package:Bloomee/services/db/GlobalDB.dart';
 import 'package:Bloomee/services/firebase/auth_service.dart';
 import 'package:Bloomee/services/firebase/firestore_service.dart';
+import 'package:Bloomee/services/crash_reporter.dart';
 import 'package:isar_community/isar.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -55,13 +56,27 @@ class SyncService {
   void init() {
     if (_initialized) return;
     _initialized = true;
-    _authSubscription = _authService.authStateChanges.listen((user) {
-      if (user != null && !user.isAnonymous) {
-        _startSync(user.uid);
-      } else {
+    _authSubscription = _authService.authStateChanges.listen(
+      (user) {
+        if (user != null && !user.isAnonymous) {
+          _startSync(user.uid);
+        } else {
+          _stopSync();
+        }
+      },
+      onError: (Object e, StackTrace st) {
+        CrashReporter.record(e, st, source: 'SyncService.authStateChanges');
         _stopSync();
-      }
-    });
+        _syncStatusController.add(SyncStatus.error);
+      },
+    );
+  }
+
+  void dispose() {
+    _authSubscription?.cancel();
+    _stopSync();
+    _syncStatusController.close();
+    _initialized = false;
   }
 
   /// Start sync for a user
@@ -269,8 +284,8 @@ class SyncService {
 
   void _watchCloudChanges(String userId) {
     // Watch Liked Songs from Cloud
-    _likedSongsSubscription =
-        _firestoreService.watchLikedSongs(userId).listen((cloudSongs) async {
+    _likedSongsSubscription = _firestoreService.watchLikedSongs(userId).listen(
+      (cloudSongs) async {
       if (cloudSongs.isEmpty) return;
       print('☁️ Cloud liked songs changed: ${cloudSongs.length} items');
 
@@ -299,12 +314,18 @@ class SyncService {
         }
       }
       _suppressLocalLikedPush = false;
-    });
+    },
+      onError: (Object e, StackTrace st) {
+        CrashReporter.record(e, st, source: 'SyncService.watchLikedSongs');
+        _stopSync();
+        _syncStatusController.add(SyncStatus.error);
+      },
+    );
 
     // Watch History from Cloud
     // Note: History stream might be frequent.
-    _cloudHistorySubscription =
-        _firestoreService.watchHistory(userId).listen((cloudHistory) async {
+    _cloudHistorySubscription = _firestoreService.watchHistory(userId).listen(
+      (cloudHistory) async {
       if (cloudHistory.isEmpty) return;
       // Similar logic for history
       _suppressLocalHistoryPush = true;
@@ -319,10 +340,17 @@ class SyncService {
         }
       }
       _suppressLocalHistoryPush = false;
-    });
+    },
+      onError: (Object e, StackTrace st) {
+        CrashReporter.record(e, st, source: 'SyncService.watchHistory');
+        _stopSync();
+        _syncStatusController.add(SyncStatus.error);
+      },
+    );
 
-    _preferencesSubscription =
-        _firestoreService.watchUserPreferences(userId).listen((prefs) async {
+    _preferencesSubscription = _firestoreService
+        .watchUserPreferences(userId)
+        .listen((prefs) async {
       if (prefs == null) return;
       _suppressLocalPrefsPush = true;
       final b = prefs['bool'] as Map<String, dynamic>?;
@@ -344,10 +372,14 @@ class SyncService {
         }
       }
       _suppressLocalPrefsPush = false;
+    }, onError: (Object e, StackTrace st) {
+      CrashReporter.record(e, st, source: 'SyncService.watchUserPreferences');
+      _stopSync();
+      _syncStatusController.add(SyncStatus.error);
     });
 
-    _statisticsSubscription =
-        _firestoreService.watchStatistics(userId).listen((cloudStats) async {
+    _statisticsSubscription = _firestoreService.watchStatistics(userId).listen(
+      (cloudStats) async {
       if (cloudStats.isEmpty) return;
       _suppressLocalStatsPush = true;
       final isar = await BloomeeDBService.db;
@@ -385,10 +417,16 @@ class SyncService {
         }
       });
       _suppressLocalStatsPush = false;
-    });
+    },
+      onError: (Object e, StackTrace st) {
+        CrashReporter.record(e, st, source: 'SyncService.watchStatistics');
+        _stopSync();
+        _syncStatusController.add(SyncStatus.error);
+      },
+    );
 
-    _cloudPlaylistsSubscription =
-        _firestoreService.watchPlaylists(userId).listen((_) async {
+    _cloudPlaylistsSubscription = _firestoreService.watchPlaylists(userId)
+        .listen((_) async {
       // Pull playlist headers changed; items are stored in subcollections.
       // We'll refresh by pulling each playlist's items and applying to local.
       final cloudPlaylists = await _firestoreService.getPlaylistsFromCloud(userId);
@@ -441,6 +479,10 @@ class SyncService {
         }
       }
       _suppressLocalPlaylistPush = false;
+    }, onError: (Object e, StackTrace st) {
+      CrashReporter.record(e, st, source: 'SyncService.watchPlaylists');
+      _stopSync();
+      _syncStatusController.add(SyncStatus.error);
     });
   }
 

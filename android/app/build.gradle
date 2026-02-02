@@ -8,6 +8,11 @@ android {
     namespace 'com.musiclyco.musicly'
     compileSdk 36
     ndkVersion flutter.ndkVersion
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging true
+        }
+    }
     defaultConfig {
         applicationId 'com.musiclyco.musicly'
         minSdk flutter.minSdkVersion

@@ -28,11 +28,17 @@ class TrendingCubit extends Cubit<TrendingCubitState> {
   }
 
   void getTrendingVideos() async {
-    List<ChartModel> ytCharts = await fetchTrendingVideos();
-    ChartModel chart = ytCharts[0]
-      ..chartItems = getFirstElements(ytCharts[0].chartItems!, 16);
-    emit(state.copyWith(ytCharts: [chart]));
-    isLatest = true;
+    try {
+      List<ChartModel> ytCharts = await fetchTrendingVideos();
+      if (ytCharts.isEmpty) return;
+      ChartModel chart = ytCharts[0]
+        ..chartItems = getFirstElements(ytCharts[0].chartItems!, 16);
+      if (isClosed) return;
+      emit(state.copyWith(ytCharts: [chart]));
+      isLatest = true;
+    } catch (e, st) {
+      log("Trending fetch failed: $e", name: "Trending", stackTrace: st);
+    }
   }
 
   List<ChartItemModel> getFirstElements(List<ChartItemModel> list, int count) {
@@ -40,13 +46,18 @@ class TrendingCubit extends Cubit<TrendingCubitState> {
   }
 
   void getTrendingVideosFromDB() async {
-    ChartModel? ytChart = await BloomeeDBService.getChart("Trending Videos");
-    if ((!isLatest) &&
-        ytChart != null &&
-        (ytChart.chartItems?.isNotEmpty ?? false)) {
-      ChartModel chart = ytChart
-        ..chartItems = getFirstElements(ytChart.chartItems!, 16);
-      emit(state.copyWith(ytCharts: [chart]));
+    try {
+      ChartModel? ytChart = await BloomeeDBService.getChart("Trending Videos");
+      if ((!isLatest) &&
+          ytChart != null &&
+          (ytChart.chartItems?.isNotEmpty ?? false)) {
+        ChartModel chart = ytChart
+          ..chartItems = getFirstElements(ytChart.chartItems!, 16);
+        if (isClosed) return;
+        emit(state.copyWith(ytCharts: [chart]));
+      }
+    } catch (e, st) {
+      log("Trending DB load failed: $e", name: "Trending", stackTrace: st);
     }
   }
 }
@@ -72,8 +83,14 @@ class RecentlyCubit extends Cubit<RecentlyCubitState> {
   }
 
   void getRecentlyPlayed() async {
-    final mediaPlaylist = await BloomeeDBService.getRecentlyPlayed(limit: 15);
-    emit(state.copyWith(mediaPlaylist: mediaPlaylist));
+    try {
+      final mediaPlaylist =
+          await BloomeeDBService.getRecentlyPlayed(limit: 15);
+      if (isClosed) return;
+      emit(state.copyWith(mediaPlaylist: mediaPlaylist));
+    } catch (e, st) {
+      log("Recently played load failed: $e", name: "Recently", stackTrace: st);
+    }
   }
 }
 
@@ -89,20 +106,30 @@ class ChartCubit extends Cubit<ChartState> {
     initListener();
   }
   void initListener() {
-    strm = fetchChartCubit.stream.listen((state) {
-      if (state.isFetched) {
-        log("Chart Fetched from Isolate - ${chartInfo.title}",
-            name: "Isolate Fetched");
-        getChartFromDB();
-      }
-    });
+    strm = fetchChartCubit.stream.listen(
+      (state) {
+        if (state.isFetched) {
+          log("Chart Fetched from Isolate - ${chartInfo.title}",
+              name: "Isolate Fetched");
+          getChartFromDB();
+        }
+      },
+      onError: (Object e, StackTrace st) {
+        log("ChartCubit stream error: $e", name: "Isolate", stackTrace: st);
+      },
+    );
   }
 
   Future<void> getChartFromDB() async {
-    final chart = await BloomeeDBService.getChart(chartInfo.title);
-    if (chart != null) {
-      emit(state.copyWith(
-          chart: chart, coverImg: chart.chartItems?.first.imageUrl));
+    try {
+      final chart = await BloomeeDBService.getChart(chartInfo.title);
+      if (chart != null) {
+        if (isClosed) return;
+        emit(state.copyWith(
+            chart: chart, coverImg: chart.chartItems?.first.imageUrl));
+      }
+    } catch (e, st) {
+      log("Chart DB load failed: $e", name: "ChartCubit", stackTrace: st);
     }
   }
 
@@ -138,70 +165,79 @@ class FetchChartCubit extends Cubit<FetchChartState> {
   }
 
   Future<void> fetchCharts() async {
-    String path = (await getApplicationSupportDirectory()).path;
-    BackgroundIsolateBinaryMessenger.ensureInitialized(
-      ServicesBinding.rootIsolateToken!,
-    );
-    await BloomeeDBService.db;
-    List<ChartModel> chartList = <ChartModel>[];
     try {
-      chartList = await Isolate.run<List<ChartModel>>(() async {
-        log(path, name: "Isolate Path");
-        final chartList0 = <ChartModel>[];
-        final db = await Isar.open(
-          [
-            ChartsCacheDBSchema,
-          ],
-          directory: path,
-        );
-        try {
-          for (var i in chartInfoList) {
-            final chartCacheDB = db.chartsCacheDBs
-                .where()
-                .filter()
-                .chartNameEqualTo(i.title)
-                .findFirstSync();
-            final shouldFetch = (chartCacheDB?.lastUpdated
-                        .difference(DateTime.now())
-                        .inHours
-                        .abs() ??
-                    80) >
-                16;
-            log(
-              "Last Updated - ${(chartCacheDB?.lastUpdated.difference(DateTime.now()).inHours)?.abs()} Hours before ",
-              name: "Isolate",
-            );
+      String path = (await getApplicationSupportDirectory()).path;
+      BackgroundIsolateBinaryMessenger.ensureInitialized(
+        ServicesBinding.rootIsolateToken!,
+      );
+      await BloomeeDBService.db;
+      List<ChartModel> chartList = <ChartModel>[];
+      try {
+        chartList = await Isolate.run<List<ChartModel>>(() async {
+          log(path, name: "Isolate Path");
+          final chartList0 = <ChartModel>[];
+          final db = await Isar.open(
+            [
+              ChartsCacheDBSchema,
+            ],
+            directory: path,
+          );
+          try {
+            for (var i in chartInfoList) {
+              final chartCacheDB = db.chartsCacheDBs
+                  .where()
+                  .filter()
+                  .chartNameEqualTo(i.title)
+                  .findFirstSync();
+              final shouldFetch = (chartCacheDB?.lastUpdated
+                          .difference(DateTime.now())
+                          .inHours
+                          .abs() ??
+                      80) >
+                  16;
+              log(
+                "Last Updated - ${(chartCacheDB?.lastUpdated.difference(DateTime.now()).inHours)?.abs()} Hours before ",
+                name: "Isolate",
+              );
 
-            if (!shouldFetch) continue;
+              if (!shouldFetch) continue;
 
-            ChartModel chart;
-            try {
-              chart = await i.chartFunction(i.url);
-            } catch (e) {
-              log("Chart fetch failed - ${i.title}: $e", name: "Isolate");
-              continue;
+              ChartModel chart;
+              try {
+                chart = await i.chartFunction(i.url);
+              } catch (e, st) {
+                log(
+                  "Chart fetch failed - ${i.title}: $e",
+                  name: "Isolate",
+                  stackTrace: st,
+                );
+                continue;
+              }
+
+              if ((chart.chartItems?.isNotEmpty) ?? false) {
+                db.writeTxnSync(() => db.chartsCacheDBs
+                    .putSync(chartModelToChartCacheDB(chart)));
+              }
+              log("Chart Fetched - ${chart.chartName}", name: "Isolate");
+              chartList0.add(chart);
             }
-
-            if ((chart.chartItems?.isNotEmpty) ?? false) {
-              db.writeTxnSync(() => db.chartsCacheDBs
-                  .putSync(chartModelToChartCacheDB(chart)));
-            }
-            log("Chart Fetched - ${chart.chartName}", name: "Isolate");
-            chartList0.add(chart);
+          } finally {
+            db.close();
           }
-        } finally {
-          db.close();
-        }
-        return chartList0;
-      });
-    } catch (e) {
-      log("Charts isolate failed: $e", name: "Isolate");
-      return;
-    }
+          return chartList0;
+        });
+      } catch (e, st) {
+        log("Charts isolate failed: $e", name: "Isolate", stackTrace: st);
+        return;
+      }
 
-    if (isClosed) return;
-    if (chartList.isNotEmpty) {
-      emit(state.copyWith(isFetched: true));
+      if (isClosed) return;
+      if (chartList.isNotEmpty) {
+        if (isClosed) return;
+        emit(state.copyWith(isFetched: true));
+      }
+    } catch (e, st) {
+      log("FetchChartCubit failed: $e", name: "Isolate", stackTrace: st);
     }
   }
 }
@@ -213,13 +249,18 @@ class YTMusicCubit extends Cubit<YTMusicCubitState> {
   }
 
   void fetchYTMusicDB() async {
-    final data = await BloomeeDBService.getAPICache("YTMusic");
-    if (data != null) {
-      final ytmData = await compute(parseYTMusicData, data);
-      if (ytmData.isNotEmpty) {
-        if (isClosed) return;
-        emit(state.copyWith(ytmData: ytmData));
+    try {
+      final data = await BloomeeDBService.getAPICache("YTMusic");
+      if (data != null) {
+        final ytmData = await compute(parseYTMusicData, data);
+        if (ytmData.isNotEmpty) {
+          if (isClosed) return;
+          if (isClosed) return;
+          emit(state.copyWith(ytmData: ytmData));
+        }
       }
+    } catch (e, st) {
+      log("YTMusic DB load failed: $e", name: "YTMusic", stackTrace: st);
     }
   }
 
@@ -231,6 +272,7 @@ class YTMusicCubit extends Cubit<YTMusicCubitState> {
           await Isolate.run(() => getMusicHome(countryCode: countryCode));
       if (isClosed) return;
       if (ytCharts.isNotEmpty) {
+        if (isClosed) return;
         emit(state.copyWith(ytmData: Map<String, List<dynamic>>.from(ytCharts)));
         final ytChartsJson = await compute(jsonEncode, ytCharts);
         BloomeeDBService.putAPICache("YTMusic", ytChartsJson);

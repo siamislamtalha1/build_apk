@@ -5,10 +5,13 @@ import 'package:desktop_webview_auth/desktop_webview_auth.dart';
 import 'package:desktop_webview_auth/google.dart';
 import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter/services.dart';
+import 'package:Bloomee/services/firebase/firebase_service.dart';
 
 /// Authentication service handling email/password, Google Sign-In, and guest mode
 class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  FirebaseAuth get _auth {
+    return FirebaseAuth.instance;
+  }
   static const String _googleServerClientId =
       String.fromEnvironment('GOOGLE_OAUTH_SERVER_CLIENT_ID');
   static const String _windowsGoogleOAuthClientId =
@@ -24,16 +27,32 @@ class AuthService {
   );
 
   /// Get current user
-  User? get currentUser => _auth.currentUser;
+  User? get currentUser {
+    if (!FirebaseService.isInitialized) return null;
+    try {
+      return _auth.currentUser;
+    } catch (_) {
+      return null;
+    }
+  }
 
   /// Stream of auth state changes
-  Stream<User?> get authStateChanges => _auth.authStateChanges();
+  Stream<User?> get authStateChanges {
+    if (!FirebaseService.isInitialized) {
+      return Stream<User?>.value(null);
+    }
+    try {
+      return _auth.authStateChanges();
+    } catch (_) {
+      return Stream<User?>.value(null);
+    }
+  }
 
   /// Check if user is logged in
-  bool get isLoggedIn => _auth.currentUser != null;
+  bool get isLoggedIn => currentUser != null;
 
   /// Check if user is anonymous (guest)
-  bool get isGuest => _auth.currentUser?.isAnonymous ?? false;
+  bool get isGuest => currentUser?.isAnonymous ?? false;
 
   // ==================== Email/Password Authentication ====================
 
@@ -44,6 +63,9 @@ class AuthService {
     String? displayName,
   }) async {
     try {
+      if (!FirebaseService.isInitialized) {
+        throw Exception('Firebase is not initialized');
+      }
       final credential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
@@ -68,6 +90,9 @@ class AuthService {
     required String password,
   }) async {
     try {
+      if (!FirebaseService.isInitialized) {
+        throw Exception('Firebase is not initialized');
+      }
       final credential = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
@@ -85,6 +110,9 @@ class AuthService {
   /// Sign in with Google (supports Android, iOS, and Windows)
   Future<UserCredential?> signInWithGoogle() async {
     try {
+      if (!FirebaseService.isInitialized) {
+        throw Exception('Firebase is not initialized');
+      }
       if (Platform.isWindows) {
         return await _signInWithGoogleDesktop();
       } else {
@@ -233,6 +261,9 @@ class AuthService {
   /// Sign in anonymously (guest mode)
   Future<UserCredential?> signInAsGuest() async {
     try {
+      if (!FirebaseService.isInitialized) {
+        throw Exception('Firebase is not initialized');
+      }
       final credential = await _auth.signInAnonymously();
       debugPrint('✅ Guest sign-in successful');
       return credential;
@@ -272,6 +303,9 @@ class AuthService {
   /// Send password reset email
   Future<void> sendPasswordResetEmail(String email) async {
     try {
+      if (!FirebaseService.isInitialized) {
+        throw Exception('Firebase is not initialized');
+      }
       await _auth.sendPasswordResetEmail(email: email);
       debugPrint('✅ Password reset email sent to $email');
     } on FirebaseAuthException catch (e) {
@@ -285,6 +319,9 @@ class AuthService {
   /// Sign out from all providers
   Future<void> signOut() async {
     try {
+      if (!FirebaseService.isInitialized) {
+        return;
+      }
       // Sign out from Google if signed in
       if (await _googleSignIn.isSignedIn()) {
         await _googleSignIn.signOut();
@@ -304,6 +341,9 @@ class AuthService {
   /// Delete current user account
   Future<void> deleteAccount() async {
     try {
+      if (!FirebaseService.isInitialized) {
+        throw Exception('Firebase is not initialized');
+      }
       final user = _auth.currentUser;
       if (user == null) {
         throw Exception('No user to delete');

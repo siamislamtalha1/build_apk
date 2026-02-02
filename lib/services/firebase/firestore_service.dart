@@ -3,7 +3,7 @@ import 'package:Bloomee/services/db/GlobalDB.dart';
 
 /// Firestore service for syncing user data across devices
 class FirestoreService {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  FirebaseFirestore get _firestore => FirebaseFirestore.instance;
 
   static const String shareUrlPrefix = 'https://bloomee.app/p/';
 

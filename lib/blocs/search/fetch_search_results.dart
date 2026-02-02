@@ -402,9 +402,6 @@ class FetchSearchResultsCubit extends Cubit<FetchSearchResultsState> {
       case SourceEngine.eng_JIS:
         searchJISTracks(query, resultType: resultType);
         break;
-      default:
-        log("Invalid Source Engine", name: "FetchSearchRes");
-        searchYTMTracks(query);
     }
   }
 

@@ -1,24 +1,25 @@
 import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:Bloomee/services/crash_reporter.dart';
 
 /// Firebase initialization service for Android, iOS, and Windows
 class FirebaseService {
   static bool _initialized = false;
+  static Object? _lastInitError;
+  static StackTrace? _lastInitStack;
 
-  /// Initialize Firebase for the current platform
-  static Future<void> initialize() async {
-    if (_initialized) return;
+  static Object? get lastInitError => _lastInitError;
+  static StackTrace? get lastInitStack => _lastInitStack;
 
+  static Future<bool> initializeSafe() async {
+    if (_initialized) return true;
     try {
       if (kIsWeb) {
-        // Web configuration (not used in this app)
         throw UnsupportedError('Web platform is not supported');
       } else if (Platform.isAndroid || Platform.isIOS) {
-        // Android and iOS use google-services.json and GoogleService-Info.plist
         await Firebase.initializeApp();
       } else if (Platform.isWindows) {
-        // Windows configuration
         await Firebase.initializeApp(
           options: const FirebaseOptions(
             apiKey: 'AIzaSyBagOn_faUl6cDVdrXL77qWJMkSGAdfI6A',
@@ -34,10 +35,23 @@ class FirebaseService {
       }
 
       _initialized = true;
-      print('✅ Firebase initialized successfully');
-    } catch (e) {
-      print('❌ Firebase initialization failed: $e');
-      rethrow;
+      return true;
+    } catch (e, st) {
+      _lastInitError = e;
+      _lastInitStack = st;
+      CrashReporter.record(e, st, source: 'FirebaseService.initializeSafe');
+      return false;
+    }
+  }
+
+  /// Initialize Firebase for the current platform
+  static Future<void> initialize() async {
+    if (_initialized) return;
+    final ok = await initializeSafe();
+    if (!ok) {
+      throw Exception(
+        'Firebase initialization failed: ${_lastInitError ?? 'unknown'}',
+      );
     }
   }
 

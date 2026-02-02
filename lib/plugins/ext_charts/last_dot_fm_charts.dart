@@ -75,8 +75,16 @@ Future<ChartModel> getLastFmCharts(ChartURL url) async {
       //       name: "LastFM");
       //   return chart;
       // }
-      throw Exception(
-          'Failed to load page with status code: ${response.statusCode}');
+      log(
+        'Failed to load page with status code: ${response.statusCode}',
+        name: "LastFM",
+      );
+      return ChartModel(
+        chartName: url.title,
+        chartItems: const <ChartItemModel>[],
+        url: url.url,
+        lastUpdated: DateTime.now(),
+      );
     }
   } on Exception catch (e) {
     // final chart = await BloomeeDBService.getChart(url.title);
@@ -85,7 +93,13 @@ Future<ChartModel> getLastFmCharts(ChartURL url) async {
     //       name: "LastFM");
     //   return chart;
     // }
-    throw Exception('Failed to parse page: $e');
+    log('Failed to parse page: $e', name: "LastFM");
+    return ChartModel(
+      chartName: url.title,
+      chartItems: const <ChartItemModel>[],
+      url: url.url,
+      lastUpdated: DateTime.now(),
+    );
   } finally {
     client.close();
   }
