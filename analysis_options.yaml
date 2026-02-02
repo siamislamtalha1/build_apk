@@ -12,6 +12,7 @@ include: package:flutter_lints/flutter.yaml
 analyzer:
   exclude:
     - "Just For Refarance/**"
+    - "old_snapshot/**"
     - "third_party/**"
     - "build/**"
 

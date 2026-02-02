@@ -31,6 +31,7 @@ class TrendingCubit extends Cubit<TrendingCubitState> {
     List<ChartModel> ytCharts = await fetchTrendingVideos();
     ChartModel chart = ytCharts[0]
       ..chartItems = getFirstElements(ytCharts[0].chartItems!, 16);
+    if (isClosed) return;
     emit(state.copyWith(ytCharts: [chart]));
     isLatest = true;
   }
@@ -46,6 +47,7 @@ class TrendingCubit extends Cubit<TrendingCubitState> {
         (ytChart.chartItems?.isNotEmpty ?? false)) {
       ChartModel chart = ytChart
         ..chartItems = getFirstElements(ytChart.chartItems!, 16);
+      if (isClosed) return;
       emit(state.copyWith(ytCharts: [chart]));
     }
   }
@@ -73,6 +75,7 @@ class RecentlyCubit extends Cubit<RecentlyCubitState> {
 
   void getRecentlyPlayed() async {
     final mediaPlaylist = await BloomeeDBService.getRecentlyPlayed(limit: 15);
+    if (isClosed) return;
     emit(state.copyWith(mediaPlaylist: mediaPlaylist));
   }
 }
@@ -101,6 +104,7 @@ class ChartCubit extends Cubit<ChartState> {
   Future<void> getChartFromDB() async {
     final chart = await BloomeeDBService.getChart(chartInfo.title);
     if (chart != null) {
+      if (isClosed) return;
       emit(state.copyWith(
           chart: chart, coverImg: chart.chartItems?.first.imageUrl));
     }
@@ -143,11 +147,12 @@ class FetchChartCubit extends Cubit<FetchChartState> {
       ServicesBinding.rootIsolateToken!,
     );
     await BloomeeDBService.db;
-    List<ChartModel> chartList = <ChartModel>[];
+    List<ChartModel> chartList = const [];
     try {
       chartList = await Isolate.run<List<ChartModel>>(() async {
         log(path, name: "Isolate Path");
-        final chartList0 = <ChartModel>[];
+        List<ChartModel> chartList0 = List.empty(growable: true);
+        ChartModel? chart;
         final db = await Isar.open(
           [
             ChartsCacheDBSchema,
@@ -161,7 +166,7 @@ class FetchChartCubit extends Cubit<FetchChartState> {
                 .filter()
                 .chartNameEqualTo(i.title)
                 .findFirstSync();
-            final shouldFetch = (chartCacheDB?.lastUpdated
+            bool shouldFetch = (chartCacheDB?.lastUpdated
                         .difference(DateTime.now())
                         .inHours
                         .abs() ??
@@ -172,34 +177,40 @@ class FetchChartCubit extends Cubit<FetchChartState> {
               name: "Isolate",
             );
 
-            if (!shouldFetch) continue;
-
-            ChartModel chart;
-            try {
-              chart = await i.chartFunction(i.url);
-            } catch (e) {
-              log("Chart fetch failed - ${i.title}: $e", name: "Isolate");
-              continue;
+            if (shouldFetch) {
+              try {
+                chart = await i.chartFunction(i.url);
+              } catch (e, stackTrace) {
+                log(
+                  "Chart fetch failed - ${i.title}: $e",
+                  name: "Isolate",
+                  error: e,
+                  stackTrace: stackTrace,
+                );
+                continue;
+              }
+              if (chart != null) {
+                if ((chart.chartItems?.isNotEmpty) ?? false) {
+                  db.writeTxnSync(() => db.chartsCacheDBs
+                      .putSync(chartModelToChartCacheDB(chart!)));
+                }
+                log("Chart Fetched - ${chart.chartName}", name: "Isolate");
+                chartList0.add(chart);
+              }
             }
-
-            if ((chart.chartItems?.isNotEmpty) ?? false) {
-              db.writeTxnSync(() => db.chartsCacheDBs
-                  .putSync(chartModelToChartCacheDB(chart)));
-            }
-            log("Chart Fetched - ${chart.chartName}", name: "Isolate");
-            chartList0.add(chart);
           }
         } finally {
           db.close();
         }
         return chartList0;
       });
-    } catch (e) {
-      log("Charts isolate failed: $e", name: "Isolate");
-      return;
+    } catch (e, stackTrace) {
+      log("Charts isolate failed: $e",
+          name: "Isolate", error: e, stackTrace: stackTrace);
+      // Don't return early - still check isClosed and emit if needed
     }
 
-    if (isClosed) return;
+    if (isClosed) return; // CRITICAL FIX: Check before emit
     if (chartList.isNotEmpty) {
       emit(state.copyWith(isFetched: true));
     }
@@ -225,13 +236,16 @@ class YTMusicCubit extends Cubit<YTMusicCubitState> {
 
   Future<void> fetchYTMusic() async {
     try {
-      final countryCode = await getCountry();
+      String countryCode = await getCountry();
       if (isClosed) return;
       final ytCharts =
           await Isolate.run(() => getMusicHome(countryCode: countryCode));
       if (isClosed) return;
       if (ytCharts.isNotEmpty) {
-        emit(state.copyWith(ytmData: Map<String, List<dynamic>>.from(ytCharts)));
+        if (isClosed) return; // CRITICAL FIX: Check before emit
+        emit(
+          state.copyWith(ytmData: Map<String, List<dynamic>>.from(ytCharts)),
+        );
         final ytChartsJson = await compute(jsonEncode, ytCharts);
         BloomeeDBService.putAPICache("YTMusic", ytChartsJson);
         log("YTMusic Fetched", name: "YTMusic");

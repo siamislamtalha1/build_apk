@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class CrashReporter {
   static String? lastCrashText;
@@ -86,10 +88,194 @@ class CrashReporter {
   }) {
     final now = DateTime.now().toIso8601String();
     final st = stack?.toString() ?? 'No StackTrace';
+
+    // Gather comprehensive diagnostic info
+    final diagnostics = _gatherDiagnostics();
+
     return '=== Musicly Crash Report ===\n'
         'time: $now\n'
         'source: $source\n'
         'error: $error\n'
+        '\n'
+        '$diagnostics'
+        '\n'
+        'stacktrace:\n'
+        '$st\n';
+  }
+
+  static String _gatherDiagnostics() {
+    final buffer = StringBuffer();
+
+    // Platform information
+    buffer.writeln('=== Platform Info ===');
+    buffer.writeln('OS: ${Platform.operatingSystem}');
+    buffer.writeln('OS Version: ${Platform.operatingSystemVersion}');
+    buffer.writeln('Locale: ${Platform.localeName}');
+    buffer.writeln('Number of Processors: ${Platform.numberOfProcessors}');
+    buffer.writeln('Executable: ${Platform.resolvedExecutable}');
+    buffer.writeln();
+
+    // Memory information
+    buffer.writeln('=== Memory Info ===');
+    try {
+      final info = ProcessInfo.currentRss;
+      buffer.writeln(
+          'Current RSS: ${(info / 1024 / 1024).toStringAsFixed(2)} MB');
+      final maxRss = ProcessInfo.maxRss;
+      buffer
+          .writeln('Max RSS: ${(maxRss / 1024 / 1024).toStringAsFixed(2)} MB');
+    } catch (e) {
+      buffer.writeln('Memory info unavailable: $e');
+    }
+    buffer.writeln();
+
+    // Flutter/Dart information
+    buffer.writeln('=== Flutter/Dart Info ===');
+    buffer.writeln('Dart Version: ${Platform.version}');
+    buffer.writeln('Debug Mode: ${kDebugMode}');
+    buffer.writeln('Profile Mode: ${kProfileMode}');
+    buffer.writeln('Release Mode: ${kReleaseMode}');
+    buffer.writeln();
+
+    // Environment variables (selective)
+    buffer.writeln('=== Environment ===');
+    if (Platform.isWindows) {
+      buffer.writeln('USERPROFILE: ${Platform.environment['USERPROFILE']}');
+      buffer.writeln('COMPUTERNAME: ${Platform.environment['COMPUTERNAME']}');
+      buffer.writeln(
+          'PROCESSOR_ARCHITECTURE: ${Platform.environment['PROCESSOR_ARCHITECTURE']}');
+    }
+    buffer.writeln();
+
+    return buffer.toString();
+  }
+
+  /// Enhanced record method with async device info gathering
+  static Future<void> recordWithDeviceInfo(
+    Object error,
+    StackTrace? stack, {
+    String source = 'unknown',
+  }) async {
+    if (_handling) return;
+    _handling = true;
+
+    String deviceInfo = '';
+    try {
+      deviceInfo = await _getDeviceInfo();
+    } catch (e) {
+      deviceInfo = 'Device info unavailable: $e\n';
+    }
+
+    String appInfo = '';
+    try {
+      appInfo = await _getAppInfo();
+    } catch (e) {
+      appInfo = 'App info unavailable: $e\n';
+    }
+
+    final text = _formatEnhanced(error, stack,
+        source: source, deviceInfo: deviceInfo, appInfo: appInfo);
+    lastCrashText = text;
+
+    if (Platform.isWindows) {
+      try {
+        final file =
+            _tryWriteWindowsSync(text, prefix: 'Musicly_crash_detailed_');
+        if (file != null) {
+          lastCrashFilePath = file.path;
+        }
+      } catch (_) {
+        // ignore
+      }
+    }
+
+    unawaited(_persist(text));
+
+    scheduleMicrotask(() {
+      _handling = false;
+    });
+  }
+
+  static Future<String> _getDeviceInfo() async {
+    final buffer = StringBuffer();
+    buffer.writeln('=== Device Info ===');
+
+    try {
+      final deviceInfo = DeviceInfoPlugin();
+
+      if (Platform.isWindows) {
+        final info = await deviceInfo.windowsInfo;
+        buffer.writeln('Computer Name: ${info.computerName}');
+        buffer.writeln('Number of Cores: ${info.numberOfCores}');
+        buffer.writeln('System Memory: ${info.systemMemoryInMegabytes} MB');
+        buffer.writeln('Product Name: ${info.productName}');
+        buffer.writeln('Display Version: ${info.displayVersion}');
+        buffer.writeln('Build Number: ${info.buildNumber}');
+        buffer.writeln('Platform ID: ${info.platformId}');
+      } else if (Platform.isAndroid) {
+        final info = await deviceInfo.androidInfo;
+        buffer.writeln('Brand: ${info.brand}');
+        buffer.writeln('Model: ${info.model}');
+        buffer.writeln('Device: ${info.device}');
+        buffer.writeln('Android Version: ${info.version.release}');
+        buffer.writeln('SDK: ${info.version.sdkInt}');
+        buffer.writeln('Manufacturer: ${info.manufacturer}');
+        buffer.writeln('Product: ${info.product}');
+        buffer.writeln('Hardware: ${info.hardware}');
+      } else if (Platform.isIOS) {
+        final info = await deviceInfo.iosInfo;
+        buffer.writeln('Name: ${info.name}');
+        buffer.writeln('Model: ${info.model}');
+        buffer.writeln('System Name: ${info.systemName}');
+        buffer.writeln('System Version: ${info.systemVersion}');
+        buffer.writeln('Machine: ${info.utsname.machine}');
+      }
+    } catch (e) {
+      buffer.writeln('Error getting device info: $e');
+    }
+
+    buffer.writeln();
+    return buffer.toString();
+  }
+
+  static Future<String> _getAppInfo() async {
+    final buffer = StringBuffer();
+    buffer.writeln('=== App Info ===');
+
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      buffer.writeln('App Name: ${packageInfo.appName}');
+      buffer.writeln('Package Name: ${packageInfo.packageName}');
+      buffer.writeln('Version: ${packageInfo.version}');
+      buffer.writeln('Build Number: ${packageInfo.buildNumber}');
+      buffer.writeln('Build Signature: ${packageInfo.buildSignature}');
+    } catch (e) {
+      buffer.writeln('Error getting app info: $e');
+    }
+
+    buffer.writeln();
+    return buffer.toString();
+  }
+
+  static String _formatEnhanced(
+    Object error,
+    StackTrace? stack, {
+    required String source,
+    required String deviceInfo,
+    required String appInfo,
+  }) {
+    final now = DateTime.now().toIso8601String();
+    final st = stack?.toString() ?? 'No StackTrace';
+    final diagnostics = _gatherDiagnostics();
+
+    return '=== Musicly Crash Report (Enhanced) ===\n'
+        'time: $now\n'
+        'source: $source\n'
+        'error: $error\n'
+        '\n'
+        '$appInfo'
+        '$deviceInfo'
+        '$diagnostics'
         '\n'
         'stacktrace:\n'
         '$st\n';
@@ -117,7 +303,8 @@ class CrashReporter {
               .toIso8601String()
               .replaceAll(':', '-')
               .replaceAll('.', '-');
-          final desktopFile = File(p.join(desktop.path, 'Musicly_crash_$ts.txt'));
+          final desktopFile =
+              File(p.join(desktop.path, 'Musicly_crash_$ts.txt'));
           await desktopFile.writeAsString(text, flush: true);
           // Prefer the desktop path so the crash screen shows it.
           lastCrashFilePath = desktopFile.path;

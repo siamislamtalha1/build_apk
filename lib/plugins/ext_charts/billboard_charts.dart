@@ -179,7 +179,13 @@ Future<ChartModel> getBillboardChart(ChartURL url) async {
       //       name: "Billboard");
       //   return chart;
       // }
-      throw Exception("Failed to load page");
+      log('Failed to load page: ${url.url}', name: "Billboard");
+      return ChartModel(
+        chartName: url.title,
+        chartItems: const <ChartItemModel>[],
+        url: url.url,
+        lastUpdated: DateTime.now(),
+      );
     }
   } catch (e) {
     // final chart = await BloomeeDBService.getChart(url.title);
@@ -189,6 +195,11 @@ Future<ChartModel> getBillboardChart(ChartURL url) async {
     //   return chart;
     // }
     log('Error while getting data from:${url.url}', name: "Billboard");
-    throw Exception("Error: $e");
+    return ChartModel(
+      chartName: url.title,
+      chartItems: const <ChartItemModel>[],
+      url: url.url,
+      lastUpdated: DateTime.now(),
+    );
   }
 }

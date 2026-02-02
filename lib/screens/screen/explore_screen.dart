@@ -236,16 +236,15 @@ class CustomDiscoverBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
-      floating: false,
-      pinned: true,
+      floating: true,
       surfaceTintColor: Default_Theme.themeColor,
       backgroundColor: Default_Theme.themeColor,
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text("Discover",
-              style: Default_Theme.primaryTextStyle.merge(
-                  TextStyle(fontSize: 34, color: Default_Theme.primaryColor1))),
+              style: Default_Theme.primaryTextStyle.merge( TextStyle(
+                  fontSize: 34, color: Default_Theme.primaryColor1))),
           const Spacer(),
           const NotificationIcon(),
           const SiteIcon(),
@@ -269,8 +268,10 @@ class NotificationIcon extends StatelessWidget {
             padding: const EdgeInsets.all(5),
             constraints: const BoxConstraints(),
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const NotificationView()));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const NotificationView()));
             },
             icon: Icon(MingCute.notification_line,
                 color: Default_Theme.primaryColor1, size: 30.0),
@@ -281,7 +282,7 @@ class NotificationIcon extends StatelessWidget {
             padding: const EdgeInsets.all(1.5),
             child: Text(
               state.notifications.length.toString(),
-              style: Default_Theme.primaryTextStyle.merge(TextStyle(
+              style: Default_Theme.primaryTextStyle.merge( TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
                   color: Default_Theme.primaryColor2)),
@@ -296,8 +297,10 @@ class NotificationIcon extends StatelessWidget {
             padding: const EdgeInsets.all(5),
             constraints: const BoxConstraints(),
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const NotificationView()));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const NotificationView()));
             },
             icon: Icon(MingCute.notification_line,
                 color: Default_Theme.primaryColor1, size: 30.0),
@@ -317,8 +320,8 @@ class TimerIcon extends StatelessWidget {
       padding: const EdgeInsets.all(5),
       constraints: const BoxConstraints(),
       onPressed: () {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => const TimerView()));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const TimerView()));
       },
       icon: Icon(MingCute.stopwatch_line,
           color: Default_Theme.primaryColor1, size: 30.0),
@@ -335,8 +338,8 @@ class SettingsIcon extends StatelessWidget {
       padding: const EdgeInsets.all(5),
       constraints: const BoxConstraints(),
       onPressed: () {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => const SettingsView()));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const SettingsView()));
       },
       icon: Icon(MingCute.settings_3_line,
           color: Default_Theme.primaryColor1, size: 30.0),
