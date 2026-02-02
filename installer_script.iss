@@ -31,7 +31,7 @@
  RestartIfNeededByRun=no
  
  [Files]
- Source: "build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
+ Source: "build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
  
  [Icons]
  Name: "{autodesktop}\Musicly"; Filename: "{app}\{#AppExe}"; Tasks: desktopicon

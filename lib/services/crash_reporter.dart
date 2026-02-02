@@ -10,6 +10,10 @@ class CrashReporter {
   static String? lastCrashFilePath;
   static bool _handling = false;
 
+  static String? lastStageText;
+  static String? lastStageFilePath;
+  static const String _windowsStageFileName = 'Musicly_boot_stage.txt';
+
   static void writeStartupProbe() {
     if (!Platform.isWindows) return;
     try {
@@ -22,6 +26,25 @@ class CrashReporter {
       if (file != null) {
         lastCrashFilePath = file.path;
       }
+    } catch (_) {
+      // ignore
+    }
+  }
+
+  static void markStage(String stage) {
+    try {
+      final now = DateTime.now().toIso8601String();
+      final text = 'time: $now\nstage: $stage\n';
+      lastStageText = text;
+
+      if (Platform.isWindows) {
+        final file = _tryWriteWindowsSyncFixed(_windowsStageFileName, text);
+        if (file != null) {
+          lastStageFilePath = file.path;
+        }
+      }
+
+      unawaited(_persistStage(text));
     } catch (_) {
       // ignore
     }
@@ -105,6 +128,22 @@ class CrashReporter {
     }
   }
 
+  static Future<void> _persistStage(String text) async {
+    try {
+      Directory dir;
+      try {
+        dir = await getApplicationSupportDirectory();
+      } catch (_) {
+        dir = await getTemporaryDirectory();
+      }
+
+      final file = File(p.join(dir.path, 'boot_stage.txt'));
+      await file.writeAsString(text, flush: true);
+    } catch (_) {
+      // ignore
+    }
+  }
+
   static Directory? _tryGetWindowsDesktopDirectory() {
     try {
       final oneDrive = Platform.environment['OneDrive'];
@@ -124,6 +163,87 @@ class CrashReporter {
       if ((homeDrive ?? '').isNotEmpty && (homePath ?? '').isNotEmpty) {
         final d = Directory(p.join('$homeDrive$homePath', 'Desktop'));
         if (d.existsSync()) return d;
+      }
+    } catch (_) {
+      // ignore
+    }
+    return null;
+  }
+
+  static File? _tryWriteWindowsSyncFixed(String fileName, String text) {
+    final candidates = <Directory>[];
+
+    final desktop = _tryGetWindowsDesktopDirectory();
+    if (desktop != null) candidates.add(desktop);
+
+    try {
+      final exeDir = Directory(p.dirname(Platform.resolvedExecutable));
+      candidates.add(exeDir);
+    } catch (_) {
+      // ignore
+    }
+
+    try {
+      candidates.add(Directory.current);
+    } catch (_) {
+      // ignore
+    }
+
+    try {
+      candidates.add(Directory.systemTemp);
+    } catch (_) {
+      // ignore
+    }
+
+    for (final dir in candidates) {
+      try {
+        if (!dir.existsSync()) continue;
+        final file = File(p.join(dir.path, fileName));
+        file.writeAsStringSync(text, flush: true);
+        return file;
+      } catch (_) {
+        // ignore
+      }
+    }
+
+    return null;
+  }
+
+  static String? readWindowsStageSync() {
+    if (!Platform.isWindows) return null;
+    try {
+      final candidates = <Directory>[];
+
+      final desktop = _tryGetWindowsDesktopDirectory();
+      if (desktop != null) candidates.add(desktop);
+
+      try {
+        candidates.add(Directory(p.dirname(Platform.resolvedExecutable)));
+      } catch (_) {
+        // ignore
+      }
+
+      try {
+        candidates.add(Directory.current);
+      } catch (_) {
+        // ignore
+      }
+
+      try {
+        candidates.add(Directory.systemTemp);
+      } catch (_) {
+        // ignore
+      }
+
+      for (final dir in candidates) {
+        try {
+          final file = File(p.join(dir.path, _windowsStageFileName));
+          if (file.existsSync()) {
+            return file.readAsStringSync();
+          }
+        } catch (_) {
+          // ignore
+        }
       }
     } catch (_) {
       // ignore

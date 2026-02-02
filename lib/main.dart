@@ -143,7 +143,9 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   GestureBinding.instance.resamplingEnabled = true;
 
+  CrashReporter.markStage('main:entered');
   CrashReporter.writeStartupProbe();
+  CrashReporter.markStage('main:after_startup_probe');
 
   ErrorWidget.builder = (FlutterErrorDetails details) {
     CrashReporter.record(
@@ -167,6 +169,8 @@ Future<void> main() async {
     );
   };
 
+  CrashReporter.markStage('main:after_error_widget_builder');
+
   _isolateErrorPort = RawReceivePort((dynamic pair) {
     try {
       final list = pair as List<dynamic>;
@@ -182,6 +186,8 @@ Future<void> main() async {
   });
   Isolate.current.addErrorListener(_isolateErrorPort!.sendPort);
 
+  CrashReporter.markStage('main:after_isolate_error_listener');
+
   FlutterError.onError = (details) {
     FlutterError.dumpErrorToConsole(details);
     CrashReporter.record(
@@ -191,6 +197,8 @@ Future<void> main() async {
     );
   };
 
+  CrashReporter.markStage('main:after_flutter_error_on_error');
+
   WidgetsBinding.instance.platformDispatcher.onError = (error, stack) {
     debugPrint('Uncaught platformDispatcher error: $error');
     debugPrintStack(stackTrace: stack);
@@ -198,10 +206,15 @@ Future<void> main() async {
     return true;
   };
 
+  CrashReporter.markStage('main:after_platform_dispatcher_on_error');
+
   runZonedGuarded(() async {
     try {
+      CrashReporter.markStage('main:runZonedGuarded:entered');
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+      CrashReporter.markStage('main:after_set_ui_mode');
       runApp(const _BootstrapApp());
+      CrashReporter.markStage('main:after_runApp');
     } catch (e, st) {
       debugPrint('Fatal error during app bootstrap: $e');
       debugPrintStack(stackTrace: st);
@@ -236,35 +249,57 @@ class _BootstrapAppState extends State<_BootstrapApp> {
   late final Future<_BootstrapData> _bootstrapFuture = _bootstrap();
 
   Future<_BootstrapData> _bootstrap() async {
+    CrashReporter.markStage('_bootstrap:entered');
+
     if (io.Platform.isLinux || io.Platform.isWindows) {
       try {
+        CrashReporter.markStage('_bootstrap:before_just_audio_media_kit');
         JustAudioMediaKit.ensureInitialized(
           linux: true,
           windows: true,
         );
+        CrashReporter.markStage('_bootstrap:after_just_audio_media_kit');
       } catch (e, st) {
         debugPrint('JustAudioMediaKit init failed: $e');
         debugPrintStack(stackTrace: st);
       }
     }
 
+    CrashReporter.markStage('_bootstrap:before_init_services');
     await initServices();
+    CrashReporter.markStage('_bootstrap:after_init_services');
+
+    CrashReporter.markStage('_bootstrap:before_firebase_init');
     await FirebaseService.initialize();
+    CrashReporter.markStage('_bootstrap:after_firebase_init');
 
     final authCubit = AuthCubit();
     final globalEventsCubit = GlobalEventsCubit();
 
+    CrashReporter.markStage('_bootstrap:after_create_auth_global_events');
+
     try {
+      CrashReporter.markStage('_bootstrap:before_sync_service_init');
       SyncService().init();
+      CrashReporter.markStage('_bootstrap:after_sync_service_init');
     } catch (e, st) {
       debugPrint('SyncService init failed: $e');
       debugPrintStack(stackTrace: st);
     }
 
+    CrashReporter.markStage('_bootstrap:before_set_high_refresh_rate');
     await setHighRefreshRate();
-    setupPlayerCubit();
-    DiscordService.initialize();
+    CrashReporter.markStage('_bootstrap:after_set_high_refresh_rate');
 
+    CrashReporter.markStage('_bootstrap:before_setup_player_cubit');
+    setupPlayerCubit();
+    CrashReporter.markStage('_bootstrap:after_setup_player_cubit');
+
+    CrashReporter.markStage('_bootstrap:before_discord_init');
+    DiscordService.initialize();
+    CrashReporter.markStage('_bootstrap:after_discord_init');
+
+    CrashReporter.markStage('_bootstrap:completed');
     return _BootstrapData(
       authCubit: authCubit,
       globalEventsCubit: globalEventsCubit,
