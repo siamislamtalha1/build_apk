@@ -3,6 +3,7 @@ name: Multi-Platform Build
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build-android:
@@ -21,7 +22,13 @@ jobs:
       # 3️⃣ Setup Flutter (using master channel for Dart 3.6+)
       - uses: subosito/flutter-action@v2
         with:
-          channel: master
+          channel: stable
+
+      - name: Flutter Version
+        run: flutter --version
+
+      - name: Flutter Doctor
+        run: flutter doctor -v
 
       # 4️⃣ Disable analytics
       - run: flutter config --no-analytics
@@ -35,17 +42,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pub-
 
-      # 5.5️⃣ Cache Gradle
-      - name: Cache Gradle
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
       # 6️⃣ Install dependencies
       - run: flutter pub get
 
@@ -53,15 +49,13 @@ jobs:
       - name: Build Android APK
         timeout-minutes: 30
         run: flutter build apk --release --build-number ${{ github.run_number }}
-        env:
-          GRADLE_OPTS: -Xmx4g -XX:MaxMetaspaceSize=1g -XX:+HeapDumpOnOutOfMemoryError
 
       # 8️⃣ Upload APK artifact
       - name: Upload Android APK
         uses: actions/upload-artifact@v4
         with:
           name: android-apk-${{ github.run_number }}
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: build/app/outputs/flutter-apk/*.apk
 
   build-windows:
     runs-on: windows-latest
@@ -73,7 +67,13 @@ jobs:
       # 2️⃣ Setup Flutter (using master channel for Dart 3.6+)
       - uses: subosito/flutter-action@v2
         with:
-          channel: master
+          channel: stable
+
+      - name: Flutter Version
+        run: flutter --version
+
+      - name: Flutter Doctor
+        run: flutter doctor -v
 
       # 3️⃣ Disable analytics
       - run: flutter config --no-analytics
@@ -92,7 +92,14 @@ jobs:
 
       # 6️⃣ Build Windows EXE
       - name: Build Windows EXE
-        run: flutter build windows --release
+        timeout-minutes: 45
+        run: flutter build windows --release --build-number ${{ github.run_number }}
+
+      # 6.5️⃣ Zip Windows build output
+      - name: Zip Windows Build
+        shell: pwsh
+        run: |
+          Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath build/windows/x64/musicly_windows_x64_${{ github.run_number }}.zip
 
       # 7️⃣ Install Inno Setup
       - name: Install Inno Setup
@@ -110,3 +117,17 @@ jobs:
         with:
           name: windows-installer-${{ github.run_number }}
           path: Output/*.exe
+
+      # 9.5️⃣ Upload Windows EXE (raw)
+      - name: Upload Windows EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-exe-${{ github.run_number }}
+          path: build/windows/x64/runner/Release/*.exe
+
+      # 🔟 Upload Windows Zip
+      - name: Upload Windows Zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-zip-${{ github.run_number }}
+          path: build/windows/x64/musicly_windows_x64_${{ github.run_number }}.zip
