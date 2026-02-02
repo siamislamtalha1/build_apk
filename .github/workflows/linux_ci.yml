@@ -2,7 +2,6 @@ name: "Build for Linux"
 
 on:
   workflow_dispatch:
-    branches: main
 
 
 jobs:
@@ -25,26 +24,30 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
       - name: Extract version from pubspec.yaml
+        id: version
         run: |
           ver=$(grep -m1 -E '^version:\s*' pubspec.yaml | awk '{print $2}' | cut -d'+' -f1)
           if [ -z "$ver" ]; then echo "version not found in pubspec.yaml"; exit 1; fi
           echo "VERSION=$ver" >> $GITHUB_ENV
+          echo "version=$ver" >> $GITHUB_OUTPUT
             
       - name: Create .env file
         run: echo "CLIENT_ID = XXXXX\nCLIENT_SECRET = XXXX EOF" > assets/.env
 
       - name: Build Linux App
+        id: build
         # compute adjusted build number so linux matches other platforms
         run: |
           # add 121 to the GitHub run number so build numbers align with Android/Windows
           adjusted=$(( ${{ github.run_number }} + 121 ))
           echo "ADJUSTED_RUN_NUMBER=$adjusted" >> $GITHUB_ENV
+          echo "adjusted_run_number=$adjusted" >> $GITHUB_OUTPUT
           flutter build linux --release --build-number $adjusted
 
       - name: Zip Linux App
         run: |
           cd build/linux/x64/release/bundle
-          zip -r bloomee_tunes_linux_v${{ env.VERSION }}+${{ env.ADJUSTED_RUN_NUMBER }}.zip .
+          zip -r bloomee_tunes_linux_v${{ steps.version.outputs.version }}+${{ steps.build.outputs.adjusted_run_number }}.zip .
         
 
 
@@ -52,4 +55,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: bloomee_tunes_linux
-          path: build/linux/x64/release/bundle/bloomee_tunes_linux_v${{ env.VERSION }}+${{ env.ADJUSTED_RUN_NUMBER }}.zip
+          path: build/linux/x64/release/bundle/bloomee_tunes_linux_v${{ steps.version.outputs.version }}+${{ steps.build.outputs.adjusted_run_number }}.zip

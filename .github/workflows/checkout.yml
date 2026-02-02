@@ -13,7 +13,7 @@ on:
       - './github/FUNDING.yml'
       - './ghpage/**'
 
-    branches: main
+    branches: [ main ]
     
 jobs:
     build:
@@ -39,12 +39,14 @@ jobs:
               run: flutter pub get
             
             - name: Extract version from pubspec.yaml
+              id: version
               shell: powershell
               run: |
                   $vLine = Select-String -Path pubspec.yaml -Pattern '^version:\s*(\S+)' | Select-Object -First 1
                   if (-not $vLine) { Write-Error 'version not found in pubspec.yaml'; exit 1 }
                   $ver = $vLine.Matches[0].Groups[1].Value.Split('+')[0]
                   echo "VERSION=$ver" >> $env:GITHUB_ENV
+                  echo "version=$ver" >> $env:GITHUB_OUTPUT
             
             - name: Build App files
               run: flutter build apk --release --build-number ${{github.run_number}}
@@ -52,7 +54,7 @@ jobs:
 
             - name: Rename APK file
               shell: powershell
-              run: Rename-Item -Path "build/app/outputs/flutter-apk/app-release.apk" -NewName "bloomee_tunes_android_v$env:VERSION+${{github.run_number}}.apk"
+              run: Rename-Item -Path "build/app/outputs/flutter-apk/app-release.apk" -NewName "bloomee_tunes_android_v${{ steps.version.outputs.version }}+${{ github.run_number }}.apk"
 
             - name: Build Windows App
               run: flutter build windows --release --build-number ${{github.run_number}}
@@ -61,15 +63,15 @@ jobs:
               run: Rename-Item -Path "build/windows/x64/runner/Release/bloomee.exe" -NewName "Bloomee.exe"
            
             - name: ZIP build
-              run: Compress-Archive -Path build/windows/x64/runner/Release/* -Destination  build/windows/x64/bloomee_tunes_windows_x64_v${{ env.VERSION }}+${{github.run_number}}.zip
+              run: Compress-Archive -Path build/windows/x64/runner/Release/* -Destination  build/windows/x64/bloomee_tunes_windows_x64_v${{ steps.version.outputs.version }}+${{ github.run_number }}.zip
             
             - name: Upload Artifacts
               uses: actions/upload-artifact@v4
               with:
                 name: Release
                 path: |
-                  build/app/outputs/flutter-apk/bloomee_tunes_android_v${{ env.VERSION }}+${{github.run_number}}.apk
-                  build/windows/x64/bloomee_tunes_windows_x64_v${{ env.VERSION }}+${{github.run_number}}.zip
+                  build/app/outputs/flutter-apk/bloomee_tunes_android_v${{ steps.version.outputs.version }}+${{ github.run_number }}.apk
+                  build/windows/x64/bloomee_tunes_windows_x64_v${{ steps.version.outputs.version }}+${{ github.run_number }}.zip
 
 
     
