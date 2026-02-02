@@ -3,6 +3,7 @@ import 'package:Bloomee/blocs/auth/auth_cubit.dart';
 import 'package:Bloomee/services/sync/sync_service.dart';
 import 'package:Bloomee/services/firebase/firestore_service.dart';
 import 'package:Bloomee/theme_data/default.dart';
+import 'package:Bloomee/utils/load_Image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:icons_plus/icons_plus.dart';
@@ -173,7 +174,7 @@ class ProfileScreen extends StatelessWidget {
                             backgroundColor: Default_Theme.accentColor2
                                 .withValues(alpha: 0.3),
                             backgroundImage: user.photoURL != null
-                                ? NetworkImage(user.photoURL!)
+                                ? safeImageProvider(user.photoURL)
                                 : null,
                             child: user.photoURL == null
                                 ? Icon(

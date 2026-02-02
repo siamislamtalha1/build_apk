@@ -11,6 +11,7 @@ import 'package:Bloomee/theme_data/default.dart';
 import 'package:Bloomee/utils/imgurl_formator.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
+import 'package:Bloomee/utils/load_Image.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:icons_plus/icons_plus.dart';
@@ -181,7 +182,7 @@ class _FullscreenLyricsViewState extends State<FullscreenLyricsView>
             decoration: BoxDecoration(
               image: snapshot.data?.artUri != null
                   ? DecorationImage(
-                      image: NetworkImage(
+                      image: safeImageProvider(
                         formatImgURL(
                           snapshot.data!.artUri.toString(),
                           ImageQuality.low,

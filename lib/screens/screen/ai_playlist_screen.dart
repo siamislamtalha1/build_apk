@@ -2,6 +2,7 @@ import 'package:Bloomee/blocs/mediaPlayer/bloomee_player_cubit.dart';
 import 'package:Bloomee/services/ai_service.dart';
 import 'package:Bloomee/services/db/GlobalDB.dart';
 import 'package:Bloomee/theme_data/default.dart';
+import 'package:Bloomee/utils/load_Image.dart';
 import 'package:Bloomee/utils/media_item_converter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -291,9 +292,9 @@ class _AIPlaylistScreenState extends State<AIPlaylistScreen> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
             image: DecorationImage(
-                    image: NetworkImage(song.artURL),
-                    fit: BoxFit.cover,
-                  ),
+              image: safeImageProvider(song.artURL),
+              fit: BoxFit.cover,
+            ),
             color: Default_Theme.accentColor2.withValues(alpha: 0.2),
           ),
           child: null,

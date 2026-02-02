@@ -1,0 +1,82 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function nonAnonymous() {
+      return signedIn() && request.auth.token.firebase.sign_in_provider != 'anonymous';
+    }
+
+    function isOwner(userId) {
+      return nonAnonymous() && request.auth.uid == userId;
+    }
+
+    // ---- User-owned data ----
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+
+      match /likedSongs/{songId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      match /history/{historyId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      match /statistics/{mediaId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      // Preferences are stored at: /users/{uid}/preferences/settings
+      match /preferences/{docId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      // Playlists are stored at: /users/{uid}/playlists/{playlistName}
+      match /playlists/{playlistName} {
+        // Owner can always read/write
+        allow read, write: if isOwner(userId);
+
+        // Optional: allow public read of playlist headers if marked public.
+        // This is needed for getPublicPlaylistsByUserId() and sharing.
+        allow read: if resource.data.isPublic == true;
+
+        // Playlist items at: /users/{uid}/playlists/{playlistName}/items/{mediaId}
+        match /items/{mediaId} {
+          // Owner can always read/write
+          allow read, write: if isOwner(userId);
+
+          // Public can read items only if parent playlist is public
+          allow read: if get(/databases/$(database)/documents/users/$(userId)/playlists/$(playlistName)).data.isPublic == true;
+        }
+      }
+    }
+
+    // ---- Username registry ----
+    // Stored at: /usernames/{usernameLower} { uid: <owner uid>, ... }
+    // Read is public so people can resolve @username -> uid.
+    match /usernames/{usernameLower} {
+      allow read: if true;
+
+      // Only the signed-in owner can create/update their mapping.
+      // (Also enables releaseUsername delete.)
+      allow create, update: if nonAnonymous() && request.resource.data.uid == request.auth.uid;
+      allow delete: if nonAnonymous() && resource.data.uid == request.auth.uid;
+    }
+
+    // ---- Shared playlists ----
+    // Stored at: /sharedPlaylists/{shareId} { ownerUid, playlistName, usernameLower, ... }
+    // Read is public so anyone with a share link can resolve it.
+    match /sharedPlaylists/{shareId} {
+      allow read: if true;
+      allow create, update, delete: if nonAnonymous() && request.resource.data.ownerUid == request.auth.uid;
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
