@@ -66,7 +66,7 @@ class _OfflineScreenState extends State<OfflineScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Default_Theme.themeColor,
+        backgroundColor: Colors.transparent,
         body: BlocBuilder<DownloaderCubit, DownloaderState>(
           builder: (context, state) {
             // This ensures the list is correctly populated on initial build

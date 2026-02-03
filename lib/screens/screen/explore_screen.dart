@@ -78,6 +78,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
           ),
         ],
         child: Scaffold(
+          backgroundColor: Colors.transparent,
           body: RefreshIndicator(
             onRefresh: () async {
               await yTMusicCubit.fetchYTMusic();

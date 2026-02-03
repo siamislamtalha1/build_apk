@@ -69,7 +69,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Default_Theme.themeColor,
+      backgroundColor: Colors.transparent,
       body: BlocBuilder<AuthCubit, AuthState>(
         builder: (context, state) {
           if (state is! Authenticated) {

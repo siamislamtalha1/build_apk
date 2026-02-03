@@ -101,7 +101,7 @@ class _LibraryScreenViewState extends State<_LibraryScreenView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Default_Theme.themeColor,
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: BlocBuilder<LibraryItemsCubit, LibraryItemsState>(
           builder: (context, itemsState) {

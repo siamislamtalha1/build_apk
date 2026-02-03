@@ -41,21 +41,26 @@ class GlobalFooter extends StatelessWidget {
               extendBody: true,
               backgroundColor: Colors.transparent,
               drawerScrimColor: Colors.transparent,
-              body: ResponsiveBreakpoints.of(context).isMobile
-                  ? _AnimatedPageView(navigationShell: navigationShell)
-                  : Row(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 4),
-                          child: VerticalNavBar(
-                              navigationShell: navigationShell),
-                        ),
-                        Expanded(
-                          child: _AnimatedPageView(
-                              navigationShell: navigationShell),
-                        ),
-                      ],
-                    ),
+              body: Theme(
+                data: Theme.of(context).copyWith(
+                  scaffoldBackgroundColor: Colors.transparent,
+                ),
+                child: ResponsiveBreakpoints.of(context).isMobile
+                    ? _AnimatedPageView(navigationShell: navigationShell)
+                    : Row(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 4),
+                            child: VerticalNavBar(
+                                navigationShell: navigationShell),
+                          ),
+                          Expanded(
+                            child: _AnimatedPageView(
+                                navigationShell: navigationShell),
+                          ),
+                        ],
+                      ),
+              ),
               bottomNavigationBar: SafeArea(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,

@@ -75,6 +75,7 @@ class _SearchScreenState extends State<SearchScreen> {
         onVerticalDragEnd: (DragEndDetails details) =>
             FocusManager.instance.primaryFocus?.unfocus(),
         child: Scaffold(
+          backgroundColor: Colors.transparent,
           appBar: AppBar(
             shadowColor: Colors.black,
             surfaceTintColor: Default_Theme.themeColor,

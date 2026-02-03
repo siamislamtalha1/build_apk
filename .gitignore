@@ -73,6 +73,8 @@ unlinked_spec.ds
 **/android/**/GeneratedPluginRegistrant.java
 **/android/key.properties
 *.jks
+**/android/app/google-services.json
+**/android/app/src/*/google-services.json
 
 # iOS/XCode related
 **/ios/**/*.mode1v3
@@ -103,6 +105,7 @@ unlinked_spec.ds
 **/ios/Flutter/flutter_export_environment.sh
 **/ios/ServiceDefinitions.json
 **/ios/Runner/GeneratedPluginRegistrant.*
+**/ios/Runner/GoogleService-Info.plist
 
 # macOS
 **/Flutter/ephemeral/
@@ -110,6 +113,7 @@ unlinked_spec.ds
 **/macos/Flutter/GeneratedPluginRegistrant.swift
 **/macos/Flutter/ephemeral
 **/xcuserdata/
+**/macos/Runner/GoogleService-Info.plist
 
 # Windows
 **/windows/flutter/generated_plugin_registrant.cc
@@ -138,3 +142,12 @@ app.*.symbols
 
 
 /assets/*.env
+**/google-services.json
+**/GoogleService-Info.plist
+**/firebase_app_id_file.json
+*.keystore
+*.p12
+*.mobileprovision
+*.cer
+*.crt
+*.pem
