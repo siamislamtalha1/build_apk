@@ -6,7 +6,7 @@ plugins {
 }
 android {
     namespace 'com.musiclyco.musicly'
-    compileSdk 36
+    compileSdk flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
     packagingOptions {
         jniLibs {
@@ -16,7 +16,7 @@ android {
     defaultConfig {
         applicationId 'com.musiclyco.musicly'
         minSdk flutter.minSdkVersion
-        targetSdk 36
+        targetSdk flutter.targetSdkVersion
         versionCode flutter.versionCode
         versionName flutter.versionName
         multiDexEnabled true
