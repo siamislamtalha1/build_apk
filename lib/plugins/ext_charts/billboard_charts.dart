@@ -140,17 +140,20 @@ Future<ChartModel> getBillboardChart(ChartURL url) async {
       var document = parse(response.body);
       var songs =
           document.querySelectorAll('.o-chart-results-list-row-container');
-      // List<Map<String, String>> songList = [];
       List<ChartItemModel> chartItems = [];
       for (var item in songs) {
-        var row = item.querySelector('ul.o-chart-results-list-row');
-        var attributes = row!.querySelectorAll('li');
-        // var rank = row.attributes['data-detail-target'];
-        var img = attributes[1].querySelector('img');
-        var title = attributes[3].querySelector('h3.c-title');
-        var label = attributes[3].querySelector('span.c-label');
+        final row = item.querySelector('ul.o-chart-results-list-row');
+        if (row == null) continue;
+        final attributes = row.querySelectorAll('li');
+        if (attributes.length < 4) continue;
+        final img =
+            attributes.length > 1 ? attributes[1].querySelector('img') : null;
+        final title = attributes[3].querySelector('h3.c-title');
+        final label = attributes[3].querySelector('span.c-label');
         var ttl = title?.text.trim();
         var lbl = label?.text.trim();
+
+        if (ttl == null || ttl.isEmpty) continue;
 
         String imgURL =
             img?.attributes['data-lazy-src'] ?? img?.attributes['src'] ?? '';
@@ -160,26 +163,25 @@ Future<ChartModel> getBillboardChart(ChartURL url) async {
         } else {
           imgURL = imgURL.replaceAll(RegExp(r'(\d+x\d+)\.jpg$'), '180x180.jpg');
         }
-        chartItems
-            .add(ChartItemModel(name: ttl, imageUrl: imgURL, subtitle: lbl));
+        chartItems.add(
+          ChartItemModel(
+            name: ttl,
+            imageUrl: imgURL,
+            subtitle: lbl,
+          ),
+        );
       }
       final chart = ChartModel(
           chartName: url.title,
           chartItems: chartItems,
           url: url.url,
           lastUpdated: DateTime.now());
-      // BloomeeDBService.putChart(chart);
       log('Billboard Charts: ${chart.chartItems!.length} tracks',
           name: "Billboard");
       return chart;
     } else {
-      // final chart = await BloomeeDBService.getChart(url.title);
-      // if (chart != null) {
-      //   log('Billboard Charts: ${chart.chartItems!.length} tracks loaded from cache',
-      //       name: "Billboard");
-      //   return chart;
-      // }
-      log('Failed to load page: ${url.url}', name: "Billboard");
+      log('Failed to load page: ${url.url} (Status: ${response.statusCode})',
+          name: "Billboard");
       return ChartModel(
         chartName: url.title,
         chartItems: const <ChartItemModel>[],
@@ -188,12 +190,6 @@ Future<ChartModel> getBillboardChart(ChartURL url) async {
       );
     }
   } catch (e, st) {
-    // final chart = await BloomeeDBService.getChart(url.title);
-    // if (chart != null) {
-    //   log('Billboard Charts: ${chart.chartItems!.length} tracks loaded from cache',
-    //       name: "Billboard");
-    //   return chart;
-    // }
     log(
       'Error while getting data from:${url.url} - $e',
       name: "Billboard",

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:Bloomee/services/db/GlobalDB.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 /// Firestore service for syncing user data across devices
 class FirestoreService {
@@ -45,7 +46,10 @@ class FirestoreService {
   }
 
   Stream<Map<String, dynamic>?> watchUserProfile(String userId) {
-    return _userDoc(userId).snapshots().map((doc) => doc.data() as Map<String, dynamic>?);
+    return _userDoc(userId)
+        .snapshots()
+        .map((doc) => doc.data() as Map<String, dynamic>?)
+        .handleError((_) => null);
   }
 
   Future<String> _generateRandomUsername({String? displayName}) async {
@@ -99,8 +103,8 @@ class FirestoreService {
       return await _firestore.runTransaction((txn) async {
         final userRef = _userDoc(userId);
         final userSnap = await txn.get(userRef);
-        final prevLower =
-            (userSnap.data() as Map<String, dynamic>?)?['usernameLower'] as String?;
+        final prevLower = (userSnap.data()
+            as Map<String, dynamic>?)?['usernameLower'] as String?;
 
         final usernameRef = _usernameDoc(desiredLower);
         final usernameSnap = await txn.get(usernameRef);
@@ -118,18 +122,24 @@ class FirestoreService {
           txn.delete(_usernameDoc(prevLower));
         }
 
-        txn.set(usernameRef, {
-          'uid': userId,
-          'username': '@$desiredLower',
-          'usernameLower': desiredLower,
-          'updatedAt': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
+        txn.set(
+            usernameRef,
+            {
+              'uid': userId,
+              'username': '@$desiredLower',
+              'usernameLower': desiredLower,
+              'updatedAt': FieldValue.serverTimestamp(),
+            },
+            SetOptions(merge: true));
 
-        txn.set(userRef, {
-          'username': '@$desiredLower',
-          'usernameLower': desiredLower,
-          'lastUpdated': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
+        txn.set(
+            userRef,
+            {
+              'username': '@$desiredLower',
+              'usernameLower': desiredLower,
+              'lastUpdated': FieldValue.serverTimestamp(),
+            },
+            SetOptions(merge: true));
 
         return '@$desiredLower';
       });
@@ -158,11 +168,14 @@ class FirestoreService {
       if (lower != null && lower.isNotEmpty) {
         final batch = _firestore.batch();
         batch.delete(_usernameDoc(lower));
-        batch.set(_userDoc(userId), {
-          'username': FieldValue.delete(),
-          'usernameLower': FieldValue.delete(),
-          'lastUpdated': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
+        batch.set(
+            _userDoc(userId),
+            {
+              'username': FieldValue.delete(),
+              'usernameLower': FieldValue.delete(),
+              'lastUpdated': FieldValue.serverTimestamp(),
+            },
+            SetOptions(merge: true));
         await batch.commit();
       }
     } catch (_) {}
@@ -182,7 +195,8 @@ class FirestoreService {
     required String playlistName,
     required bool isPublic,
   }) async {
-    final playlistRef = _userDoc(userId).collection('playlists').doc(playlistName);
+    final playlistRef =
+        _userDoc(userId).collection('playlists').doc(playlistName);
     await playlistRef.set(
       {
         'isPublic': isPublic,
@@ -196,7 +210,8 @@ class FirestoreService {
     required String userId,
     required String playlistName,
   }) async {
-    final playlistRef = _userDoc(userId).collection('playlists').doc(playlistName);
+    final playlistRef =
+        _userDoc(userId).collection('playlists').doc(playlistName);
     final snap = await playlistRef.get();
     final data = snap.data();
     final existing = data?['shareId'] as String?;
@@ -253,7 +268,8 @@ class FirestoreService {
     return doc.data() as Map<String, dynamic>?;
   }
 
-  Future<List<Map<String, dynamic>>> getPublicPlaylistsByUserId(String userId) async {
+  Future<List<Map<String, dynamic>>> getPublicPlaylistsByUserId(
+      String userId) async {
     final snap = await _userDoc(userId)
         .collection('playlists')
         .where('isPublic', isEqualTo: true)
@@ -273,6 +289,7 @@ class FirestoreService {
   /// Sync liked songs to Firestore
   Future<void> syncLikedSongsToCloud(
       String userId, List<MediaItemDB> likedSongs) async {
+    if (FirebaseAuth.instance.currentUser?.isAnonymous ?? true) return;
     try {
       final batch = _firestore.batch();
       final likedSongsRef = _userDoc(userId).collection('likedSongs');
@@ -314,20 +331,24 @@ class FirestoreService {
   /// Sync playlists to Firestore
   Future<void> syncPlaylistsToCloud(
       String userId, List<MediaPlaylistDB> playlists) async {
+    if (FirebaseAuth.instance.currentUser?.isAnonymous ?? true) return;
     try {
       final batch = _firestore.batch();
       final playlistsRef = _userDoc(userId).collection('playlists');
 
       for (var playlist in playlists) {
         final docRef = playlistsRef.doc(playlist.playlistName);
-        batch.set(docRef, {
-          'playlistName': playlist.playlistName,
-          'lastUpdated': playlist.lastUpdated?.millisecondsSinceEpoch,
-          'mediaRanks': playlist.mediaRanks,
-          // Cross-device stable ordering is handled by SyncService via syncPlaylistToCloud.
-          // Keeping this field here for forward compatibility.
-          'mediaOrder': <String>[],
-        }, SetOptions(merge: true));
+        batch.set(
+            docRef,
+            {
+              'playlistName': playlist.playlistName,
+              'lastUpdated': playlist.lastUpdated?.millisecondsSinceEpoch,
+              'mediaRanks': playlist.mediaRanks,
+              // Cross-device stable ordering is handled by SyncService via syncPlaylistToCloud.
+              // Keeping this field here for forward compatibility.
+              'mediaOrder': <String>[],
+            },
+            SetOptions(merge: true));
       }
 
       await batch.commit();
@@ -344,6 +365,7 @@ class FirestoreService {
     required Map<String, dynamic> playlistDoc,
     required List<MediaItemDB> items,
   }) async {
+    if (FirebaseAuth.instance.currentUser?.isAnonymous ?? true) return;
     try {
       final playlistRef = _userDoc(userId).collection('playlists').doc(
             playlistName,
@@ -425,6 +447,7 @@ class FirestoreService {
   /// Sync play statistics to Firestore
   Future<void> syncStatisticsToCloud(
       String userId, List<PlayStatisticsDB> statistics) async {
+    if (FirebaseAuth.instance.currentUser?.isAnonymous ?? true) return;
     try {
       final batch = _firestore.batch();
       final statsRef = _userDoc(userId).collection('statistics');
@@ -468,6 +491,7 @@ class FirestoreService {
   /// Sync history (recently played) to Firestore
   Future<void> syncHistoryToCloud(
       String userId, List<MediaItemDB> historyItems) async {
+    if (FirebaseAuth.instance.currentUser?.isAnonymous ?? true) return;
     try {
       final batch = _firestore.batch();
       final historyRef = _userDoc(userId).collection('history');
@@ -518,6 +542,7 @@ class FirestoreService {
   /// Save user profile to Firestore
   Future<void> saveUserProfile(String userId,
       {String? displayName, String? photoURL, String? email}) async {
+    if (FirebaseAuth.instance.currentUser?.isAnonymous ?? true) return;
     try {
       await _userDoc(userId).set({
         'displayName': displayName,
@@ -548,6 +573,7 @@ class FirestoreService {
   /// Save user preferences to Firestore
   Future<void> saveUserPreferences(
       String userId, Map<String, dynamic> preferences) async {
+    if (FirebaseAuth.instance.currentUser?.isAnonymous ?? true) return;
     try {
       await _userDoc(userId).collection('preferences').doc('settings').set(
             preferences,
@@ -562,6 +588,9 @@ class FirestoreService {
 
   Future<void> syncUserPreferencesToCloud(
       String userId, Map<String, dynamic> preferences) {
+    if (FirebaseAuth.instance.currentUser?.isAnonymous ?? true) {
+      return Future.value();
+    }
     return saveUserPreferences(userId, preferences);
   }
 
@@ -583,40 +612,63 @@ class FirestoreService {
 
   /// Listen to liked songs changes
   Stream<List<Map<String, dynamic>>> watchLikedSongs(String userId) {
-    return _userDoc(userId).collection('likedSongs').snapshots().map(
-          (snapshot) => snapshot.docs.map((doc) => doc.data()).toList(),
-        );
+    if (FirebaseAuth.instance.currentUser?.isAnonymous ?? true) {
+      return Stream.value(<Map<String, dynamic>>[]);
+    }
+    return _userDoc(userId)
+        .collection('likedSongs')
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList())
+        .handleError((_) => <Map<String, dynamic>>[]);
   }
 
   /// Listen to playlists changes
   Stream<List<Map<String, dynamic>>> watchPlaylists(String userId) {
-    return _userDoc(userId).collection('playlists').snapshots().map(
-          (snapshot) => snapshot.docs.map((doc) => doc.data()).toList(),
-        );
+    if (FirebaseAuth.instance.currentUser?.isAnonymous ?? true) {
+      return Stream.value(<Map<String, dynamic>>[]);
+    }
+    return _userDoc(userId)
+        .collection('playlists')
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList())
+        .handleError((_) => <Map<String, dynamic>>[]);
   }
 
   /// Listen to history changes
   Stream<List<Map<String, dynamic>>> watchHistory(String userId) {
+    if (FirebaseAuth.instance.currentUser?.isAnonymous ?? true) {
+      return Stream.value(<Map<String, dynamic>>[]);
+    }
     return _userDoc(userId)
         .collection('history')
         .orderBy('syncedAt', descending: true)
         .snapshots()
         .map(
           (snapshot) => snapshot.docs.map((doc) => doc.data()).toList(),
-        );
+        )
+        .handleError((_) => <Map<String, dynamic>>[]);
   }
 
   Stream<Map<String, dynamic>?> watchUserPreferences(String userId) {
+    if (FirebaseAuth.instance.currentUser?.isAnonymous ?? true) {
+      return Stream.value(null);
+    }
     return _userDoc(userId)
         .collection('preferences')
         .doc('settings')
         .snapshots()
-        .map((doc) => doc.data());
+        .map((doc) => doc.data())
+        .handleError((_) => null);
   }
 
   Stream<List<Map<String, dynamic>>> watchStatistics(String userId) {
-    return _userDoc(userId).collection('statistics').snapshots().map(
-          (snapshot) => snapshot.docs.map((doc) => doc.data()).toList(),
-        );
+    if (FirebaseAuth.instance.currentUser?.isAnonymous ?? true) {
+      return Stream.value(<Map<String, dynamic>>[]);
+    }
+    return _userDoc(userId)
+        .collection('statistics')
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList())
+        .handleError((_) => <Map<String, dynamic>>[]);
   }
 }

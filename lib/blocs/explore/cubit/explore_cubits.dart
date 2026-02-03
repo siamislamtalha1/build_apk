@@ -84,8 +84,7 @@ class RecentlyCubit extends Cubit<RecentlyCubitState> {
 
   void getRecentlyPlayed() async {
     try {
-      final mediaPlaylist =
-          await BloomeeDBService.getRecentlyPlayed(limit: 15);
+      final mediaPlaylist = await BloomeeDBService.getRecentlyPlayed(limit: 15);
       if (isClosed) return;
       emit(state.copyWith(mediaPlaylist: mediaPlaylist));
     } catch (e, st) {
@@ -215,8 +214,8 @@ class FetchChartCubit extends Cubit<FetchChartState> {
               }
 
               if ((chart.chartItems?.isNotEmpty) ?? false) {
-                db.writeTxnSync(() => db.chartsCacheDBs
-                    .putSync(chartModelToChartCacheDB(chart)));
+                db.writeTxnSync(() =>
+                    db.chartsCacheDBs.putSync(chartModelToChartCacheDB(chart)));
               }
               log("Chart Fetched - ${chart.chartName}", name: "Isolate");
               chartList0.add(chart);
@@ -243,20 +242,41 @@ class FetchChartCubit extends Cubit<FetchChartState> {
 }
 
 class YTMusicCubit extends Cubit<YTMusicCubitState> {
+  int _lifecycleToken = 0;
+
   YTMusicCubit() : super(YTMusicCubitInitial()) {
     fetchYTMusicDB();
     fetchYTMusic();
   }
 
+  bool _isTokenActive(int token) => !isClosed && token == _lifecycleToken;
+
+  void _safeEmit(YTMusicCubitState next) {
+    if (isClosed) return;
+    try {
+      emit(next);
+    } catch (e) {
+      // Cubit was closed between an await/check and emit.
+      log("YTMusicCubit emit failed: $e", name: "YTMusic");
+    }
+  }
+
+  @override
+  Future<void> close() {
+    _lifecycleToken++;
+    return super.close();
+  }
+
   void fetchYTMusicDB() async {
+    final token = _lifecycleToken;
     try {
       final data = await BloomeeDBService.getAPICache("YTMusic");
+      if (!_isTokenActive(token)) return;
       if (data != null) {
         final ytmData = await compute(parseYTMusicData, data);
+        if (!_isTokenActive(token)) return;
         if (ytmData.isNotEmpty) {
-          if (isClosed) return;
-          if (isClosed) return;
-          emit(state.copyWith(ytmData: ytmData));
+          _safeEmit(state.copyWith(ytmData: ytmData));
         }
       }
     } catch (e, st) {
@@ -265,16 +285,21 @@ class YTMusicCubit extends Cubit<YTMusicCubitState> {
   }
 
   Future<void> fetchYTMusic() async {
+    final token = _lifecycleToken;
     try {
       final countryCode = await getCountry();
-      if (isClosed) return;
+      if (!_isTokenActive(token)) return;
       final ytCharts =
           await Isolate.run(() => getMusicHome(countryCode: countryCode));
-      if (isClosed) return;
+      if (!_isTokenActive(token)) return;
       if (ytCharts.isNotEmpty) {
-        if (isClosed) return;
-        emit(state.copyWith(ytmData: Map<String, List<dynamic>>.from(ytCharts)));
+        _safeEmit(
+          state.copyWith(
+            ytmData: Map<String, List<dynamic>>.from(ytCharts),
+          ),
+        );
         final ytChartsJson = await compute(jsonEncode, ytCharts);
+        if (!_isTokenActive(token)) return;
         BloomeeDBService.putAPICache("YTMusic", ytChartsJson);
         log("YTMusic Fetched", name: "YTMusic");
       }
