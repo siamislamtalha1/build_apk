@@ -253,8 +253,8 @@ Future<void> _showRemotePlaylistDialog(
                                 } else {
                                   selected
                                     ..clear()
-                                    ..addAll(List.generate(
-                                        items.length, (i) => i));
+                                    ..addAll(
+                                        List.generate(items.length, (i) => i));
                                 }
                               });
                             },
@@ -300,8 +300,7 @@ Future<void> _showRemotePlaylistDialog(
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: Default_Theme.secondoryTextStyle.merge(
-                                  TextStyle(
-                                      color: Default_Theme.primaryColor1),
+                                  TextStyle(color: Default_Theme.primaryColor1),
                                 ),
                               ),
                               subtitle: Text(
@@ -374,8 +373,8 @@ Future<void> _showCloudImportDialog(BuildContext context) async {
               if (ownerUid == null || playlistName == null) {
                 error = 'Invalid link data';
               } else {
-                final header = await fs.getPlaylistHeaderFromCloud(
-                    ownerUid, playlistName);
+                final header =
+                    await fs.getPlaylistHeaderFromCloud(ownerUid, playlistName);
                 results = [
                   {
                     ...?header,
@@ -447,7 +446,8 @@ Future<void> _showCloudImportDialog(BuildContext context) async {
         try {
           final exists = await BloomeeDBService.playlistExists(targetName);
           if (exists) {
-            SnackbarService.showMessage('Playlist "$targetName" already exists');
+            SnackbarService.showMessage(
+                'Playlist "$targetName" already exists');
             return;
           }
           final items =
@@ -516,7 +516,8 @@ Future<void> _showCloudImportDialog(BuildContext context) async {
                       itemCount: results.length,
                       itemBuilder: (c, i) {
                         final p = results[i];
-                        final name = (p['playlistName'] as String?) ?? 'Playlist';
+                        final name =
+                            (p['playlistName'] as String?) ?? 'Playlist';
                         final desc = (p['description'] as String?) ?? '';
                         return ListTile(
                           onTap: () async {
@@ -528,7 +529,8 @@ Future<void> _showCloudImportDialog(BuildContext context) async {
                           },
                           title: Text(name,
                               style: Default_Theme.secondoryTextStyleMedium
-                                  .merge(TextStyle(color: Default_Theme.primaryColor1))),
+                                  .merge(TextStyle(
+                                      color: Default_Theme.primaryColor1))),
                           subtitle: desc.isEmpty
                               ? null
                               : Text(desc,
@@ -715,7 +717,8 @@ class PlaylistView extends StatelessWidget {
                                   children: [
                                     LoadImageCached(
                                         imageUrl: formatImgURL(
-                                            (state.mediaPlaylist.imgUrl != null &&
+                                            (state.mediaPlaylist.imgUrl !=
+                                                        null &&
                                                     state.mediaPlaylist.imgUrl!
                                                         .trim()
                                                         .isNotEmpty)
@@ -784,13 +787,16 @@ class PlaylistView extends StatelessWidget {
                                                 ),
                                                 child: LoadImageCached(
                                                     imageUrl: formatImgURL(
-                                                        (state.mediaPlaylist.imgUrl !=
+                                                        (state.mediaPlaylist
+                                                                        .imgUrl !=
                                                                     null &&
-                                                                state.mediaPlaylist
+                                                                state
+                                                                    .mediaPlaylist
                                                                     .imgUrl!
                                                                     .trim()
                                                                     .isNotEmpty)
-                                                            ? state.mediaPlaylist
+                                                            ? state
+                                                                .mediaPlaylist
                                                                 .imgUrl!
                                                             : state
                                                                 .mediaPlaylist
@@ -836,9 +842,8 @@ class PlaylistView extends StatelessWidget {
                                                         EdgeInsets.symmetric(
                                                             horizontal: 10,
                                                             vertical: 10)),
-                                                shape:
-                                                    WidgetStatePropertyAll(
-                                                        RoundedRectangleBorder(
+                                                shape: WidgetStatePropertyAll(
+                                                    RoundedRectangleBorder(
                                                   borderRadius:
                                                       BorderRadius.circular(12),
                                                 )),
@@ -874,9 +879,8 @@ class PlaylistView extends StatelessWidget {
                                                         EdgeInsets.symmetric(
                                                             horizontal: 10,
                                                             vertical: 10)),
-                                                shape:
-                                                    WidgetStatePropertyAll(
-                                                        RoundedRectangleBorder(
+                                                shape: WidgetStatePropertyAll(
+                                                    RoundedRectangleBorder(
                                                   borderRadius:
                                                       BorderRadius.circular(12),
                                                 )),
@@ -893,15 +897,16 @@ class PlaylistView extends StatelessWidget {
                                                 }
                                                 final fs = FirestoreService();
                                                 try {
-                                                  await fs.setPlaylistVisibility(
+                                                  await fs
+                                                      .setPlaylistVisibility(
                                                     userId: user.uid,
                                                     playlistName: state
                                                         .mediaPlaylist
                                                         .playlistName,
                                                     isPublic: true,
                                                   );
-                                                  final shareId =
-                                                      await fs.ensurePlaylistShareId(
+                                                  final shareId = await fs
+                                                      .ensurePlaylistShareId(
                                                     userId: user.uid,
                                                     playlistName: state
                                                         .mediaPlaylist
@@ -1114,6 +1119,7 @@ class PlaylistView extends StatelessWidget {
                                             ),
                                           );
                                           if (confirmed == true) {
+                                            if (!context.mounted) return;
                                             // Show a progress dialog and enqueue items slowly
                                             await _showAddToDownloadProgress(
                                                 context, items);
@@ -1295,10 +1301,12 @@ class PlaylistView extends StatelessWidget {
                                       context
                                           .read<BloomeeDBCubit>()
                                           .removeMediaFromPlaylist(
-                                            state.mediaPlaylist.mediaItems[index],
+                                            state.mediaPlaylist
+                                                .mediaItems[index],
                                             MediaPlaylistDB(
                                                 playlistName: state
-                                                    .mediaPlaylist.playlistName),
+                                                    .mediaPlaylist
+                                                    .playlistName),
                                           );
                                     },
                                     showDelete: true,

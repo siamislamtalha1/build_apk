@@ -48,7 +48,7 @@ class MoodsGenresScreen extends StatelessWidget {
                   gradient: LinearGradient(
                     colors: [
                       baseColor,
-                      baseColor.withOpacity(0.6),
+                      baseColor.withValues(alpha: 0.6),
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,

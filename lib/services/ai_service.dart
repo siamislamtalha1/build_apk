@@ -69,7 +69,7 @@ class AIService {
     try {
       // Use YouTube Music's radio feature
       final radioResults = await YtMusicService().getWatchPlaylist(
-        videoId: seedSong.mediaID ?? '',
+        videoId: seedSong.mediaID,
       );
 
       final mediaItems = _convertToMediaItems(radioResults);
@@ -245,7 +245,7 @@ class AIService {
       final uniqueSongs = <String, MediaItemDB>{};
       for (var song in recommendations) {
         uniqueSongs[song.mediaID] = song;
-            }
+      }
 
       return uniqueSongs.values.take(limit).toList();
     } catch (e) {

@@ -238,7 +238,7 @@ class _DiscoverWeeklyScreenState extends State<DiscoverWeeklyScreen> {
           child: null,
         ),
         title: Text(
-          song.title ?? 'Unknown',
+          song.title,
           style: Default_Theme.primaryTextStyle.merge(
             TextStyle(
               fontSize: 14,
@@ -249,7 +249,7 @@ class _DiscoverWeeklyScreenState extends State<DiscoverWeeklyScreen> {
           overflow: TextOverflow.ellipsis,
         ),
         subtitle: Text(
-          song.artist ?? 'Unknown Artist',
+          song.artist,
           style: Default_Theme.secondoryTextStyle.merge(
             TextStyle(
               fontSize: 12,

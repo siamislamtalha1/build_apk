@@ -240,10 +240,11 @@ class ChangelogScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios_new,
-                color: scheme.onSurfaceVariant),
+            icon:
+                Icon(Icons.arrow_back_ios_new, color: scheme.onSurfaceVariant),
             onPressed: () async {
               await Navigator.of(context).maybePop();
+              if (!context.mounted) return;
               Navigator.of(context).push(PageRouteBuilder(
                 pageBuilder: (_, __, ___) => const About(),
                 transitionsBuilder: (_, animation, secondaryAnimation, child) {
@@ -563,8 +564,9 @@ class _VersionCardState extends State<VersionCard> {
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                           fontFamily: 'Gilroy',
-                          color:
-                              isUnreleased ? Colors.amberAccent : scheme.onSurface),
+                          color: isUnreleased
+                              ? Colors.amberAccent
+                              : scheme.onSurface),
                     ),
                     if (widget.version.releaseDate != null)
                       Padding(

@@ -2,41 +2,41 @@
 part of 'settings_cubit.dart';
 
 class SettingsState extends Equatable {
-  bool autoUpdateNotify;
-  bool autoSlideCharts;
-  String downPath;
-  String downQuality;
-  String ytDownQuality;
-  String strmQuality;
-  String ytStrmQuality;
-  String backupPath;
-  bool autoBackup;
-  String historyClearTime;
-  bool autoGetCountry;
-  bool lFMPicks;
-  bool lastFMScrobble;
-  bool autoSaveLyrics;
-  bool autoPlay;
-  String countryCode;
-  List<bool> sourceEngineSwitches;
-  Map chartMap;
-  String locale;
-  ThemeMode themeMode;
+  final bool autoUpdateNotify;
+  final bool autoSlideCharts;
+  final String downPath;
+  final String downQuality;
+  final String ytDownQuality;
+  final String strmQuality;
+  final String ytStrmQuality;
+  final String backupPath;
+  final bool autoBackup;
+  final String historyClearTime;
+  final bool autoGetCountry;
+  final bool lFMPicks;
+  final bool lastFMScrobble;
+  final bool autoSaveLyrics;
+  final bool autoPlay;
+  final String countryCode;
+  final List<bool> sourceEngineSwitches;
+  final Map chartMap;
+  final String locale;
+  final ThemeMode themeMode;
   // Advanced Settings
-  String audioDecoderMode;
-  bool hardwareOffloadEnabled;
-  bool gaplessOffloadEnabled;
-  double playbackSpeed;
-  double playbackPitch;
-  bool skipSilenceEnabled;
-  bool equalizerEnabled;
-  bool normalizationEnabled;
-  int normalizationGainMb;
-  bool tabletUiEnabled;
-  bool persistentQueueEnabled;
-  int maxSavedQueues;
-  bool keepAliveEnabled;
-  bool stopOnTaskClear;
+  final String audioDecoderMode;
+  final bool hardwareOffloadEnabled;
+  final bool gaplessOffloadEnabled;
+  final double playbackSpeed;
+  final double playbackPitch;
+  final bool skipSilenceEnabled;
+  final bool equalizerEnabled;
+  final bool normalizationEnabled;
+  final int normalizationGainMb;
+  final bool tabletUiEnabled;
+  final bool persistentQueueEnabled;
+  final int maxSavedQueues;
+  final bool keepAliveEnabled;
+  final bool stopOnTaskClear;
   SettingsState({
     required this.autoUpdateNotify,
     required this.autoSlideCharts,

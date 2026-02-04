@@ -70,8 +70,9 @@ void showPlaylistOptsInrSheet(
                           playlistName: mediaPlaylist.playlistName,
                           isPublic: !cur,
                         );
-                        SnackbarService.showMessage(
-                            !cur ? 'Playlist is now Public' : 'Playlist is now Private');
+                        SnackbarService.showMessage(!cur
+                            ? 'Playlist is now Public'
+                            : 'Playlist is now Private');
                       } catch (e) {
                         SnackbarService.showMessage('Failed: $e');
                       }
@@ -166,8 +167,8 @@ void showPlaylistOptsInrSheet(
                     icon: MingCute.copy_2_line,
                     onPressed: () async {
                       Navigator.pop(context);
-                      final suggested = await BloomeeDBService
-                          .generateUniquePlaylistName(
+                      final suggested =
+                          await BloomeeDBService.generateUniquePlaylistName(
                               '${mediaPlaylist.playlistName} Copy');
                       final controller = TextEditingController(text: suggested);
                       final name = await showDialog<String>(
@@ -249,7 +250,8 @@ void showPlaylistOptsInrSheet(
                       final tmpPath = await ImportExportService.exportPlaylist(
                           mediaPlaylist.playlistName);
                       tmpPath != null
-                          ? Share.shareXFiles([XFile(tmpPath)])
+                          ? SharePlus.instance
+                              .share(ShareParams(files: [XFile(tmpPath)]))
                           : null;
                     },
                   ),
@@ -360,7 +362,8 @@ void showPlaylistOptsExtSheet(BuildContext context, String playlistName) {
                       final tmpPath = await ImportExportService.exportPlaylist(
                           playlistName);
                       tmpPath != null
-                          ? Share.shareXFiles([XFile(tmpPath)])
+                          ? SharePlus.instance
+                              .share(ShareParams(files: [XFile(tmpPath)]))
                           : null;
                     },
                   ),

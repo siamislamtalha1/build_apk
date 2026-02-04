@@ -4,10 +4,10 @@ import 'package:audio_service/audio_service.dart';
 class MediaItemConverter {
   static MediaItem dbToMediaItem(MediaItemDB dbItem) {
     return MediaItem(
-      id: dbItem.mediaID ?? '',
-      album: dbItem.album ?? '',
-      title: dbItem.title ?? '',
-      artist: dbItem.artist ?? '',
+      id: dbItem.mediaID,
+      album: dbItem.album,
+      title: dbItem.title,
+      artist: dbItem.artist,
       artUri: Uri.parse(dbItem.artURL),
       duration:
           dbItem.duration != null ? Duration(seconds: dbItem.duration!) : null,

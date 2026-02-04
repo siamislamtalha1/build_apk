@@ -301,7 +301,7 @@ class _AIPlaylistScreenState extends State<AIPlaylistScreen> {
           child: null,
         ),
         title: Text(
-          song.title ?? 'Unknown',
+          song.title,
           style: Default_Theme.primaryTextStyle.merge(
             TextStyle(
               fontSize: 14,
@@ -312,7 +312,7 @@ class _AIPlaylistScreenState extends State<AIPlaylistScreen> {
           overflow: TextOverflow.ellipsis,
         ),
         subtitle: Text(
-          song.artist ?? 'Unknown Artist',
+          song.artist,
           style: Default_Theme.secondoryTextStyle.merge(
             TextStyle(
               fontSize: 12,

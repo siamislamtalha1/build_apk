@@ -218,8 +218,8 @@ class BackupSettings extends StatelessWidget {
                           "Are you sure you want to reset the Bloomee app? This will delete all your data, including tunes you listened to, and reset the app to its default state. This action cannot be undone.",
                           style: Default_Theme.secondoryTextStyle.merge(
                             TextStyle(
-                              color:
-                                  dialogScheme.onSurface.withValues(alpha: 0.75),
+                              color: dialogScheme.onSurface
+                                  .withValues(alpha: 0.75),
                               fontSize: 14,
                             ),
                           ),
@@ -273,8 +273,7 @@ class BackupSettings extends StatelessWidget {
               ),
               SwitchListTile(
                 title: Text("Auto Backup",
-                    style: TextStyle(
-                            color: scheme.onSurface, fontSize: 16)
+                    style: TextStyle(color: scheme.onSurface, fontSize: 16)
                         .merge(Default_Theme.secondoryTextStyleMedium)),
                 subtitle: Text(
                     "Automatically create a backup of your data on regular basis.",
@@ -289,8 +288,7 @@ class BackupSettings extends StatelessWidget {
               ),
               SwitchListTile(
                   title: Text("Auto Save Lyrics",
-                      style: TextStyle(
-                              color: scheme.onSurface, fontSize: 16)
+                      style: TextStyle(color: scheme.onSurface, fontSize: 16)
                           .merge(Default_Theme.secondoryTextStyleMedium)),
                   subtitle: Text(
                       "Automatically save lyrics of the song when played.",
@@ -392,7 +390,8 @@ Future<void> _onRestoreTap(BuildContext context) async {
                     activeColor: Default_Theme.accentColor2,
                     checkColor: dialogScheme.onPrimary,
                   ),
-                  Divider(color: dialogScheme.onSurface.withValues(alpha: 0.12)),
+                  Divider(
+                      color: dialogScheme.onSurface.withValues(alpha: 0.12)),
                   CheckboxListTile(
                     value: mediaItems,
                     onChanged: (v) {
@@ -522,8 +521,8 @@ Future<void> _onRestoreTap(BuildContext context) async {
       builder: (ctx) {
         progressDialogContext = ctx; // capture
         final dialogScheme = Theme.of(ctx).colorScheme;
-        return WillPopScope(
-          onWillPop: () async => false,
+        return PopScope(
+          canPop: false,
           child: AlertDialog(
             backgroundColor: dialogScheme.surface,
             surfaceTintColor: Colors.transparent,
@@ -599,6 +598,7 @@ Future<void> _onRestoreTap(BuildContext context) async {
       }
     }
 
+    if (!context.mounted) return;
     await _showResultDialog(context, success: success, errors: errors);
   } catch (e, st) {
     log("Unexpected error in restore flow: $e\n$st", name: "BloomeeDBService");
@@ -683,27 +683,24 @@ Future<void> _showResultDialog(
                       padding: const EdgeInsets.only(bottom: 8.0),
                       child: Text(
                         "- $e",
-                        style: Default_Theme.secondoryTextStyle.merge(
-                            TextStyle(
-                                color: dialogScheme.onSurface
-                                    .withValues(alpha: 0.7),
-                                fontSize: 13)),
+                        style: Default_Theme.secondoryTextStyle.merge(TextStyle(
+                            color:
+                                dialogScheme.onSurface.withValues(alpha: 0.7),
+                            fontSize: 13)),
                       ),
                     )),
               if (!success && errors.isEmpty)
                 Text(
                   "Unknown error occurred during restore.",
-                  style: Default_Theme.secondoryTextStyle
-                      .merge(TextStyle(
-                          color: dialogScheme.onSurface.withValues(alpha: 0.7))),
+                  style: Default_Theme.secondoryTextStyle.merge(TextStyle(
+                      color: dialogScheme.onSurface.withValues(alpha: 0.7))),
                 ),
               const SizedBox(height: 8),
               Text(
                 "Please restart the app for better consistency.",
-                style: Default_Theme.secondoryTextStyle.merge(
-                    TextStyle(
-                        color: dialogScheme.onSurface.withValues(alpha: 0.55),
-                        fontSize: 12)),
+                style: Default_Theme.secondoryTextStyle.merge(TextStyle(
+                    color: dialogScheme.onSurface.withValues(alpha: 0.55),
+                    fontSize: 12)),
               ),
             ],
           ),
@@ -715,8 +712,8 @@ Future<void> _showResultDialog(
             onPressed: () => Navigator.of(ctx).pop(),
             child: Text(
               "OK",
-              style: Default_Theme.secondoryTextStyle.merge(const TextStyle(
-                  fontWeight: FontWeight.bold)),
+              style: Default_Theme.secondoryTextStyle
+                  .merge(const TextStyle(fontWeight: FontWeight.bold)),
             ),
           ),
         ],

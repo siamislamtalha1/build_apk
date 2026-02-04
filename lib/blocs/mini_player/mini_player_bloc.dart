@@ -104,7 +104,9 @@ class MiniPlayerBloc extends Bloc<MiniPlayerEvent, MiniPlayerState> {
           _idleDebounce?.cancel();
           try {
             add(MiniPlayerBufferingEvent(mediaItem2));
-          } catch (e) {}
+          } catch (e) {
+            log("Error buffering: $e", name: "MiniPlayerBloc");
+          }
           break;
         case ProcessingState.ready:
           _idleDebounce?.cancel();
@@ -114,13 +116,17 @@ class MiniPlayerBloc extends Bloc<MiniPlayerEvent, MiniPlayerState> {
             } else {
               add(MiniPlayerPausedEvent(mediaItem2));
             }
-          } catch (e) {}
+          } catch (e) {
+            log("Error playing/pausing: $e", name: "MiniPlayerBloc");
+          }
           break;
         case ProcessingState.completed:
           _idleDebounce?.cancel();
           try {
             add(MiniPlayerCompletedEvent(mediaItem2));
-          } catch (e) {}
+          } catch (e) {
+            log("Error completed: $e", name: "MiniPlayerBloc");
+          }
           break;
       }
     });

@@ -424,7 +424,8 @@ class _GradientProgressBarState extends State<GradientProgressBar>
 
     Widget progressBar = LayoutBuilder(
       builder: (context, constraints) {
-        return _buildProgressBar(constraints, defaultLabelStyle);
+        return _buildProgressBar(
+            constraints, defaultLabelStyle, scheme, isDark);
       },
     );
 
@@ -476,7 +477,8 @@ class _GradientProgressBarState extends State<GradientProgressBar>
     );
   }
 
-  Widget _buildProgressBar(BoxConstraints constraints, TextStyle labelStyle) {
+  Widget _buildProgressBar(BoxConstraints constraints, TextStyle labelStyle,
+      ColorScheme scheme, bool isDark) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onHorizontalDragStart: (details) =>
@@ -500,6 +502,8 @@ class _GradientProgressBarState extends State<GradientProgressBar>
         child: AnimatedBuilder(
           animation: _colorAnimation,
           builder: (context, child) {
+            final scheme = Theme.of(context).colorScheme;
+            final isDark = Theme.of(context).brightness == Brightness.dark;
             final currentGradient = _lerpColorList(
               widget.inactiveGradientColors,
               widget.activeGradientColors,
@@ -516,8 +520,8 @@ class _GradientProgressBarState extends State<GradientProgressBar>
               _colorAnimation.value,
             )!;
             final currentBufferedColor = Color.lerp(
-              scheme.onSurface.withOpacity(isDark ? 0.10 : 0.06),
-              currentColor.withOpacity(0.02),
+              scheme.onSurface.withValues(alpha: isDark ? 0.10 : 0.06),
+              currentColor.withValues(alpha: 0.02),
               0.08, // Mostly white with subtle color hint
             );
 
@@ -530,7 +534,7 @@ class _GradientProgressBarState extends State<GradientProgressBar>
                 thumbInnerColor: currentThumbColor,
                 thumbOuterColor: scheme.surface,
                 thumbShadowColor: (isDark ? Colors.black : scheme.shadow)
-                    .withOpacity(isDark ? 0.30 : 0.18),
+                    .withValues(alpha: isDark ? 0.30 : 0.18),
                 trackHeight: widget.trackHeight,
                 thumbRadius: widget.thumbRadius,
                 inactiveTrackColor:
@@ -647,7 +651,7 @@ class _GradientProgressBarPainter extends CustomPainter {
     // 4. Draw thumb glow when dragging (behind thumb)
     if (isDragging) {
       final glowPaint = Paint()
-        ..color = thumbInnerColor.withOpacity(0.15)
+        ..color = thumbInnerColor.withValues(alpha: 0.15)
         ..style = PaintingStyle.fill
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
       canvas.drawCircle(Offset(thumbX, centerY), thumbRadius * 2, glowPaint);

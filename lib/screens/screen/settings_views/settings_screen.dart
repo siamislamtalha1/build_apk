@@ -78,8 +78,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _buildSectionHeader(
                   context, AppLocalizations.of(context)!.advanced), // Localize
               ListTile(
-                leading: Icon(MingCute.settings_2_line,
-                    color: scheme.onSurface),
+                leading:
+                    Icon(MingCute.settings_2_line, color: scheme.onSurface),
                 title: Text(
                     AppLocalizations.of(context)!.advancedSettings, // Localize
                     style: Default_Theme.primaryTextStyle
@@ -89,8 +89,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onTap: () => context.push('/AdvancedSettings'),
               ),
               ListTile(
-                leading:
-                    Icon(MingCute.code_line, color: scheme.onSurface),
+                leading: Icon(MingCute.code_line, color: scheme.onSurface),
                 title: Text(
                     AppLocalizations.of(context)!.developerTools, // Localize
                     style: Default_Theme.primaryTextStyle
@@ -103,8 +102,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _buildSectionHeader(
                   context, AppLocalizations.of(context)!.about), // Localize
               ListTile(
-                leading: Icon(MingCute.information_line,
-                    color: scheme.onSurface),
+                leading:
+                    Icon(MingCute.information_line, color: scheme.onSurface),
                 title: Text('About',
                     style: Default_Theme.primaryTextStyle
                         .merge(TextStyle(color: scheme.onSurface))),
@@ -113,8 +112,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onTap: () => context.push('/About'),
               ),
               ListTile(
-                leading: Icon(MingCute.information_line,
-                    color: scheme.onSurface),
+                leading:
+                    Icon(MingCute.information_line, color: scheme.onSurface),
                 title: Text(AppLocalizations.of(context)!.version,
                     style: Default_Theme.primaryTextStyle
                         .merge(TextStyle(color: scheme.onSurface))), // Localize
@@ -152,12 +151,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
           style: Default_Theme.primaryTextStyle
               .merge(TextStyle(color: scheme.onSurface))),
       trailing: DropdownButton<String>(
-        value: state.locale ?? 'en',
+        value: state.locale,
         dropdownColor: scheme.surface,
         style: Default_Theme.primaryTextStyle
             .merge(TextStyle(color: scheme.onSurface)),
         underline: Container(),
-        icon: Icon(MingCute.down_line, color: scheme.onSurface.withValues(alpha: 0.6)),
+        icon: Icon(MingCute.down_line,
+            color: scheme.onSurface.withValues(alpha: 0.6)),
         items: const [
           DropdownMenuItem(value: 'en', child: Text('English')),
           DropdownMenuItem(value: 'es', child: Text('Aspaniol')),
@@ -209,7 +209,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         style: Default_Theme.primaryTextStyle
             .merge(TextStyle(color: scheme.onSurface)),
         underline: Container(),
-        icon: Icon(MingCute.down_line, color: scheme.onSurface.withValues(alpha: 0.6)),
+        icon: Icon(MingCute.down_line,
+            color: scheme.onSurface.withValues(alpha: 0.6)),
         items: [
           DropdownMenuItem(
             value: ThemeMode.dark,

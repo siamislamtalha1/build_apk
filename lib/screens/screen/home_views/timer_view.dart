@@ -203,6 +203,7 @@ class _TimerViewState extends State<TimerView> {
   }
 
   Widget timerInitial() {
+    final scheme = Theme.of(context).colorScheme;
     return Column(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -243,7 +244,8 @@ class _TimerViewState extends State<TimerView> {
                         // zeroPad: true,
                         decoration: BoxDecoration(
                           shape: BoxShape.rectangle,
-                          color: Default_Theme.primaryColor2.withValues(alpha: 0.07),
+                          color: Default_Theme.primaryColor2
+                              .withValues(alpha: 0.07),
                           borderRadius: BorderRadius.circular(16),
                           // border: Border.all(color: Default_Theme.primaryColor2),
                         ),
@@ -285,7 +287,8 @@ class _TimerViewState extends State<TimerView> {
                         // zeroPad: true,
                         decoration: BoxDecoration(
                           shape: BoxShape.rectangle,
-                          color: Default_Theme.primaryColor2.withValues(alpha: 0.07),
+                          color: Default_Theme.primaryColor2
+                              .withValues(alpha: 0.07),
                           borderRadius: BorderRadius.circular(16),
                           // border: Border.all(color: Default_Theme.primaryColor2),
                         ),
@@ -327,7 +330,8 @@ class _TimerViewState extends State<TimerView> {
                         // zeroPad: true,
                         decoration: BoxDecoration(
                           shape: BoxShape.rectangle,
-                          color: Default_Theme.primaryColor2.withValues(alpha: 0.07),
+                          color: Default_Theme.primaryColor2
+                              .withValues(alpha: 0.07),
                           borderRadius: BorderRadius.circular(16),
                           // border: Border.all(color: Default_Theme.primaryColor2),
                         ),
@@ -389,8 +393,7 @@ class _TimerViewState extends State<TimerView> {
         children: [
           Text(label,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                      color: Default_Theme.primaryColor2, fontSize: 25)
+              style: TextStyle(color: Default_Theme.primaryColor2, fontSize: 25)
                   .merge(Default_Theme.secondoryTextStyleMedium)),
           Container(
             width: 90,

@@ -34,8 +34,8 @@ class ProfileScreen extends StatelessWidget {
                 backgroundColor: Default_Theme.themeColor,
                 actions: [
                   IconButton(
-                    icon: Icon(MingCute.settings_3_line,
-                        color: scheme.onSurface),
+                    icon:
+                        Icon(MingCute.settings_3_line, color: scheme.onSurface),
                     onPressed: () => context.push('/Settings'),
                   ),
                 ],
@@ -171,6 +171,7 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildNotLoggedIn(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),

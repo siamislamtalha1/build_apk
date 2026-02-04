@@ -185,8 +185,8 @@ class _LibraryScreenViewState extends State<_LibraryScreenView> {
                               height: 16,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                color:
-                                    Default_Theme.accentColor1.withOpacity(0.6),
+                                color: Default_Theme.accentColor1
+                                    .withValues(alpha: 0.6),
                               ),
                             ),
                           ),
@@ -230,7 +230,7 @@ class _LibraryScreenViewState extends State<_LibraryScreenView> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Container(
         decoration: BoxDecoration(
-          color: Default_Theme.primaryColor1.withOpacity(0.08),
+          color: Default_Theme.primaryColor1.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(12),
         ),
         child: TextField(
@@ -248,13 +248,13 @@ class _LibraryScreenViewState extends State<_LibraryScreenView> {
             hintText: 'Search library...',
             hintStyle: Default_Theme.secondoryTextStyle.merge(
               TextStyle(
-                color: Default_Theme.primaryColor1.withOpacity(0.4),
+                color: Default_Theme.primaryColor1.withValues(alpha: 0.4),
                 fontSize: 15,
               ),
             ),
             prefixIcon: Icon(
               MingCute.search_line,
-              color: Default_Theme.primaryColor1.withOpacity(0.5),
+              color: Default_Theme.primaryColor1.withValues(alpha: 0.5),
               size: 20,
             ),
             suffixIcon: ValueListenableBuilder<String>(
@@ -268,7 +268,8 @@ class _LibraryScreenViewState extends State<_LibraryScreenView> {
                           key: const ValueKey('clear'),
                           icon: Icon(
                             MingCute.close_fill,
-                            color: Default_Theme.primaryColor1.withOpacity(0.5),
+                            color: Default_Theme.primaryColor1
+                                .withValues(alpha: 0.5),
                             size: 18,
                           ),
                           onPressed: () {

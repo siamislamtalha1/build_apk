@@ -140,9 +140,13 @@ class _YoutubePlaylistState extends State<YoutubePlaylist> {
                                               right: 10.0),
                                           child: IconButton(
                                             onPressed: () {
-                                              Share.share(
-                                                  "${widget.title} - ${widget.subtitle} \nhttps://youtube.com/playlist?list=${widget.id.replaceAll("youtube", "")}",
-                                                  subject: "Youtube Playlist");
+                                              SharePlus.instance.share(
+                                                ShareParams(
+                                                  text:
+                                                      "${widget.title} - ${widget.subtitle} \nhttps://youtube.com/playlist?list=${widget.id.replaceAll("youtube", "")}",
+                                                  subject: "Youtube Playlist",
+                                                ),
+                                              );
                                             },
                                             padding: const EdgeInsets.all(5),
                                             constraints: const BoxConstraints(),
@@ -240,15 +244,14 @@ class _YoutubePlaylistState extends State<YoutubePlaylist> {
                                                           maxLines: 2,
                                                           overflow: TextOverflow
                                                               .ellipsis,
-                                                          style:
-                                                              TextStyle(
+                                                          style: TextStyle(
                                                             fontSize: 20,
                                                             fontWeight:
                                                                 FontWeight.bold,
                                                             color: Default_Theme
                                                                 .primaryColor1,
                                                           ).merge(Default_Theme
-                                                                  .secondoryTextStyle),
+                                                              .secondoryTextStyle),
                                                         ),
                                                       ),
                                                       Text(
@@ -262,7 +265,8 @@ class _YoutubePlaylistState extends State<YoutubePlaylist> {
                                                               FontWeight.bold,
                                                           color: Default_Theme
                                                               .primaryColor2
-                                                              .withValues(alpha: 0.8),
+                                                              .withValues(
+                                                                  alpha: 0.8),
                                                         ).merge(Default_Theme
                                                             .secondoryTextStyle),
                                                       ),
@@ -277,7 +281,8 @@ class _YoutubePlaylistState extends State<YoutubePlaylist> {
                                                               FontWeight.bold,
                                                           color: Default_Theme
                                                               .primaryColor2
-                                                              .withValues(alpha: 0.8),
+                                                              .withValues(
+                                                                  alpha: 0.8),
                                                         ).merge(Default_Theme
                                                             .secondoryTextStyle),
                                                       ),
@@ -354,8 +359,7 @@ class _YoutubePlaylistState extends State<YoutubePlaylist> {
                                                                             5),
                                                                     constraints:
                                                                         const BoxConstraints(),
-                                                                    icon:
-                                                                        Icon(
+                                                                    icon: Icon(
                                                                       MingCute
                                                                           .shuffle_fill,
                                                                       color: Default_Theme
@@ -456,8 +460,7 @@ class _YoutubePlaylistState extends State<YoutubePlaylist> {
                                                                             2),
                                                                     constraints:
                                                                         const BoxConstraints(),
-                                                                    icon:
-                                                                        Icon(
+                                                                    icon: Icon(
                                                                       FontAwesome
                                                                           .square_plus,
                                                                       color: Default_Theme

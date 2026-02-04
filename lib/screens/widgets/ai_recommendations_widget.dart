@@ -184,7 +184,7 @@ class _AIRecommendationsWidgetState extends State<AIRecommendationsWidget> {
             const SizedBox(height: 8),
             // Song Title
             Text(
-              song.title ?? 'Unknown',
+              song.title,
               style: Default_Theme.primaryTextStyle.merge(
                 TextStyle(
                   fontSize: 14,
@@ -198,7 +198,7 @@ class _AIRecommendationsWidgetState extends State<AIRecommendationsWidget> {
             const SizedBox(height: 2),
             // Artist
             Text(
-              song.artist ?? 'Unknown Artist',
+              song.artist,
               style: Default_Theme.secondoryTextStyle.merge(
                 TextStyle(
                   fontSize: 12,
