@@ -230,14 +230,18 @@ class ChangelogScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final changelog = parseChangelog(changelogText);
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     // We need to possibly consult the installed package info when showOlderVersions is false.
     return Scaffold(
+      backgroundColor: scheme.surface,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white70),
+            icon: Icon(Icons.arrow_back_ios_new,
+                color: scheme.onSurfaceVariant),
             onPressed: () async {
               await Navigator.of(context).maybePop();
               Navigator.of(context).push(PageRouteBuilder(
@@ -351,12 +355,12 @@ class ChangelogScreen extends StatelessWidget {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ).createShader(bounds),
-                    child: const Text("What's new",
+                    child: Text("What's new",
                         style: TextStyle(
                             fontSize: 36,
                             fontWeight: FontWeight.bold,
                             fontFamily: 'Gilroy',
-                            color: Colors.white)),
+                            color: scheme.onSurface)),
                   ),
                 );
               }
@@ -446,6 +450,8 @@ class _VersionCardState extends State<VersionCard> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final bool isUnreleased =
         widget.version.versionNumber.toLowerCase() == 'unreleased';
     // Determine installed/current vs latest stable vs update, and ensure only one badge is visible.
@@ -473,8 +479,10 @@ class _VersionCardState extends State<VersionCard> {
     final bool showCurrentBadge =
         installedNorm != null && installedNorm == thisNorm && !showLatestBadge;
 
-    const normalColor = Color(0xFF1C1C1E);
-    const highlightedColor = Color(0xFF2C2C2E);
+    final normalColor = isDark ? const Color(0xFF1C1C1E) : scheme.surface;
+    final highlightedColor =
+        isDark ? const Color(0xFF2C2C2E) : scheme.surfaceContainerHighest;
+    final borderColor = scheme.outlineVariant;
 
     // Keep the existing 'LATEST' styling but only render when showLatestBadge is true
     final Widget latestMarker = showLatestBadge
@@ -488,9 +496,9 @@ class _VersionCardState extends State<VersionCard> {
                 end: Alignment.bottomRight,
               ),
             ),
-            child: const Text("LATEST",
+            child: Text("LATEST",
                 style: TextStyle(
-                    color: Colors.white,
+                    color: scheme.onPrimary,
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Gilroy',
@@ -515,10 +523,10 @@ class _VersionCardState extends State<VersionCard> {
                 letterSpacing: 0.3)));
 
     final currentBadge = showCurrentBadge
-        ? badge('CURRENT', Colors.blueAccent.shade700, Colors.white)
+        ? badge('CURRENT', Colors.blueAccent.shade700, scheme.onPrimary)
         : const SizedBox.shrink();
     final updateBadge = showUpdateBadge
-        ? badge('UPDATE', Colors.deepOrangeAccent.shade200, Colors.white)
+        ? badge('UPDATE', Colors.deepOrangeAccent.shade200, scheme.onPrimary)
         : const SizedBox.shrink();
 
     return Container(
@@ -526,7 +534,7 @@ class _VersionCardState extends State<VersionCard> {
       decoration: BoxDecoration(
         color: _isExpanded ? highlightedColor : normalColor,
         borderRadius: BorderRadius.circular(16.0),
-        border: Border.all(color: Colors.grey[850]!),
+        border: Border.all(color: borderColor),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16.0),
@@ -537,9 +545,10 @@ class _VersionCardState extends State<VersionCard> {
           backgroundColor: normalColor,
           shape: const Border(),
           collapsedShape: const Border(),
-          iconColor:
-              isUnreleased ? Colors.amberAccent : Colors.purpleAccent.shade100,
-          collapsedIconColor: Colors.white70,
+          iconColor: isUnreleased
+              ? Colors.amberAccent
+              : (isDark ? Colors.purpleAccent.shade100 : scheme.primary),
+          collapsedIconColor: scheme.onSurfaceVariant,
           title: Row(
             children: [
               Expanded(
@@ -555,15 +564,15 @@ class _VersionCardState extends State<VersionCard> {
                           fontWeight: FontWeight.bold,
                           fontFamily: 'Gilroy',
                           color:
-                              isUnreleased ? Colors.amberAccent : Colors.white),
+                              isUnreleased ? Colors.amberAccent : scheme.onSurface),
                     ),
                     if (widget.version.releaseDate != null)
                       Padding(
                         padding: const EdgeInsets.only(top: 2.0),
                         child: Text(
                           _formatDate(widget.version.releaseDate!),
-                          style: const TextStyle(
-                              color: Colors.white70,
+                          style: TextStyle(
+                              color: scheme.onSurfaceVariant,
                               fontSize: 13,
                               fontFamily: 'Gilroy'),
                         ),
@@ -645,7 +654,8 @@ class ChangeItemWidget extends StatelessWidget {
       {Key? key, required this.item, required this.color, this.level = 0})
       : super(key: key);
 
-  List<InlineSpan> _buildStyledText(String text) {
+  List<InlineSpan> _buildStyledText(
+      String text, ColorScheme scheme, bool isDark) {
     final List<InlineSpan> spans = [];
     final RegExp pattern = RegExp(r'(\*\*.*?\*\*|`.*?`)');
 
@@ -656,10 +666,10 @@ class ChangeItemWidget extends StatelessWidget {
         if (matchText.startsWith('**')) {
           spans.add(TextSpan(
               text: matchText.replaceAll('**', ''),
-              style: const TextStyle(
+              style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontFamily: 'Gilroy',
-                  color: Colors.white)));
+                  color: scheme.onSurface)));
         } else if (matchText.startsWith('`')) {
           spans.add(WidgetSpan(
               alignment: PlaceholderAlignment.middle,
@@ -667,11 +677,13 @@ class ChangeItemWidget extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 6.0, vertical: 2.0),
                   decoration: BoxDecoration(
-                      color: Colors.grey.shade800,
+                      color: isDark
+                          ? Colors.grey.shade800
+                          : scheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(5.0)),
                   child: Text(matchText.replaceAll('`', ''),
-                      style: const TextStyle(
-                          color: Colors.white,
+                      style: TextStyle(
+                          color: scheme.onSurface,
                           fontFamily: 'monospace',
                           fontSize: 13)))));
         }
@@ -682,7 +694,7 @@ class ChangeItemWidget extends StatelessWidget {
             text: nonMatch,
             style: TextStyle(
                 fontFamily: 'Gilroy',
-                color: Colors.white.withValues(alpha: 0.85))));
+                color: scheme.onSurface.withValues(alpha: 0.85))));
         return '';
       },
     );
@@ -691,6 +703,8 @@ class ChangeItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -711,7 +725,7 @@ class ChangeItemWidget extends StatelessWidget {
                     style: DefaultTextStyle.of(context)
                         .style
                         .copyWith(height: 1.5, fontFamily: 'Gilroy'),
-                    children: _buildStyledText(item.text),
+                    children: _buildStyledText(item.text, scheme, isDark),
                   ),
                 ),
               ),

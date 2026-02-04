@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:Bloomee/blocs/player_overlay/player_overlay_cubit.dart';
 import 'package:Bloomee/model/songModel.dart';
 import 'package:Bloomee/screens/screen/home_views/timer_view.dart';
@@ -5,6 +7,7 @@ import 'package:Bloomee/screens/widgets/gradient_progress_bar.dart';
 import 'package:Bloomee/screens/widgets/more_bottom_sheet.dart';
 import 'package:Bloomee/screens/widgets/up_next_panel.dart';
 import 'package:Bloomee/screens/widgets/volume_slider.dart';
+import 'package:Bloomee/screens/widgets/audio_visualizer.dart';
 import 'package:Bloomee/services/bloomeePlayer.dart';
 import 'package:Bloomee/services/db/bloomee_db_service.dart';
 import 'package:Bloomee/utils/imgurl_formator.dart';
@@ -66,16 +69,17 @@ class _AudioPlayerViewState extends State<AudioPlayerView>
   Widget build(BuildContext context) {
     final bloomeePlayerCubit = context.read<BloomeePlayerCubit>();
     final musicPlayer = bloomeePlayerCubit.bloomeePlayer;
+    final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 12, 4, 9),
+      backgroundColor: scheme.surface,
       resizeToAvoidBottomInset: false,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        foregroundColor: Default_Theme.primaryColor1,
+        foregroundColor: scheme.onSurface,
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 32),
@@ -92,7 +96,7 @@ class _AudioPlayerViewState extends State<AudioPlayerView>
               onPressed: () =>
                   showMoreBottomSheet(context, musicPlayer.currentMedia),
               icon: Icon(MingCute.more_2_fill,
-                  size: 25, color: Default_Theme.primaryColor1))
+                  size: 25, color: scheme.onSurface))
         ],
         title: Column(
           children: [
@@ -100,7 +104,7 @@ class _AudioPlayerViewState extends State<AudioPlayerView>
               'Enjoying From',
               textAlign: TextAlign.center,
               style: TextStyle(
-                      color: Default_Theme.primaryColor1,
+                      color: scheme.onSurface,
                       fontSize: 12,
                       fontWeight: FontWeight.bold)
                   .merge(Default_Theme.secondoryTextStyle),
@@ -112,7 +116,7 @@ class _AudioPlayerViewState extends State<AudioPlayerView>
                     snapshot.data ?? "Unknown",
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Default_Theme.primaryColor2,
+                      color: scheme.onSurfaceVariant,
                       fontSize: 12,
                     ).merge(Default_Theme.secondoryTextStyle),
                   );
@@ -287,10 +291,24 @@ class CoverImageVolSlider extends StatelessWidget {
                   constraints: BoxConstraints(
                       maxWidth: constraints.maxWidth * 0.98,
                       maxHeight: constraints.maxHeight * 0.98),
-                  child: LoadImageCached(
-                      imageUrl: formatImgURL(artUri, ImageQuality.high),
-                      fallbackUrl: formatImgURL(artUri, ImageQuality.medium),
-                      fit: BoxFit.fitWidth),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      LoadImageCached(
+                          imageUrl: formatImgURL(artUri, ImageQuality.high),
+                          fallbackUrl: formatImgURL(artUri, ImageQuality.medium),
+                          fit: BoxFit.fitWidth),
+                      const Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Padding(
+                          padding: EdgeInsets.only(left: 12, right: 12, bottom: 12),
+                          child: IgnorePointer(
+                            child: AudioVisualizer(height: 70),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 );
               });
             }),
@@ -333,6 +351,7 @@ class _SongInfoRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bloomeePlayerCubit = context.read<BloomeePlayerCubit>();
+    final scheme = Theme.of(context).colorScheme;
     return Row(
       children: [
         Expanded(
@@ -357,7 +376,7 @@ class _SongInfoRow extends StatelessWidget {
                                 fontFamily: "NotoSans",
                                 fontWeight: FontWeight.w700,
                                 overflow: TextOverflow.ellipsis,
-                                color: Default_Theme.primaryColor1)),
+                                color: scheme.onSurface)),
                       ),
                     ),
                     SingleChildScrollView(
@@ -370,8 +389,7 @@ class _SongInfoRow extends StatelessWidget {
                             fontFamily: "NotoSans",
                             fontWeight: FontWeight.w500,
                             overflow: TextOverflow.ellipsis,
-                            color: Default_Theme.primaryColor1
-                                .withValues(alpha: 0.7))),
+                            color: scheme.onSurface.withValues(alpha: 0.7))),
                       ),
                     )
                   ],
@@ -392,6 +410,7 @@ class _DownloadButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bloomeePlayerCubit = context.read<BloomeePlayerCubit>();
+    final scheme = Theme.of(context).colorScheme;
     return Tooltip(
       message: "Available Offline",
       child: StreamBuilder<MediaItem?>(
@@ -410,7 +429,7 @@ class _DownloadButton extends StatelessWidget {
                     iconSize: 25,
                     icon: Icon(
                       Icons.offline_pin_rounded,
-                      color: Default_Theme.primaryColor1.withValues(alpha: 0.5),
+                      color: scheme.onSurface.withValues(alpha: 0.5),
                     ),
                     onPressed: () {
                       // bloomeePlayerCubit.bloomeePlayer.toggleDownload();
@@ -471,6 +490,7 @@ class _PlayerProgressBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bloomeePlayerCubit = context.read<BloomeePlayerCubit>();
+    final scheme = Theme.of(context).colorScheme;
     return RepaintBoundary(
       child: StreamBuilder<ProgressBarStreams>(
           stream: bloomeePlayerCubit.progressStreams,
@@ -498,7 +518,7 @@ class _PlayerProgressBar extends StatelessWidget {
               timeLabelPadding: 5,
               timeLabelStyle: Default_Theme.secondoryTextStyle.merge(TextStyle(
                   fontSize: 15,
-                  color: Default_Theme.primaryColor1.withValues(alpha: 0.7))),
+                  color: scheme.onSurface.withValues(alpha: 0.7))),
               timeLabelLocation: TimeLabelLocation.above,
               inactiveTrackColor:
                   Default_Theme.primaryColor2.withValues(alpha: 0.1),
@@ -536,6 +556,7 @@ class _PlayerControlsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -553,7 +574,7 @@ class _PlayerControlsRow extends StatelessWidget {
                     MaterialPageRoute(builder: (_) => const TimerView()));
               },
               icon: Icon(MingCute.alarm_1_line,
-                  color: Default_Theme.primaryColor1, size: 30),
+                  color: scheme.onSurface, size: 30),
             ),
           ),
           bottomWidget: const _LoopControl(),
@@ -566,7 +587,7 @@ class _PlayerControlsRow extends StatelessWidget {
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap),
             onPressed: () => musicPlayer.skipToPrevious(),
             icon: Icon(MingCute.skip_previous_fill,
-                color: Default_Theme.primaryColor1, size: 30),
+                color: scheme.onSurface, size: 30),
           ),
           bottomWidget: Tooltip(
             message: "Lyrics",
@@ -576,7 +597,7 @@ class _PlayerControlsRow extends StatelessWidget {
               style: const ButtonStyle(
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap),
               icon: Icon(MingCute.music_2_line,
-                  color: Default_Theme.primaryColor1, size: 24),
+                  color: scheme.onSurface, size: 24),
               onPressed: () {
                 Navigator.of(context).push(
                   PageRouteBuilder(
@@ -600,7 +621,7 @@ class _PlayerControlsRow extends StatelessWidget {
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap),
             onPressed: () => musicPlayer.skipToNext(),
             icon: Icon(MingCute.skip_forward_fill,
-                color: Default_Theme.primaryColor1, size: 30),
+                color: scheme.onSurface, size: 30),
           ),
           bottomWidget: const _AudioSettingsControl(),
         ),
@@ -618,6 +639,7 @@ class _LoopControl extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Tooltip(
       message: "Loop",
       child: StreamBuilder<LoopMode>(
@@ -639,7 +661,7 @@ class _LoopControl extends StatelessWidget {
                         ? MingCute.repeat_one_line
                         : MingCute.repeat_fill,
                 color: loopMode == LoopMode.off
-                    ? Default_Theme.primaryColor1
+                    ? scheme.onSurface
                     : Default_Theme.accentColor1,
                 size: 24,
               ),
@@ -671,6 +693,7 @@ class _ShuffleControl extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bloomeePlayerCubit = context.read<BloomeePlayerCubit>();
+    final scheme = Theme.of(context).colorScheme;
     return StreamBuilder<bool>(
         stream: bloomeePlayerCubit.bloomeePlayer.shuffleMode,
         builder: (context, snapshot) {
@@ -686,7 +709,7 @@ class _ShuffleControl extends StatelessWidget {
                 MingCute.shuffle_2_fill,
                 color: isShuffle
                     ? Default_Theme.accentColor1
-                    : Default_Theme.primaryColor1,
+                    : scheme.onSurface,
                 size: 30,
               ),
               onPressed: () {
@@ -704,6 +727,7 @@ class _ExternalLinkControl extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bloomeePlayerCubit = context.read<BloomeePlayerCubit>();
+    final scheme = Theme.of(context).colorScheme;
     return Tooltip(
       message: "Open Original Link",
       child: IconButton(
@@ -718,16 +742,16 @@ class _ExternalLinkControl extends StatelessWidget {
                   snapshot.data?.extras?['perma_url'] != null) {
                 return snapshot.data?.extras?['source'] == 'youtube'
                     ? Icon(MingCute.youtube_fill,
-                        color: Default_Theme.primaryColor1, size: 24)
+                        color: scheme.onSurface, size: 24)
                     : Text("JS",
                         style: TextStyle(
-                                color: Default_Theme.primaryColor1,
+                                color: scheme.onSurface,
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold)
                             .merge(Default_Theme.secondoryTextStyle));
               }
               return Icon(MingCute.external_link_line,
-                  color: Default_Theme.primaryColor1, size: 24);
+                  color: scheme.onSurface, size: 24);
             }),
         onPressed: () async {
           final url = bloomeePlayerCubit
@@ -751,6 +775,7 @@ class _PlayPauseButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final musicPlayer = context.read<BloomeePlayerCubit>().bloomeePlayer;
+    final scheme = Theme.of(context).colorScheme;
     return BlocBuilder<MiniPlayerBloc, MiniPlayerState>(
       builder: (context, state) {
         Widget child;
@@ -762,21 +787,21 @@ class _PlayPauseButton extends StatelessWidget {
 
         if (state is MiniPlayerInitial || state is MiniPlayerProcessing) {
           child = CircularProgressIndicator(
-              color: Default_Theme.primaryColor1);
+              color: scheme.onSurface);
           buttonColor = Default_Theme.accentColor2;
         } else if (state is MiniPlayerCompleted) {
           child = Icon(FontAwesome.rotate_right_solid,
-              color: Default_Theme.primaryColor1, size: 35);
+              color: scheme.onSurface, size: 35);
           buttonColor =
               Default_Theme.accentColor1; // Sky blue for completed/repeat
         } else if (state is MiniPlayerError) {
           child = Icon(MingCute.warning_line,
-              color: Default_Theme.primaryColor1);
+              color: scheme.onSurface);
           buttonColor = Default_Theme.accentColor2;
         } else if (state is MiniPlayerWorking) {
           if (state.isBuffering) {
             child = CircularProgressIndicator(
-                color: Default_Theme.primaryColor1);
+                color: scheme.onSurface);
             buttonColor = state.isPlaying
                 ? Default_Theme.accentColor1
                 : Default_Theme.accentColor2;
@@ -811,6 +836,7 @@ class _AudioSettingsControl extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Tooltip(
       message: "Audio Settings",
       child: IconButton(
@@ -819,7 +845,7 @@ class _AudioSettingsControl extends StatelessWidget {
         style:
             const ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
         icon: Icon(MingCute.settings_3_line,
-            color: Default_Theme.primaryColor1, size: 24),
+            color: scheme.onSurface, size: 24),
         onPressed: () {
           showModalBottomSheet(
             context: context,
@@ -843,9 +869,19 @@ class _AmbientImgShadowWidgetState extends State<AmbientImgShadowWidget> {
   Color? cachedColor;
   String? lastArtUri;
 
+  Color _soften(Color input, bool isDark) {
+    final hsl = HSLColor.fromColor(input);
+    final sat = (hsl.saturation * 0.35).clamp(0.0, 1.0);
+    final light = isDark
+        ? hsl.lightness.clamp(0.35, 0.75)
+        : hsl.lightness.clamp(0.55, 0.90);
+    return hsl.withSaturation(sat).withLightness(light).toColor();
+  }
+
   @override
   Widget build(BuildContext context) {
     final bloomeePlayerCubit = context.read<BloomeePlayerCubit>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return StreamBuilder<MediaItem?>(
         stream: bloomeePlayerCubit.bloomeePlayer.mediaItem,
         builder: (context, snapshot) {
@@ -855,21 +891,30 @@ class _AmbientImgShadowWidgetState extends State<AmbientImgShadowWidget> {
             _fetchPalette(artUri);
           }
 
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 100.0),
+          final base = cachedColor ?? const Color.fromARGB(255, 163, 44, 115);
+          final glow = _soften(base, isDark)
+              .withValues(alpha: isDark ? 0.22 : 0.10);
+
+          return ClipRect(
             child: RepaintBoundary(
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 500),
-                decoration: BoxDecoration(
-                  gradient: RadialGradient(
-                    colors: [
-                      (cachedColor ?? const Color.fromARGB(255, 163, 44, 115))
-                          .withValues(alpha: 0.30),
-                      Colors.transparent,
-                    ],
-                    center: Alignment.center,
-                    radius: 0.65,
+              child: ImageFiltered(
+                imageFilter: ui.ImageFilter.blur(
+                  sigmaX: isDark ? 90 : 70,
+                  sigmaY: isDark ? 90 : 70,
+                ),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 650),
+                  decoration: BoxDecoration(
+                    gradient: RadialGradient(
+                      colors: [
+                        glow,
+                        Colors.transparent,
+                      ],
+                      center: Alignment.center,
+                      radius: 0.95,
+                    ),
                   ),
+                  child: const SizedBox.expand(),
                 ),
               ),
             ),

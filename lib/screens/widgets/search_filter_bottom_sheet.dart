@@ -30,6 +30,8 @@ class _SearchFilterBottomSheetState extends State<SearchFilterBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
       child: BackdropFilter(
@@ -39,7 +41,7 @@ class _SearchFilterBottomSheetState extends State<SearchFilterBottomSheet> {
             color: Default_Theme.themeColor.withValues(alpha: 0.95),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
             border: Border.all(
-              color: Colors.white.withValues(alpha: 0.1),
+              color: scheme.onSurface.withValues(alpha: isDark ? 0.10 : 0.08),
               width: 1.5,
             ),
           ),
@@ -162,7 +164,7 @@ class _SearchFilterBottomSheetState extends State<SearchFilterBottomSheet> {
                     side: BorderSide(
                       color: isSelected
                           ? Default_Theme.accentColor2
-                          : Colors.white.withValues(alpha: 0.1),
+                          : scheme.onSurface.withValues(alpha: isDark ? 0.10 : 0.08),
                     ),
                   );
                 }).toList(),

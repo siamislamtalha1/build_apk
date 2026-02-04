@@ -588,6 +588,8 @@ class PlaylistView extends StatelessWidget {
   }
 
   List<Color> getFBColor(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     // get foreground and background color from current playlist pallete
     Color? color = context
         .read<CurrentPlaylistCubit>()
@@ -609,7 +611,7 @@ class PlaylistView extends StatelessWidget {
       }
       return [color, bgColor];
     }
-    return [Colors.white, Colors.black];
+    return [scheme.onSurface, scheme.surface];
   }
 
   @override
@@ -747,9 +749,8 @@ class PlaylistView extends StatelessWidget {
                                         filter: ImageFilter.blur(
                                             sigmaX: 30, sigmaY: 30),
                                         child: Container(
-                                          color: Colors.black.withValues(
-                                              alpha:
-                                                  0), // Keep the container color transparent
+                                          color: Colors
+                                              .transparent, // Keep the container color transparent
                                         ),
                                       ),
                                     ),

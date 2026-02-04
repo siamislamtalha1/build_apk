@@ -81,6 +81,10 @@ class _ChartWidgetState extends State<ChartWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final textColor = ThemeData.estimateBrightnessForColor(_color.color1) ==
+            Brightness.dark
+        ? Colors.white
+        : Colors.black;
     return ClipRRect(
       borderRadius: BorderRadius.circular(25),
       child: SizedBox(
@@ -134,9 +138,8 @@ class _ChartWidgetState extends State<ChartWidget> {
                       textAlign: TextAlign.right,
                       overflow: TextOverflow.ellipsis,
                       textWidthBasis: TextWidthBasis.parent,
-                      style: const TextStyle(
-                        // color: _color.textColor.withValues(alpha: 0.95),
-                        color: Color.fromARGB(255, 255, 255, 255),
+                      style: TextStyle(
+                        color: textColor,
                         fontSize: 28,
                         fontFamily: "Unageo",
                         fontWeight: FontWeight.w700,
@@ -160,12 +163,16 @@ class PlaceholderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const bg = Color.fromARGB(255, 52, 0, 147);
+    final iconColor = ThemeData.estimateBrightnessForColor(bg) == Brightness.dark
+        ? Colors.white
+        : Colors.black;
     return Stack(children: [
       Container(
-        color: const Color.fromARGB(255, 52, 0, 147).withValues(alpha: 0.5),
+        color: bg.withValues(alpha: 0.5),
       ),
-      const Center(
-        child: Icon(MingCute.music_2_fill, size: 80, color: Colors.white),
+      Center(
+        child: Icon(MingCute.music_2_fill, size: 80, color: iconColor),
       ),
     ]);
   }

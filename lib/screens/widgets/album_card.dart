@@ -21,6 +21,8 @@ class AlbumCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
         padding: const EdgeInsets.only(
           top: 10,
@@ -69,16 +71,20 @@ class AlbumCard extends StatelessWidget {
                                       duration:
                                           const Duration(milliseconds: 300),
                                       color: hovering.value
-                                          ? Colors.black.withValues(alpha: 0.5)
+                                          ? (isDark
+                                                  ? scheme.scrim
+                                                  : scheme.surface)
+                                              .withValues(
+                                                  alpha: isDark ? 0.5 : 0.75)
                                           : Colors.transparent,
                                       child: Center(
                                         child: AnimatedOpacity(
                                           duration:
                                               const Duration(milliseconds: 200),
                                           opacity: hovering.value ? 1 : 0,
-                                          child: const Icon(
+                                          child: Icon(
                                             MingCute.play_circle_line,
-                                            color: Colors.white,
+                                            color: scheme.onSurface,
                                             size: 50,
                                           ),
                                         ),

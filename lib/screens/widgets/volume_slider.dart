@@ -87,6 +87,8 @@ class _VolumeDragControllerState extends State<VolumeDragController> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Listener(
       onPointerSignal: (event) {
         if (event is PointerScrollEvent) {
@@ -120,7 +122,8 @@ class _VolumeDragControllerState extends State<VolumeDragController> {
                       child: Container(
                         padding: const EdgeInsets.all(10.0),
                         decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.5),
+                          color: (isDark ? Colors.black : scheme.surface)
+                              .withValues(alpha: isDark ? 0.5 : 0.75),
                           borderRadius: BorderRadius.circular(20.0),
                         ),
                         child: Column(
@@ -130,7 +133,7 @@ class _VolumeDragControllerState extends State<VolumeDragController> {
                               (_volume == 0)
                                   ? MingCute.volume_off_fill
                                   : MingCute.volume_fill,
-                              color: Default_Theme.primaryColor2,
+                              color: scheme.onSurface,
                             ),
                             RotatedBox(
                               quarterTurns: -1,

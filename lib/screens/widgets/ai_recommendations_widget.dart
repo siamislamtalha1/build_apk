@@ -271,6 +271,7 @@ class _DailyMixWidgetState extends State<DailyMixWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     if (_isLoading) {
       return const SizedBox.shrink();
     }
@@ -303,9 +304,9 @@ class _DailyMixWidgetState extends State<DailyMixWidget> {
                   color: Default_Theme.accentColor2,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(
+                child: Icon(
                   MingCute.sparkles_fill,
-                  color: Colors.white,
+                  color: scheme.onPrimary,
                   size: 32,
                 ),
               ),

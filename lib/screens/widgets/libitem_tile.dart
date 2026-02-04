@@ -35,11 +35,13 @@ class LibItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.only(left: 8, right: 8),
       child: InkWell(
         splashColor: Default_Theme.primaryColor2.withValues(alpha: 0.1),
-        hoverColor: Colors.white.withValues(alpha: 0.05),
+        hoverColor: scheme.onSurface.withValues(alpha: isDark ? 0.05 : 0.04),
         highlightColor: Default_Theme.primaryColor2.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(10),
         onTap: onTap ?? () {},

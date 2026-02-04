@@ -48,6 +48,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       backgroundColor: Default_Theme.themeColor,
       appBar: AppBar(
@@ -282,17 +283,17 @@ class _SignupScreenState extends State<SignupScreen> {
                               onPressed: isLoading ? null : _signUp,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Default_Theme.accentColor2,
-                                foregroundColor: Colors.white,
+                                foregroundColor: scheme.onPrimary,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
                               child: isLoading
-                                  ? const SizedBox(
+                                  ? SizedBox(
                                       width: 24,
                                       height: 24,
                                       child: CircularProgressIndicator(
-                                        color: Colors.white,
+                                        color: scheme.onPrimary,
                                         strokeWidth: 2,
                                       ),
                                     )

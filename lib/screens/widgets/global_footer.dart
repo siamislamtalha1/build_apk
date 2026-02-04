@@ -18,7 +18,8 @@ class GlobalFooter extends StatelessWidget {
     return PlayerOverlayWrapper(
       child: Stack(
         children: [
-          const RepaintBoundary(child: GlobalBackdrop()),
+          Positioned.fill(
+              child: const RepaintBoundary(child: GlobalBackdrop())),
           PopScope(
             canPop: !context.watch<PlayerOverlayCubit>().state &&
                 navigationShell.currentIndex == 0,
@@ -98,7 +99,7 @@ class GlobalBackdropWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        const RepaintBoundary(child: GlobalBackdrop()),
+        Positioned.fill(child: const RepaintBoundary(child: GlobalBackdrop())),
         child,
       ],
     );
@@ -118,88 +119,86 @@ class GlobalBackdrop extends StatelessWidget {
     final c2 = scheme.secondary.withValues(alpha: isDark ? 0.04 : 0.02);
     final c3 = scheme.primary.withValues(alpha: isDark ? 0.03 : 0.02);
 
-    return Positioned.fill(
-      child: IgnorePointer(
-        child: Stack(
-          children: [
-            DecoratedBox(
+    return IgnorePointer(
+      child: Stack(
+        children: [
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  base,
+                  Color.lerp(base, c1, 0.05) ?? base,
+                  Color.lerp(base, c2, 0.04) ?? base,
+                  Color.lerp(base, c3, 0.03) ?? base,
+                ],
+                stops: const [0.0, 0.35, 0.7, 1.0],
+              ),
+            ),
+            child: const SizedBox.expand(),
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Container(
+              height: 280,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                   colors: [
-                    base,
-                    Color.lerp(base, c1, 0.05) ?? base,
-                    Color.lerp(base, c2, 0.04) ?? base,
-                    Color.lerp(base, c3, 0.03) ?? base,
+                    Colors.transparent,
+                    c2,
                   ],
-                  stops: const [0.0, 0.35, 0.7, 1.0],
-                ),
-              ),
-              child: const SizedBox.expand(),
-            ),
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: Container(
-                height: 280,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                      c2,
-                    ],
-                  ),
                 ),
               ),
             ),
-            Positioned(
-              top: -180,
-              left: -160,
-              child: Container(
-                width: 420,
-                height: 420,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [c1, Colors.transparent],
-                  ),
+          ),
+          Positioned(
+            top: -180,
+            left: -160,
+            child: Container(
+              width: 420,
+              height: 420,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [c1, Colors.transparent],
                 ),
               ),
             ),
-            Positioned(
-              bottom: -240,
-              left: -200,
-              child: Container(
-                width: 520,
-                height: 520,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [c3, Colors.transparent],
-                  ),
+          ),
+          Positioned(
+            bottom: -240,
+            left: -200,
+            child: Container(
+              width: 520,
+              height: 520,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [c3, Colors.transparent],
                 ),
               ),
             ),
-            Positioned(
-              bottom: -120,
-              right: -140,
-              child: Container(
-                width: 560,
-                height: 560,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [c2, Colors.transparent],
-                  ),
+          ),
+          Positioned(
+            bottom: -120,
+            right: -140,
+            child: Container(
+              width: 560,
+              height: 560,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [c2, Colors.transparent],
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

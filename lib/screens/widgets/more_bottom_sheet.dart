@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:numberpicker/numberpicker.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -38,18 +39,31 @@ void showMoreBottomSheet(
       context: context,
       isScrollControlled: true,
       enableDrag: true,
-      builder: (context) {
+      builder: (sheetContext) {
+        final scheme = Theme.of(sheetContext).colorScheme;
+        final isDark = Theme.of(sheetContext).brightness == Brightness.dark;
         return Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-                colors: [
-                  Color.fromARGB(255, 7, 17, 50),
-                  Color.fromARGB(255, 5, 0, 24),
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                stops: [0.0, 0.5]),
-            borderRadius: BorderRadius.only(
+          decoration: BoxDecoration(
+            gradient: isDark
+                ? const LinearGradient(
+                    colors: [
+                      Color.fromARGB(255, 7, 17, 50),
+                      Color.fromARGB(255, 5, 0, 24),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    stops: [0.0, 0.5],
+                  )
+                : LinearGradient(
+                    colors: [
+                      scheme.surfaceContainerHighest,
+                      scheme.surface,
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    stops: const [0.0, 0.7],
+                  ),
+            borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(20), topRight: Radius.circular(20)),
           ),
           child: Column(
@@ -91,7 +105,7 @@ void showMoreBottomSheet(
                             fontWeight: FontWeight.w400),
                       ),
                       onTap: () {
-                        Navigator.pop(context);
+                        Navigator.pop(sheetContext);
                         context
                             .read<BloomeePlayerCubit>()
                             .bloomeePlayer
@@ -117,7 +131,7 @@ void showMoreBottomSheet(
                             fontWeight: FontWeight.w400),
                       ),
                       onTap: () {
-                        Navigator.pop(context);
+                        Navigator.pop(sheetContext);
                         context
                             .read<BloomeePlayerCubit>()
                             .bloomeePlayer
@@ -143,13 +157,108 @@ void showMoreBottomSheet(
                             fontWeight: FontWeight.w400),
                       ),
                       onTap: () {
-                        Navigator.pop(context);
+                        Navigator.pop(sheetContext);
                         context
                             .read<BloomeePlayerCubit>()
                             .bloomeePlayer
                             .addQueueItem(song);
                         SnackbarService.showMessage("Added to Queue",
                             duration: const Duration(seconds: 2));
+                      },
+                    )
+                  : const SizedBox.shrink(),
+              (showAddToQueue)
+                  ? ListTile(
+                      leading: Icon(
+                        Icons.format_list_numbered_rounded,
+                        color: Default_Theme.primaryColor1,
+                        size: 28,
+                      ),
+                      title: Text(
+                        'Insert into Queue',
+                        style: TextStyle(
+                            color: Default_Theme.primaryColor1,
+                            fontFamily: "Unageo",
+                            fontSize: 17,
+                            fontWeight: FontWeight.w400),
+                      ),
+                      onTap: () async {
+                        final player =
+                            context.read<BloomeePlayerCubit>().bloomeePlayer;
+                        final queueLength = player.queue.value.length;
+                        final currentIdx = player.audioPlayer.currentIndex ?? 0;
+                        int selectedPos =
+                            (currentIdx + 2).clamp(1, queueLength + 1);
+
+                        Navigator.pop(sheetContext);
+
+                        final int? chosen = await showDialog<int>(
+                          context: context,
+                          builder: (dialogContext) {
+                            return AlertDialog(
+                              backgroundColor: Default_Theme.themeColor,
+                              title: const Text(
+                                'Insert into Queue',
+                                style: Default_Theme.secondoryTextStyleMedium,
+                              ),
+                              content: StatefulBuilder(
+                                builder: (context, setState) {
+                                  return Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      NumberPicker(
+                                        minValue: 1,
+                                        maxValue: queueLength + 1,
+                                        value: selectedPos,
+                                        axis: Axis.horizontal,
+                                        onChanged: (val) =>
+                                            setState(() => selectedPos = val),
+                                        textStyle: TextStyle(
+                                            color: Default_Theme.primaryColor1
+                                                .withValues(alpha: 0.6)),
+                                        selectedTextStyle: TextStyle(
+                                            color: Default_Theme.primaryColor1,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Position $selectedPos of ${queueLength + 1}',
+                                        style: TextStyle(
+                                            color: Default_Theme.primaryColor1
+                                                .withValues(alpha: 0.8)),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(dialogContext),
+                                  child: const Text('Cancel'),
+                                ),
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        Default_Theme.accentColor1,
+                                    foregroundColor:
+                                        Default_Theme.primaryColor2,
+                                  ),
+                                  onPressed: () =>
+                                      Navigator.pop(dialogContext, selectedPos),
+                                  child: const Text('Insert'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+
+                        if (chosen == null) return;
+                        await player.insertQueueItem(chosen - 1, song);
+                        SnackbarService.showMessage(
+                          'Inserted into queue at position $chosen',
+                          duration: const Duration(seconds: 2),
+                        );
                       },
                     )
                   : const SizedBox.shrink(),
@@ -168,7 +277,7 @@ void showMoreBottomSheet(
                       fontWeight: FontWeight.w400),
                 ),
                 onTap: () {
-                  Navigator.pop(context);
+                  Navigator.pop(sheetContext);
                   context.read<BloomeeDBCubit>().addMediaItemToPlaylist(
                       song, MediaPlaylistDB(playlistName: "Liked"));
                   // SnackbarService.showMessage("Added to Favorites",
@@ -190,7 +299,7 @@ void showMoreBottomSheet(
                       fontWeight: FontWeight.w400),
                 ),
                 onTap: () {
-                  Navigator.pop(context);
+                  Navigator.pop(sheetContext);
                   context.read<AddToPlaylistCubit>().setMediaItemModel(song);
                   context.pushNamed(GlobalStrConsts.addToPlaylistScreen);
                 },
@@ -211,7 +320,7 @@ void showMoreBottomSheet(
                   ),
                 ),
                 onTap: () async {
-                  Navigator.pop(context);
+                  Navigator.pop(sheetContext);
                   SnackbarService.showMessage(
                       "Preparing ${song.title} for share.");
                   final tmpPath = await ImportExportService.exportMediaItem(
@@ -236,7 +345,7 @@ void showMoreBottomSheet(
                         ),
                       ),
                       onTap: () {
-                        Navigator.pop(context);
+                        Navigator.pop(sheetContext);
                         // context.read<DownloaderCubit>().downloadSong(song);
                       },
                     )
@@ -256,7 +365,7 @@ void showMoreBottomSheet(
                         ),
                       ),
                       onTap: () {
-                        Navigator.pop(context);
+                        Navigator.pop(sheetContext);
                         context.read<DownloaderCubit>().downloadSong(song);
                       },
                     ),
@@ -277,7 +386,7 @@ void showMoreBottomSheet(
                   ),
                 ),
                 onTap: () {
-                  Navigator.pop(context);
+                  Navigator.pop(sheetContext);
                   launchUrl(Uri.parse(song.extras?['perma_url']));
                 },
               ),
@@ -299,7 +408,7 @@ void showMoreBottomSheet(
                     ),
                   ),
                   onTap: () {
-                    Navigator.pop(context);
+                    Navigator.pop(sheetContext);
                     if (onDelete != null) onDelete();
                   },
                 ),

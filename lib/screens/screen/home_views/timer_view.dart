@@ -58,6 +58,7 @@ class _TimerViewState extends State<TimerView> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       backgroundColor: Default_Theme.themeColor,
       appBar: AppBar(
@@ -346,6 +347,7 @@ class _TimerViewState extends State<TimerView> {
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: Default_Theme.accentColor2,
+              foregroundColor: scheme.onPrimary,
               padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 8),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
@@ -366,8 +368,8 @@ class _TimerViewState extends State<TimerView> {
             },
             child: Text(
               "Start Timer",
-              style: const TextStyle(
-                      color: Colors.white,
+              style: TextStyle(
+                      color: scheme.onPrimary,
                       fontSize: 20,
                       fontWeight: FontWeight.bold)
                   .merge(Default_Theme.secondoryTextStyle),

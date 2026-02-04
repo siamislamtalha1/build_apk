@@ -71,6 +71,7 @@ class MiniPlayerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: () {
         context.read<PlayerOverlayCubit>().showPlayer();
@@ -273,8 +274,8 @@ class MiniPlayerCard extends StatelessWidget {
                               borderRadius: BorderRadius.circular(2),
                               child: LinearProgressIndicator(
                                 value: progressFraction.clamp(0.0, 1.0),
-                                backgroundColor:
-                                    Colors.white.withValues(alpha: 0.1),
+                                backgroundColor: scheme.onSurface.withValues(
+                                    alpha: isDark ? 0.10 : 0.08),
                                 valueColor: AlwaysStoppedAnimation<Color>(
                                   Default_Theme.accentColor2,
                                 ),

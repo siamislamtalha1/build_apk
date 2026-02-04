@@ -109,6 +109,17 @@ class QueueManager {
     log("skipToQueueItem: Moved to index $index", name: "QueueManager");
   }
 
+  Future<void> prepareQueueItem(int index, {bool doPlay = false}) async {
+    if (index >= queue.value.length) {
+      log("prepareQueueItem: Invalid index $index, queue length: ${queue.value.length}",
+          name: "QueueManager");
+      return;
+    }
+
+    currentPlayingIdx = index;
+    await _prepare4play(idx: index, doPlay: doPlay);
+  }
+
   Future<void> addQueueItem(MediaItem mediaItem) async {
     if (queue.value.any((e) => e.id == mediaItem.id)) return;
     queueTitle.add("Queue");
@@ -125,6 +136,13 @@ class QueueManager {
       {bool doPlay = false}) async {
     queue.add(newQueue);
     await _prepare4play(idx: 0, doPlay: doPlay);
+  }
+
+  Future<void> setQueue(List<MediaItem> newQueue, {String? title}) async {
+    queue.add(newQueue);
+    if (title != null) {
+      queueTitle.add(title);
+    }
   }
 
   Future<void> addQueueItems(List<MediaItem> mediaItems,

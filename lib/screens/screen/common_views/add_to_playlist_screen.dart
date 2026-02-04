@@ -691,6 +691,8 @@ class _OverflowAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: size,
       height: size,
@@ -703,7 +705,8 @@ class _OverflowAvatar extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
+            color: (isDark ? Colors.black : scheme.shadow)
+                .withValues(alpha: isDark ? 0.2 : 0.12),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -736,6 +739,8 @@ class _PlaylistAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: size,
       height: size,
@@ -747,7 +752,8 @@ class _PlaylistAvatar extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
+            color: (isDark ? Colors.black : scheme.shadow)
+                .withValues(alpha: isDark ? 0.2 : 0.12),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),

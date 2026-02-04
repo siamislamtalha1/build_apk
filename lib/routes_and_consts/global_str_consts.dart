@@ -52,6 +52,14 @@ class GlobalStrConsts {
   static const String hardwareOffloadEnabled = "hardwareOffloadEnabled";
   static const String gaplessOffloadEnabled = "gaplessOffloadEnabled";
 
+  static const String playbackSpeed = "playbackSpeed";
+  static const String playbackPitch = "playbackPitch";
+  static const String skipSilenceEnabled = "skipSilenceEnabled";
+  static const String equalizerEnabled = "equalizerEnabled";
+
+  static const String normalizationEnabled = "normalizationEnabled";
+  static const String normalizationGainMb = "normalizationGainMb";
+
   // UI & Queue
   static const String tabletUiEnabled = "tabletUiEnabled";
   static const String persistentQueueEnabled = "persistentQueueEnabled";

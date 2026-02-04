@@ -18,37 +18,49 @@ import 'more_bottom_sheet.dart';
 
 // Cached styles to avoid repeated merges
 class _UpNextStyles {
-  static final headerTextStyle = Default_Theme.secondoryTextStyleMedium.merge(
-    TextStyle(
-      color: Default_Theme.primaryColor2.withValues(alpha: 0.9),
-      fontSize: 14,
-      fontWeight: FontWeight.w600,
-    ),
-  );
+  static TextStyle headerTextStyle(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Default_Theme.secondoryTextStyleMedium.merge(
+      TextStyle(
+        color: scheme.onSurface.withValues(alpha: 0.9),
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+  }
 
-  static final queueCountStyle = Default_Theme.secondoryTextStyleMedium.merge(
-    TextStyle(
-      color: Colors.white.withValues(alpha: 0.7),
-      fontSize: 13,
-      fontWeight: FontWeight.w500,
-    ),
-  );
+  static TextStyle queueCountStyle(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Default_Theme.secondoryTextStyleMedium.merge(
+      TextStyle(
+        color: scheme.onSurface.withValues(alpha: 0.7),
+        fontSize: 13,
+        fontWeight: FontWeight.w500,
+      ),
+    );
+  }
 
-  static final legacyHeaderStyle = Default_Theme.secondoryTextStyleMedium.merge(
-    TextStyle(
-      color: Default_Theme.primaryColor2,
-      fontSize: 17,
-      fontWeight: FontWeight.bold,
-    ),
-  );
+  static TextStyle legacyHeaderStyle(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Default_Theme.secondoryTextStyleMedium.merge(
+      TextStyle(
+        color: scheme.onSurface,
+        fontSize: 17,
+        fontWeight: FontWeight.bold,
+      ),
+    );
+  }
 
-  static final legacyQueueStyle = Default_Theme.secondoryTextStyleMedium.merge(
-    TextStyle(
-      color: Default_Theme.primaryColor2.withValues(alpha: 0.5),
-      fontSize: 14,
-      fontWeight: FontWeight.bold,
-    ),
-  );
+  static TextStyle legacyQueueStyle(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Default_Theme.secondoryTextStyleMedium.merge(
+      TextStyle(
+        color: scheme.onSurface.withValues(alpha: 0.6),
+        fontSize: 14,
+        fontWeight: FontWeight.bold,
+      ),
+    );
+  }
 
   static const panelBorderRadius =
       BorderRadius.vertical(top: Radius.circular(16));
@@ -322,6 +334,12 @@ class _PanelContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final panelColor = (isDark ? Colors.black : scheme.surface)
+        .withValues(alpha: isDark ? 0.75 : 0.88);
+    final borderColor = scheme.onSurface.withValues(alpha: isDark ? 0.10 : 0.08);
+
     return RepaintBoundary(
       child: Material(
         color: Colors.transparent,
@@ -331,11 +349,11 @@ class _PanelContent extends StatelessWidget {
             filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.75),
+                color: panelColor,
                 borderRadius: _UpNextStyles.panelBorderRadius,
                 border: Border(
                   top: BorderSide(
-                    color: Colors.white.withValues(alpha: 0.1),
+                    color: borderColor,
                     width: 0.5,
                   ),
                 ),
@@ -402,6 +420,7 @@ class _CompactHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Center(
@@ -411,13 +430,13 @@ class _CompactHeader extends StatelessWidget {
           children: [
             Icon(
               Icons.queue_music_rounded,
-              color: Default_Theme.primaryColor2.withValues(alpha: 0.8),
+              color: scheme.onSurface.withValues(alpha: 0.75),
               size: 18,
             ),
             const SizedBox(width: 6),
             Text(
               "Up Next",
-              style: _UpNextStyles.headerTextStyle,
+              style: _UpNextStyles.headerTextStyle(context),
             ),
             const SizedBox(width: 4),
             AnimatedRotation(
@@ -425,7 +444,7 @@ class _CompactHeader extends StatelessWidget {
               duration: const Duration(milliseconds: 200),
               child: Icon(
                 Icons.keyboard_arrow_up_rounded,
-                color: Default_Theme.primaryColor2.withValues(alpha: 0.5),
+                color: scheme.onSurface.withValues(alpha: 0.55),
                 size: 18,
               ),
             ),
@@ -444,6 +463,12 @@ class _DesktopLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final panelColor = (isDark ? Colors.black : scheme.surface)
+        .withValues(alpha: isDark ? 0.70 : 0.90);
+    final borderColor = scheme.onSurface.withValues(alpha: isDark ? 0.10 : 0.08);
+
     return RepaintBoundary(
       child: Material(
         color: Colors.transparent,
@@ -453,10 +478,10 @@ class _DesktopLayout extends StatelessWidget {
             filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.7),
+                color: panelColor,
                 borderRadius: _UpNextStyles.desktopBorderRadius,
                 border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.1),
+                  color: borderColor,
                   width: 0.5,
                 ),
               ),
@@ -485,6 +510,302 @@ class _QueueInfoRow extends StatelessWidget {
   final BloomeePlayerCubit playerCubit;
 
   const _QueueInfoRow({required this.playerCubit});
+
+  Future<void> _showSavedQueuesSheet(BuildContext context) async {
+    Future<List<SavedQueueDB>> queuesFuture =
+        BloomeeDBService.getSavedQueues(includeCurrentQueue: false);
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      enableDrag: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            Future<void> refresh() async {
+              setState(() {
+                queuesFuture =
+                    BloomeeDBService.getSavedQueues(includeCurrentQueue: false);
+              });
+            }
+
+            Future<void> saveCurrentQueue() async {
+              final queue = playerCubit.bloomeePlayer.queue.value;
+              if (queue.isEmpty) return;
+
+              final TextEditingController controller = TextEditingController();
+              final formKey = GlobalKey<FormState>();
+              final String? queueName = await showDialog<String>(
+                context: context,
+                builder: (dialogContext) {
+                  return AlertDialog(
+                    backgroundColor: Default_Theme.themeColor,
+                    title: const Text('Save Queue',
+                        style: Default_Theme.secondoryTextStyleMedium),
+                    content: Form(
+                      key: formKey,
+                      child: TextFormField(
+                        controller: controller,
+                        autofocus: true,
+                        style: TextStyle(color: Default_Theme.primaryColor1),
+                        decoration: InputDecoration(
+                          hintText: 'Queue Name',
+                          hintStyle: const TextStyle(color: Colors.grey),
+                          enabledBorder: UnderlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Default_Theme.accentColor2)),
+                          focusedBorder: UnderlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Default_Theme.accentColor1)),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Please enter a name';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(dialogContext),
+                        child: const Text('Cancel'),
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Default_Theme.accentColor1,
+                          foregroundColor: Default_Theme.primaryColor2,
+                        ),
+                        onPressed: () {
+                          if (formKey.currentState!.validate()) {
+                            Navigator.pop(dialogContext, controller.text.trim());
+                          }
+                        },
+                        child: const Text('Save'),
+                      ),
+                    ],
+                  );
+                },
+              );
+
+              if (queueName == null || queueName.isEmpty) return;
+
+              await playerCubit.bloomeePlayer.saveNamedQueue(queueName);
+              SnackbarService.showMessage('Queue "$queueName" saved');
+              await refresh();
+            }
+
+            Future<void> clearQueue() async {
+              await playerCubit.bloomeePlayer.updateQueue([], doPlay: false);
+              SnackbarService.showMessage('Queue cleared');
+            }
+
+            return ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+                child: Container(
+                  
+                  
+                  decoration: BoxDecoration(
+                    color: (Theme.of(context).brightness == Brightness.dark
+                            ? Colors.black
+                            : Theme.of(context).colorScheme.surface)
+                        .withValues(
+                            alpha: Theme.of(context).brightness == Brightness.dark
+                                ? 0.75
+                                : 0.90),
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(20)),
+                    border: Border(
+                      top: BorderSide(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withValues(alpha: 0.08),
+                        width: 0.5,
+                      ),
+                    ),
+                  ),
+                  child: SafeArea(
+                    top: false,
+                    child: DraggableScrollableSheet(
+                      expand: false,
+                      initialChildSize: 0.7,
+                      minChildSize: 0.4,
+                      maxChildSize: 0.95,
+                      builder: (context, scrollController) {
+                        return Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 12),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      'Saved Queues',
+                                      style:
+                                          _UpNextStyles.legacyHeaderStyle(context),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    tooltip: 'Save current queue',
+                                    onPressed: saveCurrentQueue,
+                                    icon: Icon(
+                                      Icons.save_alt_rounded,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    tooltip: 'Clear current queue',
+                                    onPressed: () async {
+                                      Navigator.pop(sheetContext);
+                                      await clearQueue();
+                                    },
+                                    icon: Icon(
+                                      Icons.clear_all_rounded,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: FutureBuilder<List<SavedQueueDB>>(
+                                future: queuesFuture,
+                                builder: (context, snapshot) {
+                                  final queues = snapshot.data ?? const [];
+                                  if (snapshot.connectionState ==
+                                          ConnectionState.waiting &&
+                                      queues.isEmpty) {
+                                    return Center(
+                                      child: CircularProgressIndicator(
+                                        color: Default_Theme.primaryColor2,
+                                      ),
+                                    );
+                                  }
+                                  if (queues.isEmpty) {
+                                    return Center(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(24),
+                                        child: Text(
+                                          'No saved queues',
+                                          style: TextStyle(
+                                            color: Default_Theme.primaryColor2
+                                                .withValues(alpha: 0.7),
+                                            fontFamily: 'Unageo',
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }
+
+                                  return ListView.separated(
+                                    controller: scrollController,
+                                    itemCount: queues.length,
+                                    separatorBuilder: (context, index) =>
+                                        Divider(
+                                      height: 1,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface
+                                          .withValues(alpha: 0.08),
+                                    ),
+                                    itemBuilder: (context, index) {
+                                      final q = queues[index];
+                                      final count = q.mediaItemsJson.length;
+                                      return ListTile(
+                                        title: Text(
+                                          q.queueName,
+                                          style: TextStyle(
+                                            color: Default_Theme.primaryColor1,
+                                            fontFamily: 'Unageo',
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        subtitle: Text(
+                                          '$count items • ${q.savedAt.toLocal()}',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            color: Default_Theme.primaryColor2
+                                                .withValues(alpha: 0.6),
+                                            fontFamily: 'Unageo',
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                        leading: Icon(
+                                          Icons.queue_music_rounded,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface
+                                              .withValues(alpha: 0.8),
+                                        ),
+                                        trailing: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            IconButton(
+                                              tooltip: 'Load',
+                                              onPressed: () async {
+                                                Navigator.pop(sheetContext);
+                                                final ok = await playerCubit
+                                                    .bloomeePlayer
+                                                    .loadNamedQueue(q.queueName);
+                                                SnackbarService.showMessage(ok
+                                                    ? 'Loaded "${q.queueName}"'
+                                                    : 'Failed to load queue');
+                                              },
+                                              icon: Icon(
+                                                Icons.play_arrow_rounded,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurface,
+                                              ),
+                                            ),
+                                            IconButton(
+                                              tooltip: 'Delete',
+                                              onPressed: () async {
+                                                if (q.id == null) return;
+                                                await BloomeeDBService
+                                                    .deleteSavedQueueById(q.id!);
+                                                SnackbarService.showMessage(
+                                                    'Deleted "${q.queueName}"');
+                                                await refresh();
+                                              },
+                                              icon: Icon(
+                                                Icons.delete_outline_rounded,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurface,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 
   Future<void> _saveQueueAsPlaylist(
       BuildContext context, List<MediaItem> queue) async {
@@ -594,7 +915,7 @@ class _QueueInfoRow extends StatelessWidget {
                   children: [
                     Text(
                       "${queue.length} Items",
-                      style: _UpNextStyles.queueCountStyle,
+                      style: _UpNextStyles.queueCountStyle(context),
                     ),
                     if (queue.isNotEmpty)
                       Padding(
@@ -605,12 +926,25 @@ class _QueueInfoRow extends StatelessWidget {
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
                             icon: Icon(Icons.save_alt_rounded,
-                                size: 20, color: Default_Theme.primaryColor1),
+                                size: 20, color: Theme.of(context).colorScheme.onSurface),
                             onPressed: () =>
                                 _saveQueueAsPlaylist(context, queue),
                           ),
                         ),
                       ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 4.0),
+                      child: Tooltip(
+                        message: "Saved Queues",
+                        child: IconButton(
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          icon: Icon(Icons.queue_music_rounded,
+                              size: 20, color: Theme.of(context).colorScheme.onSurface),
+                          onPressed: () => _showSavedQueuesSheet(context),
+                        ),
+                      ),
+                    ),
                   ],
                 );
               },
@@ -767,7 +1101,7 @@ class _DesktopQueueItem extends StatelessWidget {
         alignment: Alignment.centerLeft,
         padding: const EdgeInsets.only(left: 20),
         color: Colors.red.withValues(alpha: 0.8),
-        child: const Icon(Icons.delete, color: Colors.white),
+        child: Icon(Icons.delete, color: Theme.of(context).colorScheme.onSurface),
       ),
       onDismissed: (direction) {
         playerCubit.bloomeePlayer.removeQueueItemAt(index);
@@ -949,7 +1283,7 @@ class _MobileQueueItem extends StatelessWidget {
           alignment: Alignment.centerLeft,
           padding: const EdgeInsets.only(left: 20),
           color: Colors.red.withValues(alpha: 0.8),
-          child: const Icon(Icons.delete, color: Colors.white),
+          child: Icon(Icons.delete, color: Theme.of(context).colorScheme.onSurface),
         ),
         onDismissed: (direction) {
           playerCubit.bloomeePlayer.removeQueueItemAt(index);
@@ -1083,7 +1417,7 @@ class _LegacyHeader extends StatelessWidget {
               ),
               Text(
                 "Up Next",
-                style: _UpNextStyles.legacyHeaderStyle,
+                style: _UpNextStyles.legacyHeaderStyle(context),
               ),
             ],
           ),
@@ -1121,7 +1455,7 @@ class _LegacyQueueInfo extends StatelessWidget {
                   builder: (context, snapshot) {
                     return Text(
                       "${snapshot.data?.length ?? 0} Items in Queue",
-                      style: _UpNextStyles.legacyQueueStyle,
+                      style: _UpNextStyles.legacyQueueStyle(context),
                     );
                   },
                 ),
@@ -1273,7 +1607,7 @@ class _LegacyQueueItem extends StatelessWidget {
         alignment: Alignment.centerLeft,
         padding: const EdgeInsets.only(left: 20),
         color: Colors.red.withValues(alpha: 0.8),
-        child: const Icon(Icons.delete, color: Colors.white),
+        child: Icon(Icons.delete, color: Theme.of(context).colorScheme.onSurface),
       ),
       onDismissed: (direction) {
         playerCubit.bloomeePlayer.removeQueueItemAt(index);

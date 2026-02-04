@@ -64,6 +64,8 @@ class _GradientDialogState extends State<GradientDialog> {
   @override
   Widget build(BuildContext context) {
     final mq = MediaQuery.of(context).size;
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final presetIndex =
         (widget.presetIndex >= 0 && widget.presetIndex < presets.length)
             ? widget.presetIndex
@@ -81,13 +83,17 @@ class _GradientDialogState extends State<GradientDialog> {
             maxWidth: mq.width * 0.9 < 520 ? mq.width * 0.9 : 520,
           ),
           decoration: BoxDecoration(
-            color: const Color(0xFF2E2E33), // plain grey dark background
+            color: isDark
+                ? const Color(0xFF2E2E33)
+                : scheme.surface, // light-friendly background
             borderRadius: BorderRadius.circular(14.0),
             border: Border.all(
-                color: Colors.white.withValues(alpha: 0.04), width: 1),
+                color: scheme.onSurface.withValues(alpha: isDark ? 0.04 : 0.08),
+                width: 1),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.45),
+                color: (isDark ? Colors.black : scheme.shadow)
+                    .withValues(alpha: isDark ? 0.45 : 0.15),
                 blurRadius: 18,
                 offset: const Offset(0, 6),
               ),
@@ -112,8 +118,8 @@ class _GradientDialogState extends State<GradientDialog> {
                   child: Text(
                     widget.title,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: scheme.onPrimary,
                       fontFamily: "ReThink-Sans",
                       fontWeight: FontWeight.w800,
                       fontSize: 18,
@@ -134,7 +140,7 @@ class _GradientDialogState extends State<GradientDialog> {
                         widget.content!,
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.8),
+                          color: scheme.onSurface.withValues(alpha: 0.82),
                           fontSize: 14,
                           fontFamily: 'ReThink-Sans',
                           fontWeight: FontWeight.w500,
@@ -166,13 +172,14 @@ class _GradientDialogState extends State<GradientDialog> {
   }
 
   List<Widget>? _buildActions(BuildContext context, GradientPreset preset) {
+    final scheme = Theme.of(context).colorScheme;
     if (widget.actions == null || widget.actions!.isEmpty) {
       return [
         ElevatedButton(
           onPressed: () => Navigator.of(context).pop(),
           style: ElevatedButton.styleFrom(
             backgroundColor: preset.buttonColor,
-            foregroundColor: Colors.white,
+            foregroundColor: scheme.onPrimary,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12.0)),
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
@@ -207,7 +214,7 @@ class _GradientDialogState extends State<GradientDialog> {
             a.onPressed?.call();
           },
           style: TextButton.styleFrom(
-            foregroundColor: Colors.white,
+            foregroundColor: scheme.onSurface,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             textStyle: const TextStyle(
                 fontFamily: 'ReThink-Sans',
@@ -224,7 +231,7 @@ class _GradientDialogState extends State<GradientDialog> {
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: preset.buttonColor,
-            foregroundColor: Colors.white,
+            foregroundColor: scheme.onPrimary,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12.0)),
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),

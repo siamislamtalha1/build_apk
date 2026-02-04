@@ -1,5 +1,0 @@
-CREATE TABLE Version (
-    version INTEGER NOT NULL PRIMARY KEY
-);
-
-INSERT INTO Version (version) VALUES (0);

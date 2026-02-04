@@ -2,14 +2,18 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:async';
 import 'package:Bloomee/routes_and_consts/global_conts.dart';
+import 'package:Bloomee/routes_and_consts/global_str_consts.dart';
 import 'package:Bloomee/services/player/audio_source_manager.dart';
 import 'package:Bloomee/services/player/player_error_handler.dart';
 import 'package:Bloomee/services/player/queue_manager.dart';
 import 'package:Bloomee/services/player/related_songs_manager.dart';
+import 'package:Bloomee/services/db/bloomee_db_service.dart';
+import 'package:Bloomee/services/db/GlobalDB.dart';
 import 'package:Bloomee/utils/imgurl_formator.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:easy_debounce/easy_throttle.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:flutter/services.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:Bloomee/model/songModel.dart';
 import '../model/MediaPlaylistModel.dart';
@@ -19,6 +23,12 @@ import 'package:Bloomee/services/player/recently_played_tracker.dart';
 class BloomeeMusicPlayer extends BaseAudioHandler
     with SeekHandler, QueueHandler {
   late AudioPlayer audioPlayer;
+
+  static const MethodChannel _audioEffectsChannel =
+      MethodChannel('com.musiclyco.musicly/audio_effects');
+
+  static const EventChannel _visualizerChannel =
+      EventChannel('com.musiclyco.musicly/visualizer');
 
   // Modular components
   late AudioSourceManager _audioSourceManager;
@@ -62,6 +72,60 @@ class BloomeeMusicPlayer extends BaseAudioHandler
       audioPlayer,
       () => _queueManager.currentMediaItem,
     );
+  }
+
+  void _updateAndroidWidgetThrottled() {
+    if (!Platform.isAndroid) return;
+    EasyThrottle.throttle(
+      'update_android_widget',
+      const Duration(milliseconds: 400),
+      () async {
+        final item = mediaItem.valueOrNull;
+        final title = item?.title ?? '';
+        final artist = item?.artist ?? '';
+        final isPlaying = audioPlayer.playing;
+        try {
+          await _audioEffectsChannel.invokeMethod<bool>(
+            'updateWidget',
+            <String, dynamic>{
+              'title': title,
+              'artist': artist,
+              'isPlaying': isPlaying,
+            },
+          );
+        } catch (_) {}
+      },
+    );
+  }
+
+  Stream<Uint8List> get visualizerWaveformStream {
+    if (!Platform.isAndroid) return const Stream.empty();
+    return _visualizerChannel
+        .receiveBroadcastStream()
+        .where((e) => e != null)
+        .map((e) {
+      if (e is Uint8List) return e;
+      if (e is List) {
+        return Uint8List.fromList(e.cast<int>());
+      }
+      return Uint8List(0);
+    }).where((e) => e.isNotEmpty);
+  }
+
+  Future<void> setVisualizerEnabled(bool enabled) async {
+    if (!Platform.isAndroid) return;
+    final sessionId = await _getAndroidAudioSessionId();
+    try {
+      await _audioEffectsChannel.invokeMethod<void>(
+        'setVisualizer',
+        <String, dynamic>{
+          'sessionId': sessionId,
+          'enabled': enabled,
+        },
+      );
+    } catch (e) {
+      log('Failed to set visualizer: $e', name: 'bloomeePlayer');
+    }
   }
 
   void _initializeAudioPlayer() {
@@ -133,6 +197,9 @@ class BloomeeMusicPlayer extends BaseAudioHandler
 
   void _initializePlayer() {
     audioPlayer.setVolume(1);
+
+    _applyInitialAudioEnhancements();
+
     _playbackEventSubscription =
         audioPlayer.playbackEventStream.listen(_broadcastPlayerEvent);
     audioPlayer.setLoopMode(LoopMode.off);
@@ -144,6 +211,8 @@ class BloomeeMusicPlayer extends BaseAudioHandler
           _errorHandler.lastError.value != null) {
         _handlePlaybackFailure();
       }
+
+      _updateAndroidWidgetThrottled();
     });
 
     // Update the current media item when the audio player changes to the next
@@ -165,6 +234,7 @@ class BloomeeMusicPlayer extends BaseAudioHandler
           currentItem.id != item.id ||
           currentItem.artUri != item.artUri) {
         mediaItem.add(item);
+        _updateAndroidWidgetThrottled();
       }
     });
 
@@ -191,6 +261,147 @@ class BloomeeMusicPlayer extends BaseAudioHandler
     _queueSubscription = _queueManager.queue.listen((e) {
       queue.add(e); // Sync with base audio handler queue
     });
+  }
+
+  Future<void> _applyInitialAudioEnhancements() async {
+    try {
+      final speedStr = await BloomeeDBService.getSettingStr(
+            GlobalStrConsts.playbackSpeed,
+            defaultValue: '1.0',
+          ) ??
+          '1.0';
+      final speed = (double.tryParse(speedStr) ?? 1.0).clamp(0.5, 2.0);
+      await audioPlayer.setSpeed(speed);
+    } catch (e) {
+      log('Failed to apply playback speed: $e', name: 'bloomeePlayer');
+    }
+
+    try {
+      final pitchStr = await BloomeeDBService.getSettingStr(
+            GlobalStrConsts.playbackPitch,
+            defaultValue: '1.0',
+          ) ??
+          '1.0';
+      final pitch = (double.tryParse(pitchStr) ?? 1.0).clamp(0.5, 2.0);
+      await audioPlayer.setPitch(pitch);
+    } catch (e) {
+      log('Failed to apply playback pitch: $e', name: 'bloomeePlayer');
+    }
+
+    try {
+      final enabled = await BloomeeDBService.getSettingBool(
+            GlobalStrConsts.skipSilenceEnabled,
+            defaultValue: false,
+          ) ??
+          false;
+      await audioPlayer.setSkipSilenceEnabled(enabled);
+    } catch (e) {
+      log('Failed to apply skip silence: $e', name: 'bloomeePlayer');
+    }
+
+    try {
+      final enabled = await BloomeeDBService.getSettingBool(
+            GlobalStrConsts.normalizationEnabled,
+            defaultValue: false,
+          ) ??
+          false;
+      final gainStr = await BloomeeDBService.getSettingStr(
+            GlobalStrConsts.normalizationGainMb,
+            defaultValue: '0',
+          ) ??
+          '0';
+      final gainMb = int.tryParse(gainStr) ?? 0;
+      await setNormalization(
+        enabled: enabled,
+        gainMb: gainMb,
+      );
+    } catch (e) {
+      log('Failed to apply normalization: $e', name: 'bloomeePlayer');
+    }
+  }
+
+  Future<void> setPlaybackSpeed(double value) async {
+    final clamped = value.clamp(0.5, 2.0);
+    try {
+      await audioPlayer.setSpeed(clamped);
+    } catch (e) {
+      log('Failed to set playback speed: $e', name: 'bloomeePlayer');
+    }
+  }
+
+  Future<void> setPlaybackPitch(double value) async {
+    final clamped = value.clamp(0.5, 2.0);
+    try {
+      await audioPlayer.setPitch(clamped);
+    } catch (e) {
+      log('Failed to set playback pitch: $e', name: 'bloomeePlayer');
+    }
+  }
+
+  Future<void> setSkipSilenceEnabled(bool value) async {
+    try {
+      await audioPlayer.setSkipSilenceEnabled(value);
+    } catch (e) {
+      log('Failed to set skip silence: $e', name: 'bloomeePlayer');
+    }
+  }
+
+  Future<void> setNormalization({
+    required bool enabled,
+    required int gainMb,
+  }) async {
+    if (!Platform.isAndroid) return;
+
+    final sessionId = await _getAndroidAudioSessionId();
+    if (sessionId == null) return;
+
+    try {
+      await _audioEffectsChannel.invokeMethod<void>(
+        'setNormalization',
+        <String, dynamic>{
+          'sessionId': sessionId,
+          'enabled': enabled,
+          'gainMb': gainMb.clamp(0, 2000),
+        },
+      );
+    } catch (e) {
+      log('Failed to set normalization: $e', name: 'bloomeePlayer');
+    }
+  }
+
+  Future<bool> openSystemEqualizer() async {
+    if (!Platform.isAndroid) return false;
+
+    final sessionId = await _getAndroidAudioSessionId();
+    if (sessionId == null) return false;
+
+    try {
+      final result = await _audioEffectsChannel.invokeMethod<bool>(
+        'openEqualizer',
+        <String, dynamic>{'sessionId': sessionId},
+      );
+      return result ?? false;
+    } catch (e) {
+      log('Failed to open system equalizer: $e', name: 'bloomeePlayer');
+      return false;
+    }
+  }
+
+  Future<int?> _getAndroidAudioSessionId() async {
+    try {
+      final dynamic p = audioPlayer;
+      final int? id = p.androidAudioSessionId as int?;
+      if (id != null) return id;
+    } catch (_) {}
+
+    try {
+      final dynamic p = audioPlayer;
+      final Stream<dynamic> s = p.androidAudioSessionIdStream as Stream<dynamic>;
+      final dynamic id = await s.where((e) => e != null).first;
+      if (id is int) return id;
+    } catch (_) {}
+
+    return null;
   }
 
   void _handlePlaybackFailure() {
@@ -408,10 +619,10 @@ class BloomeeMusicPlayer extends BaseAudioHandler
     required AudioSource audioSource,
     required String mediaId,
     Duration? initialPosition,
+    bool doPlay = true,
   }) async {
     try {
       await pause();
-      await seek(initialPosition ?? Duration.zero);
 
       await audioPlayer.setAudioSource(audioSource);
       // Protect against hanging load calls (observed on Android when DNS fails).
@@ -429,8 +640,18 @@ class BloomeeMusicPlayer extends BaseAudioHandler
         rethrow;
       }
 
-      if (!audioPlayer.playing) {
-        await play();
+      if (initialPosition != null) {
+        await audioPlayer.seek(initialPosition);
+      }
+
+      if (doPlay) {
+        if (!audioPlayer.playing) {
+          await play();
+        }
+      } else {
+        if (audioPlayer.playing) {
+          await pause();
+        }
       }
 
       // Clear any previous errors on successful playback
@@ -485,7 +706,8 @@ class BloomeeMusicPlayer extends BaseAudioHandler
       await playAudioSource(
           audioSource: audioSource,
           mediaId: mediaItem.id,
-          initialPosition: initialPosition);
+          initialPosition: initialPosition,
+          doPlay: doPlay);
 
       if (doPlay && !audioPlayer.playing) {
         await play();
@@ -509,6 +731,63 @@ class BloomeeMusicPlayer extends BaseAudioHandler
     }
 
     await playMediaItem(currentItem, doPlay: doPlay);
+  }
+
+  Future<void> saveNamedQueue(String queueName) async {
+    final normalizedName = queueName.trim();
+    if (normalizedName.isEmpty) return;
+
+    final currentQueue = _queueManager.queue.value;
+    if (currentQueue.isEmpty) return;
+
+    final dbQueue = currentQueue.map(MediaItem2MediaItemDB).toList();
+    final currentIndex = _queueManager.currentPlayingIdx
+        .clamp(0, (currentQueue.length - 1).clamp(0, currentQueue.length));
+
+    await BloomeeDBService.saveQueue(
+      dbQueue,
+      currentIndex,
+      audioPlayer.position.inMilliseconds,
+      queueName: normalizedName,
+    );
+
+    final maxQueuesStr =
+        await BloomeeDBService.getSettingStr(GlobalStrConsts.maxSavedQueues) ??
+            "19";
+    final maxQueues = int.tryParse(maxQueuesStr) ?? 19;
+    await BloomeeDBService.cleanupOldQueues(maxQueues);
+  }
+
+  Future<bool> loadNamedQueue(String queueName, {bool doPlay = true}) async {
+    final normalizedName = queueName.trim();
+    if (normalizedName.isEmpty) return false;
+
+    final savedQueue =
+        await BloomeeDBService.loadQueue(queueName: normalizedName);
+    if (savedQueue == null || savedQueue.mediaItemsJson.isEmpty) return false;
+
+    final restoredItems = <MediaItemModel>[];
+    for (final jsonStr in savedQueue.mediaItemsJson) {
+      final dbItem = MediaItemDB.fromJson(jsonStr);
+      restoredItems.add(MediaItemDB2MediaItem(dbItem));
+    }
+
+    await _queueManager.shuffle(false);
+    await _queueManager.setQueue(restoredItems, title: normalizedName);
+
+    final clampedIndex = savedQueue.currentIndex
+        .clamp(0, (restoredItems.length - 1).clamp(0, restoredItems.length));
+    _queueManager.currentPlayingIdx = clampedIndex;
+
+    final currentItem = _queueManager.currentMediaItem;
+    if (currentItem == null) return false;
+
+    await playMediaItem(
+      currentItem,
+      doPlay: doPlay,
+      initialPosition: Duration(milliseconds: savedQueue.positionMs),
+    );
+    return true;
   }
 
   @override

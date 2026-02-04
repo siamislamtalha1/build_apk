@@ -69,6 +69,8 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return SafeArea(
       bottom: false,
       child: GestureDetector(
@@ -201,12 +203,14 @@ class _SearchScreenState extends State<SearchScreen> {
                               Default_Theme.themeColor.withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(25),
                           border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.1),
+                            color: scheme.onSurface
+                                .withValues(alpha: isDark ? 0.10 : 0.08),
                             width: 1.5,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.1),
+                              color: (isDark ? Colors.black : scheme.shadow)
+                                  .withValues(alpha: 0.10),
                               blurRadius: 10,
                               offset: const Offset(0, 4),
                             ),

@@ -32,7 +32,7 @@ class DownloadingCardWidget extends StatelessWidget {
             _buildCoverArt(context, song, status, progress),
             const SizedBox(width: 10),
             _buildSongInfo(song, status, progress),
-            _buildActionButtons(status),
+            _buildActionButtons(status, context),
           ],
         ),
       ),
@@ -41,6 +41,8 @@ class DownloadingCardWidget extends StatelessWidget {
 
   Widget _buildCoverArt(BuildContext context, MediaItemModel song,
       DownloadStatus status, double progress) {
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Stack(
       alignment: Alignment.center,
       children: [
@@ -63,7 +65,8 @@ class DownloadingCardWidget extends StatelessWidget {
           height: 55,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: Colors.black.withValues(alpha: 0.6),
+            color: (isDark ? Colors.black : scheme.surface)
+                .withValues(alpha: isDark ? 0.6 : 0.70),
           ),
         ),
         SizedBox(
@@ -85,7 +88,7 @@ class DownloadingCardWidget extends StatelessWidget {
               child: ScaleTransition(scale: animation, child: child),
             );
           },
-          child: _getStatusIcon(status.state),
+          child: _getStatusIcon(context, status.state),
         ),
       ],
     );
@@ -129,14 +132,15 @@ class DownloadingCardWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButtons(DownloadStatus status) {
+  Widget _buildActionButtons(DownloadStatus status, BuildContext context) {
+    // Intentionally theme-aware: this widget appears on both light & dark surfaces.
     return Padding(
       padding: const EdgeInsets.only(left: 8.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          _getStatusText(status.state),
+          _getStatusText(status.state, context: context),
           const SizedBox(height: 4),
           Text(
             '${(status.progress * 100).toStringAsFixed(0)}%',
@@ -150,7 +154,8 @@ class DownloadingCardWidget extends StatelessWidget {
     );
   }
 
-  Widget _getStatusText(DownloadState state) {
+  Widget _getStatusText(DownloadState state, {BuildContext? context}) {
+    final scheme = context != null ? Theme.of(context).colorScheme : null;
     switch (state) {
       case DownloadState.completed:
         return const Text(
@@ -175,23 +180,28 @@ class DownloadingCardWidget extends StatelessWidget {
               color: Colors.orange, fontSize: 12, fontWeight: FontWeight.bold),
         );
       case DownloadState.fetchingMetadata:
-        return const Text(
+        return Text(
           "Fetching Metadata",
           style: TextStyle(
-              color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+              color: (scheme?.onSurface ?? Default_Theme.primaryColor1),
+              fontSize: 12,
+              fontWeight: FontWeight.bold),
         );
       case DownloadState.downloading:
-        return const Text(
+        return Text(
           "Downloading",
           style: TextStyle(
-              color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+              color: (scheme?.onSurface ?? Default_Theme.primaryColor1),
+              fontSize: 12,
+              fontWeight: FontWeight.bold),
         );
       default:
         return const SizedBox.shrink();
     }
   }
 
-  Widget _getStatusIcon(DownloadState state) {
+  Widget _getStatusIcon(BuildContext context, DownloadState state) {
+    final scheme = Theme.of(context).colorScheme;
     switch (state) {
       case DownloadState.completed:
         return const Icon(
@@ -206,25 +216,25 @@ class DownloadingCardWidget extends StatelessWidget {
           key: ValueKey('failed'),
         );
       case DownloadState.queued:
-        return const Icon(
+        return Icon(
           MingCute.sandglass_line,
-          color: Colors.white,
+          color: scheme.onSurface,
           size: 20,
-          key: ValueKey('queued'),
+          key: const ValueKey('queued'),
         );
       case DownloadState.fetchingMetadata:
-        return const Icon(
+        return Icon(
           Icons.info_outline,
-          color: Colors.white,
+          color: scheme.onSurface,
           size: 20,
-          key: ValueKey('fetchingMetadata'),
+          key: const ValueKey('fetchingMetadata'),
         );
       case DownloadState.downloading:
-        return const Icon(
+        return Icon(
           Icons.arrow_downward,
-          color: Colors.white,
+          color: scheme.onSurface,
           size: 20,
-          key: ValueKey('downloading'),
+          key: const ValueKey('downloading'),
         );
       default:
         return const SizedBox.shrink(key: ValueKey('default'));

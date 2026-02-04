@@ -24,14 +24,131 @@ class _LyricsMenuState extends State<LyricsMenu> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return MenuAnchor(
       childFocusNode: _buttonFocusNode,
-      style: const MenuStyle(
+      style: MenuStyle(
         backgroundColor: WidgetStatePropertyAll<Color>(
-          Color.fromARGB(255, 27, 27, 27),
+          scheme.surfaceContainerHighest,
         ),
       ),
       menuChildren: <Widget>[
+        MenuItemButton(
+          onPressed: () {
+            context
+                .read<LyricsCubit>()
+                .toggleTranslationEnabled(!widget.state.translationEnabled);
+          },
+          child: Row(
+            children: <Widget>[
+              Icon(
+                widget.state.translationEnabled
+                    ? Icons.translate
+                    : Icons.translate_outlined,
+                color: scheme.onSurface,
+                size: 18,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                widget.state.translationEnabled
+                    ? 'Disable Translation'
+                    : 'Translate Lyrics',
+                style: TextStyle(color: scheme.onSurface, fontSize: 13),
+              ),
+            ],
+          ),
+        ),
+        MenuItemButton(
+          onPressed: () async {
+            final lyricsCubit = context.read<LyricsCubit>();
+            final lang = await showDialog<String>(
+              context: context,
+              builder: (context) {
+                String selected = widget.state.translationTargetLang;
+                return AlertDialog(
+                  backgroundColor: Theme.of(context).colorScheme.surface,
+                  title: Text(
+                    'Translation Language',
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                  ),
+                  content: StatefulBuilder(
+                    builder: (context, setState) {
+                      return DropdownButton<String>(
+                        value: selected,
+                        dropdownColor:
+                            Theme.of(context).colorScheme.surfaceContainerHighest,
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface),
+                        items: const [
+                          DropdownMenuItem(value: 'en', child: Text('English')),
+                          DropdownMenuItem(value: 'bn', child: Text('Bengali')),
+                          DropdownMenuItem(value: 'hi', child: Text('Hindi')),
+                          DropdownMenuItem(value: 'es', child: Text('Spanish')),
+                          DropdownMenuItem(value: 'pt', child: Text('Portuguese')),
+                          DropdownMenuItem(value: 'fr', child: Text('French')),
+                          DropdownMenuItem(value: 'de', child: Text('German')),
+                          DropdownMenuItem(value: 'id', child: Text('Indonesian')),
+                          DropdownMenuItem(value: 'ja', child: Text('Japanese')),
+                          DropdownMenuItem(value: 'ko', child: Text('Korean')),
+                          DropdownMenuItem(value: 'ru', child: Text('Russian')),
+                        ],
+                        onChanged: (v) {
+                          if (v == null) return;
+                          setState(() => selected = v);
+                        },
+                      );
+                    },
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(selected),
+                      child: const Text('OK'),
+                    ),
+                  ],
+                );
+              },
+            );
+
+            if (!mounted) return;
+
+            if (lang != null) {
+              await lyricsCubit.setTranslationTargetLang(lang);
+            }
+          },
+          child: Row(
+            children: <Widget>[
+              Icon(
+                Icons.language,
+                color: scheme.onSurface,
+                size: 18,
+              ),
+              const SizedBox(width: 8),
+              Text('Translation Language',
+                  style: TextStyle(color: scheme.onSurface, fontSize: 13)),
+            ],
+          ),
+        ),
+        MenuItemButton(
+          onPressed: () {
+            context.read<LyricsCubit>().translateLyrics(force: true);
+          },
+          child: Row(
+            children: <Widget>[
+              Icon(
+                Icons.refresh,
+                color: scheme.onSurface,
+                size: 18,
+              ),
+              const SizedBox(width: 8),
+              Text('Re-translate',
+                  style: TextStyle(color: scheme.onSurface, fontSize: 13)),
+            ],
+          ),
+        ),
         MenuItemButton(
           onPressed: () {
             showSearch(
@@ -42,16 +159,16 @@ class _LyricsMenuState extends State<LyricsMenu> {
                   "${widget.state.mediaItem.title} ${widget.state.mediaItem.artist}",
             );
           },
-          child: const Row(
+          child: Row(
             children: <Widget>[
               Icon(
                 MingCute.search_2_fill,
-                color: Colors.white,
+                color: scheme.onSurface,
                 size: 18,
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text('Search Lyrics',
-                  style: TextStyle(color: Colors.white, fontSize: 13)),
+                  style: TextStyle(color: scheme.onSurface, fontSize: 13)),
             ],
           ),
         ),
@@ -61,16 +178,16 @@ class _LyricsMenuState extends State<LyricsMenu> {
                 .read<LyricsCubit>()
                 .deleteLyricsFromDB(widget.state.mediaItem);
           },
-          child: const Row(
+          child: Row(
             children: <Widget>[
               Icon(
                 MingCute.delete_fill,
-                color: Colors.white,
+                color: scheme.onSurface,
                 size: 18,
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text('Reset Lyrics',
-                  style: TextStyle(color: Colors.white, fontSize: 13)),
+                  style: TextStyle(color: scheme.onSurface, fontSize: 13)),
             ],
           ),
         ),
@@ -80,16 +197,16 @@ class _LyricsMenuState extends State<LyricsMenu> {
                 .read<LyricsCubit>()
                 .setLyricsToDB(widget.state.lyrics, widget.state.mediaItem.id);
           },
-          child: const Row(
+          child: Row(
             children: <Widget>[
               Icon(
                 MingCute.save_2_fill,
-                color: Colors.white,
+                color: scheme.onSurface,
                 size: 18,
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text('Save Lyrics',
-                  style: TextStyle(color: Colors.white, fontSize: 13)),
+                  style: TextStyle(color: scheme.onSurface, fontSize: 13)),
             ],
           ),
         ),

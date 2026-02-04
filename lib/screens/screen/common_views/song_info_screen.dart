@@ -264,6 +264,8 @@ class _HeaderBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final imageUrl = formatImgURL(song.artUri.toString(), ImageQuality.high);
     final isMobile = ResponsiveBreakpoints.of(context).isMobile;
 
@@ -298,7 +300,8 @@ class _HeaderBackground extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.4),
+                    color: (isDark ? Colors.black : scheme.shadow)
+                        .withValues(alpha: isDark ? 0.4 : 0.20),
                     blurRadius: 30,
                     offset: const Offset(0, 10),
                   ),

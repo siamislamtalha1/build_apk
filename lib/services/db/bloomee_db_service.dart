@@ -987,13 +987,7 @@ class BloomeeDBService {
     );
 
     await isarDB.writeTxn(() async {
-      // If saving "current_queue", overwrite existing one
-      if (queueName == "current_queue") {
-        await isarDB.savedQueueDBs
-            .filter()
-            .queueNameEqualTo("current_queue")
-            .deleteAll();
-      }
+      await isarDB.savedQueueDBs.filter().queueNameEqualTo(queueName).deleteAll();
       await isarDB.savedQueueDBs.put(savedQueue);
     });
   }
@@ -1012,6 +1006,33 @@ class BloomeeDBService {
   static Future<int> getQueueCount() async {
     Isar isarDB = await db;
     return isarDB.savedQueueDBs.count();
+  }
+
+  static Future<List<SavedQueueDB>> getSavedQueues(
+      {bool includeCurrentQueue = false}) async {
+    Isar isarDB = await db;
+    final query = includeCurrentQueue
+        ? isarDB.savedQueueDBs.where().sortBySavedAtDesc()
+        : isarDB.savedQueueDBs
+            .filter()
+            .not()
+            .queueNameEqualTo("current_queue")
+            .sortBySavedAtDesc();
+    return query.findAll();
+  }
+
+  static Future<void> deleteSavedQueueById(int id) async {
+    final isarDB = await db;
+    await isarDB.writeTxn(() async {
+      await isarDB.savedQueueDBs.delete(id);
+    });
+  }
+
+  static Future<void> deleteSavedQueueByName(String queueName) async {
+    final isarDB = await db;
+    await isarDB.writeTxn(() async {
+      await isarDB.savedQueueDBs.filter().queueNameEqualTo(queueName).deleteAll();
+    });
   }
 
   static Future<void> cleanupOldQueues(int maxQueues) async {

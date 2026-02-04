@@ -16,6 +16,8 @@ class LyricsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return BlocBuilder<LyricsCubit, LyricsState>(
       builder: (context, state) {
         return Stack(
@@ -41,6 +43,17 @@ class LyricsWidget extends StatelessWidget {
                   ),
               },
             ),
+            if (state.isTranslating)
+              Positioned(
+                left: 0,
+                right: 0,
+                top: 0,
+                child: LinearProgressIndicator(
+                  color: Default_Theme.accentColor2,
+                  backgroundColor: Colors.transparent,
+                  minHeight: 2,
+                ),
+              ),
             Positioned(
               right: 3,
               bottom: 0,
@@ -48,7 +61,8 @@ class LyricsWidget extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.6),
+                  color: (isDark ? Colors.black : scheme.surface)
+                      .withValues(alpha: isDark ? 0.6 : 0.75),
                   shape: BoxShape.circle,
                 ),
                 child: Tooltip(
@@ -75,7 +89,7 @@ class LyricsWidget extends StatelessWidget {
                       MingCute.fullscreen_fill,
                       size: 20,
                     ),
-                    color: Default_Theme.primaryColor1.withValues(alpha: 0.9),
+                    color: scheme.onSurface.withValues(alpha: 0.9),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                   ),
@@ -122,6 +136,13 @@ class PlainLyricsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final text = state.translationEnabled &&
+            state.translatedPlain != null &&
+            state.translatedPlain!.trim().isNotEmpty
+        ? state.translatedPlain!
+        : state.lyrics.lyricsPlain;
+
     return ShaderMask(
       shaderCallback: (Rect bounds) {
         return const LinearGradient(
@@ -144,13 +165,13 @@ class PlainLyricsWidget extends StatelessWidget {
       blendMode: BlendMode.dstIn,
       child: SingleChildScrollView(
         child: SelectableText(
-          "\n${state.lyrics.lyricsPlain}\n",
+          "\n$text\n",
           textAlign: TextAlign.center,
-          style: Default_Theme.secondoryTextStyle.merge(const TextStyle(
+          style: Default_Theme.secondoryTextStyle.merge(TextStyle(
               fontSize: 18,
               fontFamily: 'NotoSans',
               fontWeight: FontWeight.w600,
-              color: Colors.white)),
+              color: scheme.onSurface)),
         ),
       ),
     );
@@ -258,6 +279,12 @@ class _SyncedLyricsWidgetState extends State<SyncedLyricsWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final original = widget.state.lyrics.parsedLyrics!.lyrics;
+    final translated = widget.state.translationEnabled
+        ? widget.state.translatedSyncedLines
+        : null;
+
     return ShaderMask(
       shaderCallback: (Rect bounds) {
         return const LinearGradient(
@@ -288,16 +315,19 @@ class _SyncedLyricsWidgetState extends State<SyncedLyricsWidget> {
         itemCount: widget.state.lyrics.parsedLyrics!.lyrics.length,
         padding: const EdgeInsets.symmetric(vertical: 30),
         itemBuilder: (context, index) {
+          final text = (translated != null && translated.length == original.length)
+              ? translated[index]
+              : original[index].text;
           return Text(
-            widget.state.lyrics.parsedLyrics!.lyrics[index].text,
+            text,
             textAlign: TextAlign.center,
             style: Default_Theme.secondoryTextStyle.merge(TextStyle(
               fontSize: 18,
               fontFamily: 'NotoSans',
               fontWeight: FontWeight.bold,
               color: isCurrentLyric(index)
-                  ? Colors.white
-                  : Default_Theme.primaryColor2.withOpacity(0.4),
+                  ? scheme.onSurface
+                  : scheme.onSurfaceVariant.withValues(alpha: 0.55),
             )),
           );
         },

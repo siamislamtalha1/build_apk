@@ -31,6 +31,11 @@ class MoodsGenresScreen extends StatelessWidget {
         ),
         itemCount: categories.length,
         itemBuilder: (context, index) {
+          final baseColor = Colors.primaries[index % Colors.primaries.length];
+          final textColor =
+              ThemeData.estimateBrightnessForColor(baseColor) == Brightness.dark
+                  ? Colors.white
+                  : Colors.black;
           return Card(
             clipBehavior: Clip.antiAlias,
             elevation: 2,
@@ -42,9 +47,8 @@ class MoodsGenresScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      Colors.primaries[index % Colors.primaries.length],
-                      Colors.primaries[index % Colors.primaries.length]
-                          .withOpacity(0.6),
+                      baseColor,
+                      baseColor.withOpacity(0.6),
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -53,8 +57,8 @@ class MoodsGenresScreen extends StatelessWidget {
                 child: Center(
                   child: Text(
                     categories[index],
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: textColor,
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),

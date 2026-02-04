@@ -21,6 +21,8 @@ class PlaylistCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return LayoutBuilder(builder: (context, constraints) {
       return Padding(
         padding: const EdgeInsets.only(top: 10, left: 4, right: 4),
@@ -71,16 +73,20 @@ class PlaylistCard extends StatelessWidget {
                                   child: AnimatedContainer(
                                     duration: const Duration(milliseconds: 200),
                                     color: hovering.value
-                                        ? Colors.black.withValues(alpha: 0.5)
+                                        ? (isDark
+                                                ? scheme.scrim
+                                                : scheme.surface)
+                                            .withValues(
+                                                alpha: isDark ? 0.5 : 0.75)
                                         : Colors.transparent,
                                     child: Center(
                                       child: AnimatedOpacity(
                                         duration:
                                             const Duration(milliseconds: 200),
                                         opacity: hovering.value ? 1 : 0,
-                                        child: const Icon(
+                                        child: Icon(
                                           MingCute.play_circle_line,
-                                          color: Colors.white,
+                                          color: scheme.onSurface,
                                           size: 50,
                                         ),
                                       ),

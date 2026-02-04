@@ -13,6 +13,7 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       backgroundColor: Default_Theme.themeColor,
       body: BlocBuilder<AuthCubit, AuthState>(
@@ -33,8 +34,8 @@ class ProfileScreen extends StatelessWidget {
                 backgroundColor: Default_Theme.themeColor,
                 actions: [
                   IconButton(
-                    icon: const Icon(MingCute.settings_3_line,
-                        color: Colors.white),
+                    icon: Icon(MingCute.settings_3_line,
+                        color: scheme.onSurface),
                     onPressed: () => context.push('/Settings'),
                   ),
                 ],
@@ -67,7 +68,7 @@ class ProfileScreen extends StatelessWidget {
                                       ? MingCute.user_3_line
                                       : MingCute.user_4_fill,
                                   size: 50,
-                                  color: Colors.white,
+                                  color: scheme.onPrimary,
                                 )
                               : null,
                         ),
@@ -208,7 +209,7 @@ class ProfileScreen extends StatelessWidget {
               onPressed: () => context.push('/Login'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Default_Theme.accentColor2,
-                foregroundColor: Colors.white,
+                foregroundColor: scheme.onPrimary,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 32,
                   vertical: 16,

@@ -6,6 +6,7 @@ class TestView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       backgroundColor: Default_Theme.themeColor,
       appBar: AppBar(
@@ -23,15 +24,15 @@ class TestView extends StatelessWidget {
       body: Center(
         child: Column(
           children: [
-            const Text(
+            Text(
               "Test View",
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: scheme.onSurface),
             ),
             ElevatedButton(
               onPressed: () async {},
-              child: const Text(
+              child: Text(
                 "Test API",
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: scheme.onSurface),
               ),
             )
           ],

@@ -26,6 +26,12 @@ class SettingsState extends Equatable {
   String audioDecoderMode;
   bool hardwareOffloadEnabled;
   bool gaplessOffloadEnabled;
+  double playbackSpeed;
+  double playbackPitch;
+  bool skipSilenceEnabled;
+  bool equalizerEnabled;
+  bool normalizationEnabled;
+  int normalizationGainMb;
   bool tabletUiEnabled;
   bool persistentQueueEnabled;
   int maxSavedQueues;
@@ -55,6 +61,12 @@ class SettingsState extends Equatable {
     required this.audioDecoderMode,
     required this.hardwareOffloadEnabled,
     required this.gaplessOffloadEnabled,
+    required this.playbackSpeed,
+    required this.playbackPitch,
+    required this.skipSilenceEnabled,
+    required this.equalizerEnabled,
+    required this.normalizationEnabled,
+    required this.normalizationGainMb,
     required this.tabletUiEnabled,
     required this.persistentQueueEnabled,
     required this.maxSavedQueues,
@@ -86,6 +98,12 @@ class SettingsState extends Equatable {
     String? audioDecoderMode,
     bool? hardwareOffloadEnabled,
     bool? gaplessOffloadEnabled,
+    double? playbackSpeed,
+    double? playbackPitch,
+    bool? skipSilenceEnabled,
+    bool? equalizerEnabled,
+    bool? normalizationEnabled,
+    int? normalizationGainMb,
     bool? tabletUiEnabled,
     bool? persistentQueueEnabled,
     int? maxSavedQueues,
@@ -119,6 +137,12 @@ class SettingsState extends Equatable {
           hardwareOffloadEnabled ?? this.hardwareOffloadEnabled,
       gaplessOffloadEnabled:
           gaplessOffloadEnabled ?? this.gaplessOffloadEnabled,
+      playbackSpeed: playbackSpeed ?? this.playbackSpeed,
+      playbackPitch: playbackPitch ?? this.playbackPitch,
+      skipSilenceEnabled: skipSilenceEnabled ?? this.skipSilenceEnabled,
+      equalizerEnabled: equalizerEnabled ?? this.equalizerEnabled,
+      normalizationEnabled: normalizationEnabled ?? this.normalizationEnabled,
+      normalizationGainMb: normalizationGainMb ?? this.normalizationGainMb,
       tabletUiEnabled: tabletUiEnabled ?? this.tabletUiEnabled,
       persistentQueueEnabled:
           persistentQueueEnabled ?? this.persistentQueueEnabled,
@@ -153,6 +177,12 @@ class SettingsState extends Equatable {
         audioDecoderMode,
         hardwareOffloadEnabled,
         gaplessOffloadEnabled,
+        playbackSpeed,
+        playbackPitch,
+        skipSilenceEnabled,
+        equalizerEnabled,
+        normalizationEnabled,
+        normalizationGainMb,
         tabletUiEnabled,
         persistentQueueEnabled,
         maxSavedQueues,
@@ -188,6 +218,12 @@ class SettingsInitial extends SettingsState {
           audioDecoderMode: "system",
           hardwareOffloadEnabled: false,
           gaplessOffloadEnabled: false,
+          playbackSpeed: 1.0,
+          playbackPitch: 1.0,
+          skipSilenceEnabled: false,
+          equalizerEnabled: false,
+          normalizationEnabled: false,
+          normalizationGainMb: 0,
           tabletUiEnabled: false,
           persistentQueueEnabled: false,
           maxSavedQueues: 19,

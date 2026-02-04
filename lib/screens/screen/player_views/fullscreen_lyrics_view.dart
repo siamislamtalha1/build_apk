@@ -85,9 +85,10 @@ class _FullscreenLyricsViewState extends State<FullscreenLyricsView>
   @override
   Widget build(BuildContext context) {
     final bloomeePlayerCubit = context.read<BloomeePlayerCubit>();
+    final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: scheme.surface,
       resizeToAvoidBottomInset: false,
       body: GestureDetector(
         onTap: _toggleControls,
@@ -175,6 +176,8 @@ class _FullscreenLyricsViewState extends State<FullscreenLyricsView>
     return StreamBuilder<MediaItem?>(
       stream: bloomeePlayerCubit.bloomeePlayer.mediaItem,
       builder: (context, snapshot) {
+        final scheme = Theme.of(context).colorScheme;
+        final isDark = Theme.of(context).brightness == Brightness.dark;
         return AnimatedSwitcher(
           duration: const Duration(milliseconds: 800),
           child: Container(
@@ -195,7 +198,8 @@ class _FullscreenLyricsViewState extends State<FullscreenLyricsView>
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
               child: Container(
-                color: Colors.black.withValues(alpha: 0.6),
+                color: (isDark ? Colors.black : scheme.surface)
+                    .withValues(alpha: isDark ? 0.6 : 0.72),
               ),
             ),
           ),
@@ -205,16 +209,20 @@ class _FullscreenLyricsViewState extends State<FullscreenLyricsView>
   }
 
   Widget _buildGradientOverlay() {
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final edgeColor = (isDark ? Colors.black : scheme.surface)
+        .withValues(alpha: isDark ? 0.78 : 0.92);
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            Colors.black.withValues(alpha: 0.7),
+            edgeColor,
             Colors.transparent,
             Colors.transparent,
-            Colors.black.withValues(alpha: 0.8),
+            edgeColor,
           ],
           stops: const [0.0, 0.15, 0.85, 1.0],
         ),
@@ -223,6 +231,7 @@ class _FullscreenLyricsViewState extends State<FullscreenLyricsView>
   }
 
   Widget _buildTopBar(BloomeePlayerCubit bloomeePlayerCubit) {
+    final scheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       child: Row(
@@ -230,9 +239,9 @@ class _FullscreenLyricsViewState extends State<FullscreenLyricsView>
           // Close button
           IconButton(
             onPressed: () => Navigator.of(context).pop(),
-            icon: const Icon(
+            icon: Icon(
               Icons.keyboard_arrow_down_rounded,
-              color: Colors.white,
+              color: scheme.onSurface,
               size: 32,
             ),
           ),
@@ -247,8 +256,8 @@ class _FullscreenLyricsViewState extends State<FullscreenLyricsView>
                   children: [
                     Text(
                       snapshot.data?.title ?? "Unknown",
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: scheme.onSurface,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         fontFamily: 'NotoSans',
@@ -261,7 +270,7 @@ class _FullscreenLyricsViewState extends State<FullscreenLyricsView>
                     Text(
                       snapshot.data?.artist ?? "Unknown",
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.7),
+                        color: scheme.onSurface.withValues(alpha: 0.7),
                         fontSize: 13,
                         fontFamily: 'NotoSans',
                       ),
@@ -287,6 +296,13 @@ class _FullscreenLyricsViewState extends State<FullscreenLyricsView>
   }
 
   Widget _buildPlainLyrics(LyricsState state) {
+    final scheme = Theme.of(context).colorScheme;
+    final text = state.translationEnabled &&
+            state.translatedPlain != null &&
+            state.translatedPlain!.trim().isNotEmpty
+        ? state.translatedPlain!
+        : state.lyrics.lyricsPlain;
+
     return ShaderMask(
       shaderCallback: (Rect bounds) {
         return const LinearGradient(
@@ -307,13 +323,13 @@ class _FullscreenLyricsViewState extends State<FullscreenLyricsView>
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 40),
           child: Text(
-            state.lyrics.lyricsPlain,
+            text,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 22,
               fontFamily: 'NotoSans',
               fontWeight: FontWeight.w600,
-              color: Colors.white,
+              color: scheme.onSurface,
               height: 2.0,
             ),
           ),
@@ -324,6 +340,8 @@ class _FullscreenLyricsViewState extends State<FullscreenLyricsView>
 
   Widget _buildBottomControls(BloomeePlayerCubit bloomeePlayerCubit) {
     final musicPlayer = bloomeePlayerCubit.bloomeePlayer;
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -337,9 +355,9 @@ class _FullscreenLyricsViewState extends State<FullscreenLyricsView>
               // Previous button
               IconButton(
                 onPressed: () => musicPlayer.skipToPrevious(),
-                icon: const Icon(
+                icon: Icon(
                   MingCute.skip_previous_fill,
-                  color: Colors.white,
+                  color: scheme.onSurface,
                   size: 32,
                 ),
               ),
@@ -375,7 +393,7 @@ class _FullscreenLyricsViewState extends State<FullscreenLyricsView>
                           width: 30,
                           height: 30,
                           child: CircularProgressIndicator(
-                            color: Default_Theme.primaryColor1,
+                            color: scheme.onSurface,
                             strokeWidth: 3,
                           ),
                         ),
@@ -395,9 +413,9 @@ class _FullscreenLyricsViewState extends State<FullscreenLyricsView>
               // Next button
               IconButton(
                 onPressed: () => musicPlayer.skipToNext(),
-                icon: const Icon(
+                icon: Icon(
                   MingCute.skip_forward_fill,
-                  color: Colors.white,
+                  color: scheme.onSurface,
                   size: 32,
                 ),
               ),
@@ -414,22 +432,22 @@ class _FullscreenLyricsViewState extends State<FullscreenLyricsView>
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.1),
+                color: scheme.onSurface.withValues(alpha: isDark ? 0.10 : 0.08),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
+                  Icon(
                     MingCute.playlist_fill,
-                    color: Colors.white,
+                    color: scheme.onSurface,
                     size: 20,
                   ),
                   const SizedBox(width: 8),
                   Text(
                     "Up Next",
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.9),
+                      color: scheme.onSurface.withValues(alpha: 0.9),
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),
@@ -573,6 +591,10 @@ class _FullscreenSyncedLyricsState extends State<FullscreenSyncedLyrics> {
   @override
   Widget build(BuildContext context) {
     final lyrics = widget.state.lyrics.parsedLyrics?.lyrics ?? [];
+    final translated = widget.state.translationEnabled
+        ? widget.state.translatedSyncedLines
+        : null;
+    final scheme = Theme.of(context).colorScheme;
 
     return NotificationListener<ScrollNotification>(
       onNotification: (notification) {
@@ -614,7 +636,9 @@ class _FullscreenSyncedLyricsState extends State<FullscreenSyncedLyrics> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 child: Text(
-                  lyrics[index].text,
+                  (translated != null && translated.length == lyrics.length)
+                      ? translated[index]
+                      : lyrics[index].text,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 22,
@@ -622,10 +646,10 @@ class _FullscreenSyncedLyricsState extends State<FullscreenSyncedLyrics> {
                     fontWeight:
                         isCurrentLine ? FontWeight.w700 : FontWeight.w500,
                     color: isCurrentLine
-                        ? Colors.white
+                        ? scheme.onSurface
                         : isPastLine
-                            ? Colors.white.withValues(alpha: 0.35)
-                            : Colors.white.withValues(alpha: 0.55),
+                            ? scheme.onSurface.withValues(alpha: 0.35)
+                            : scheme.onSurface.withValues(alpha: 0.55),
                     height: 1.5,
                   ),
                 ),

@@ -22,6 +22,7 @@ void createPlaylistBottomSheet(BuildContext context) {
     elevation: 20,
     backgroundColor: Colors.transparent,
     builder: (context) {
+      final scheme = Theme.of(context).colorScheme;
       return StatefulBuilder(builder: (context, setState) {
         Future<void> createNow() async {
           focusNode.unfocus();
@@ -184,7 +185,7 @@ void createPlaylistBottomSheet(BuildContext context) {
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor:
                                               Default_Theme.accentColor2,
-                                          foregroundColor: Colors.white,
+                                          foregroundColor: scheme.onPrimary,
                                           padding: const EdgeInsets.symmetric(
                                               vertical: 14),
                                           shape: RoundedRectangleBorder(

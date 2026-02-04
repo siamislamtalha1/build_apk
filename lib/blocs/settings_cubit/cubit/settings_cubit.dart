@@ -149,6 +149,45 @@ class SettingsCubit extends Cubit<SettingsState> {
         .then((value) {
       emit(state.copyWith(gaplessOffloadEnabled: value ?? false));
     });
+
+    BloomeeDBService.getSettingStr(GlobalStrConsts.playbackSpeed,
+            defaultValue: '1.0')
+        .then((value) {
+      final parsed = double.tryParse(value ?? '1.0') ?? 1.0;
+      emit(state.copyWith(playbackSpeed: parsed.clamp(0.5, 2.0)));
+    });
+
+    BloomeeDBService.getSettingStr(GlobalStrConsts.playbackPitch,
+            defaultValue: '1.0')
+        .then((value) {
+      final parsed = double.tryParse(value ?? '1.0') ?? 1.0;
+      emit(state.copyWith(playbackPitch: parsed.clamp(0.5, 2.0)));
+    });
+
+    BloomeeDBService.getSettingBool(GlobalStrConsts.skipSilenceEnabled,
+            defaultValue: false)
+        .then((value) {
+      emit(state.copyWith(skipSilenceEnabled: value ?? false));
+    });
+
+    BloomeeDBService.getSettingBool(GlobalStrConsts.equalizerEnabled,
+            defaultValue: false)
+        .then((value) {
+      emit(state.copyWith(equalizerEnabled: value ?? false));
+    });
+
+    BloomeeDBService.getSettingBool(GlobalStrConsts.normalizationEnabled,
+            defaultValue: false)
+        .then((value) {
+      emit(state.copyWith(normalizationEnabled: value ?? false));
+    });
+
+    BloomeeDBService.getSettingStr(GlobalStrConsts.normalizationGainMb,
+            defaultValue: '0')
+        .then((value) {
+      emit(state.copyWith(
+          normalizationGainMb: int.tryParse(value ?? '0') ?? 0));
+    });
     BloomeeDBService.getSettingBool(GlobalStrConsts.tabletUiEnabled)
         .then((value) {
       emit(state.copyWith(tabletUiEnabled: value ?? false));
@@ -351,6 +390,45 @@ class SettingsCubit extends Cubit<SettingsState> {
     BloomeeDBService.putSettingBool(
         GlobalStrConsts.gaplessOffloadEnabled, value);
     emit(state.copyWith(gaplessOffloadEnabled: value));
+  }
+
+  Future<void> setPlaybackSpeed(double value) async {
+    final clamped = value.clamp(0.5, 2.0);
+    await BloomeeDBService.putSettingStr(
+        GlobalStrConsts.playbackSpeed, clamped.toStringAsFixed(2));
+    emit(state.copyWith(playbackSpeed: clamped));
+  }
+
+  Future<void> setPlaybackPitch(double value) async {
+    final clamped = value.clamp(0.5, 2.0);
+    await BloomeeDBService.putSettingStr(
+        GlobalStrConsts.playbackPitch, clamped.toStringAsFixed(2));
+    emit(state.copyWith(playbackPitch: clamped));
+  }
+
+  Future<void> setSkipSilenceEnabled(bool value) async {
+    await BloomeeDBService.putSettingBool(
+        GlobalStrConsts.skipSilenceEnabled, value);
+    emit(state.copyWith(skipSilenceEnabled: value));
+  }
+
+  Future<void> setEqualizerEnabled(bool value) async {
+    await BloomeeDBService.putSettingBool(
+        GlobalStrConsts.equalizerEnabled, value);
+    emit(state.copyWith(equalizerEnabled: value));
+  }
+
+  Future<void> setNormalizationEnabled(bool value) async {
+    await BloomeeDBService.putSettingBool(
+        GlobalStrConsts.normalizationEnabled, value);
+    emit(state.copyWith(normalizationEnabled: value));
+  }
+
+  Future<void> setNormalizationGainMb(int value) async {
+    final clamped = value.clamp(0, 2000);
+    await BloomeeDBService.putSettingStr(
+        GlobalStrConsts.normalizationGainMb, clamped.toString());
+    emit(state.copyWith(normalizationGainMb: clamped));
   }
 
   void setTabletUiEnabled(bool value) {

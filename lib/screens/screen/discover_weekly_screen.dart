@@ -55,6 +55,7 @@ class _DiscoverWeeklyScreenState extends State<DiscoverWeeklyScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       backgroundColor: Default_Theme.themeColor,
       body: CustomScrollView(
@@ -87,10 +88,10 @@ class _DiscoverWeeklyScreenState extends State<DiscoverWeeklyScreen> {
                         color: Default_Theme.accentColor2,
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         MingCute.sparkles_fill,
                         size: 60,
-                        color: Colors.white,
+                        color: scheme.onPrimary,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -186,7 +187,7 @@ class _DiscoverWeeklyScreenState extends State<DiscoverWeeklyScreen> {
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Default_Theme.accentColor2,
-                          foregroundColor: Colors.white,
+                          foregroundColor: scheme.onPrimary,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),

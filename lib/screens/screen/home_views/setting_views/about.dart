@@ -6,13 +6,18 @@ import 'package:go_router/go_router.dart';
 import 'dart:ui';
 import 'dart:math';
 
-// Color palette
-// Darken background slightly for higher contrast against foreground elements
-const Color kBackgroundColor = Color(0xFF0B0710);
-const Color kPrimaryTextColor = Colors.white;
-const Color kSecondaryTextColor = Color(0xFFC3B9CF);
-// Make the frosted card a bit less translucent so it reads clearer on darkbg
-const Color kCardBackgroundColor = Color.fromRGBO(40, 32, 50, 0.18);
+// Color palette (theme-aware at runtime; do not hardcode light/dark)
+Color _bg(BuildContext context) => Theme.of(context).colorScheme.surface;
+Color _primaryText(BuildContext context) =>
+    Theme.of(context).colorScheme.onSurface;
+Color _secondaryText(BuildContext context) =>
+    Theme.of(context).colorScheme.onSurfaceVariant;
+Color _cardBg(BuildContext context) {
+  final scheme = Theme.of(context).colorScheme;
+  final isDark = Theme.of(context).brightness == Brightness.dark;
+  return (isDark ? const Color(0xFF281F32) : scheme.surfaceContainerHighest)
+      .withValues(alpha: isDark ? 0.18 : 0.85);
+}
 
 // Gradients
 const Gradient kTitleGradient = LinearGradient(
@@ -41,21 +46,23 @@ class AboutHub extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: kBackgroundColor,
+      backgroundColor: _bg(context),
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_new_rounded,
-              color: kPrimaryTextColor.withValues(alpha: 0.5)),
+              color: _primaryText(context).withValues(alpha: 0.65)),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
+        title: Text(
           'About',
           style: TextStyle(
-            color: kPrimaryTextColor,
+            color: _primaryText(context),
             fontWeight: FontWeight.bold,
             letterSpacing: 1.1,
           ),
@@ -65,7 +72,13 @@ class AboutHub extends StatelessWidget {
       body: Stack(
         alignment: Alignment.center,
         children: [
-          const ParticleBackground(),
+          ParticleBackground(
+            backgroundColor: _bg(context),
+            tintColor: scheme.primary,
+            tintAlpha: isDark ? 0.6 : 0.12,
+            particleColor: _primaryText(context),
+            particleAlpha: isDark ? 0.35 : 0.18,
+          ),
           Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 520),
@@ -105,8 +118,8 @@ class AboutHub extends StatelessWidget {
                               : '';
                           return Text(
                             ver,
-                            style: const TextStyle(
-                              color: kSecondaryTextColor,
+                            style: TextStyle(
+                              color: _secondaryText(context),
                               fontSize: 12,
                               fontFamily: 'Gilroy',
                             ),
@@ -149,9 +162,13 @@ class _FrostedMenuCard extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
               decoration: BoxDecoration(
-                color: kCardBackgroundColor,
+                color: _cardBg(context),
                 borderRadius: BorderRadius.circular(22.0),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                border: Border.all(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.10)),
               ),
               child: Row(
                 children: [
@@ -161,8 +178,8 @@ class _FrostedMenuCard extends StatelessWidget {
                       children: [
                         Text(
                           title,
-                          style: const TextStyle(
-                            color: kPrimaryTextColor,
+                          style: TextStyle(
+                            color: _primaryText(context),
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             fontFamily: 'Gilroy',
@@ -171,8 +188,8 @@ class _FrostedMenuCard extends StatelessWidget {
                         const SizedBox(height: 6),
                         Text(
                           subtitle,
-                          style: const TextStyle(
-                            color: kSecondaryTextColor,
+                          style: TextStyle(
+                            color: _secondaryText(context),
                             fontSize: 13,
                             fontFamily: 'Gilroy',
                           ),
@@ -181,7 +198,8 @@ class _FrostedMenuCard extends StatelessWidget {
                     ),
                   ),
                   Icon(Icons.arrow_forward_ios_rounded,
-                      size: 16, color: kPrimaryTextColor.withValues(alpha: 0.5)),
+                      size: 16,
+                      color: _primaryText(context).withValues(alpha: 0.55)),
                 ],
               ),
             ),
@@ -197,21 +215,23 @@ class AppAbout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: kBackgroundColor,
+      backgroundColor: _bg(context),
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_new_rounded,
-              color: kPrimaryTextColor.withValues(alpha: 0.5)),
+              color: _primaryText(context).withValues(alpha: 0.65)),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
+        title: Text(
           'App Info',
           style: TextStyle(
-            color: kPrimaryTextColor,
+            color: _primaryText(context),
             fontWeight: FontWeight.bold,
             letterSpacing: 1.1,
           ),
@@ -221,7 +241,13 @@ class AppAbout extends StatelessWidget {
       body: Stack(
         alignment: Alignment.center,
         children: [
-          const ParticleBackground(),
+          ParticleBackground(
+            backgroundColor: _bg(context),
+            tintColor: scheme.primary,
+            tintAlpha: isDark ? 0.6 : 0.12,
+            particleColor: _primaryText(context),
+            particleAlpha: isDark ? 0.35 : 0.18,
+          ),
           Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 520),
@@ -238,18 +264,18 @@ class AppAbout extends StatelessWidget {
                           width: double.infinity,
                           padding: const EdgeInsets.fromLTRB(24, 26, 24, 22),
                           decoration: BoxDecoration(
-                            color: kCardBackgroundColor,
+                            color: _cardBg(context),
                             borderRadius: BorderRadius.circular(28.0),
                             border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.1)),
+                                color: scheme.onSurface.withValues(alpha: 0.10)),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                              Text(
                                 'Musicly',
                                 style: TextStyle(
-                                  color: kPrimaryTextColor,
+                                  color: _primaryText(context),
                                   fontSize: 22,
                                   fontWeight: FontWeight.bold,
                                   fontFamily: 'Gilroy',
@@ -264,8 +290,8 @@ class AppAbout extends StatelessWidget {
                                       : 'Version: -';
                                   return Text(
                                     versionText,
-                                    style: const TextStyle(
-                                      color: kSecondaryTextColor,
+                                    style: TextStyle(
+                                      color: _secondaryText(context),
                                       fontSize: 14,
                                       fontFamily: 'Gilroy',
                                     ),
@@ -295,18 +321,18 @@ class AppAbout extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 18, vertical: 16),
                           decoration: BoxDecoration(
-                            color: kCardBackgroundColor,
+                            color: _cardBg(context),
                             borderRadius: BorderRadius.circular(22.0),
                             border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.1)),
+                                color: scheme.onSurface.withValues(alpha: 0.10)),
                           ),
                           child: Row(
                             children: [
-                              const Expanded(
+                              Expanded(
                                 child: Text(
                                   'Website',
                                   style: TextStyle(
-                                    color: kPrimaryTextColor,
+                                    color: _primaryText(context),
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                     fontFamily: 'Gilroy',
@@ -321,10 +347,10 @@ class AppAbout extends StatelessWidget {
                                     mode: LaunchMode.externalApplication,
                                   );
                                 },
-                                child: const Text(
+                                child: Text(
                                   'Open',
                                   style: TextStyle(
-                                    color: kSecondaryTextColor,
+                                    color: _secondaryText(context),
                                     fontFamily: 'Gilroy',
                                   ),
                                 ),
@@ -350,21 +376,23 @@ class About extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: kBackgroundColor,
+      backgroundColor: _bg(context),
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_new_rounded,
-              color: kPrimaryTextColor.withValues(alpha: 0.5)),
+              color: _primaryText(context).withValues(alpha: 0.65)),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
+        title: Text(
           'About Dev',
           style: TextStyle(
-            color: kPrimaryTextColor,
+            color: _primaryText(context),
             fontWeight: FontWeight.bold,
             letterSpacing: 1.1,
           ),
@@ -374,7 +402,13 @@ class About extends StatelessWidget {
       body: Stack(
         alignment: Alignment.center,
         children: [
-          const ParticleBackground(),
+          ParticleBackground(
+            backgroundColor: _bg(context),
+            tintColor: scheme.primary,
+            tintAlpha: isDark ? 0.6 : 0.12,
+            particleColor: _primaryText(context),
+            particleAlpha: isDark ? 0.35 : 0.18,
+          ),
           const Positioned.fill(child: AnimatedWaveform()),
           Center(
             child: ConstrainedBox(
@@ -405,6 +439,7 @@ class About extends StatelessWidget {
   }
 
   Widget _buildInfoCard(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return ClipRRect(
       borderRadius: BorderRadius.circular(28.0),
       child: BackdropFilter(
@@ -412,9 +447,9 @@ class About extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.fromLTRB(24, 32, 24, 28),
           decoration: BoxDecoration(
-            color: kCardBackgroundColor,
+            color: _cardBg(context),
             borderRadius: BorderRadius.circular(28.0),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+            border: Border.all(color: scheme.onSurface.withValues(alpha: 0.10)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -449,19 +484,20 @@ class About extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 10),
-              const Text(
+              Text(
                 'Crafting symphonies in code.',
                 style: TextStyle(
-                    fontSize: 16,
-                    color: kSecondaryTextColor,
-                    fontFamily: 'Gilroy'),
+                  fontSize: 16,
+                  color: _secondaryText(context),
+                  fontFamily: 'Gilroy',
+                ),
               ),
               const SizedBox(height: 35),
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.3),
+                  color: scheme.surface.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: Row(
@@ -488,18 +524,10 @@ class About extends StatelessWidget {
                         '@siamislamtalha',
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          color: kPrimaryTextColor,
+                          color: _primaryText(context),
                           fontWeight: FontWeight.w500,
                           fontSize: 16,
                           fontFamily: 'Gilroy',
-                          shadows: [
-                            Shadow(
-                              color: const Color.fromARGB(255, 255, 246, 238)
-                                  .withValues(alpha: 0.4),
-                              blurRadius: 12,
-                              offset: const Offset(0, 0),
-                            ),
-                          ],
                         ),
                       ),
                     ),
@@ -649,8 +677,8 @@ class About extends StatelessWidget {
                     ? 'v${snapshot.data!.version}+${snapshot.data!.buildNumber}'
                     : 'Not able to retrieve version';
                 return Text(ver,
-                    style: const TextStyle(
-                        color: kSecondaryTextColor,
+                    style: TextStyle(
+                        color: _secondaryText(context),
                         fontSize: 12,
                         fontFamily: 'Gilroy'));
               },
@@ -674,11 +702,11 @@ class _InfoPill extends StatelessWidget {
     final child = Row(
       mainAxisSize: MainAxisSize.min, // Important for Wrap widget
       children: [
-        Icon(icon, color: kSecondaryTextColor, size: 18),
+        Icon(icon, color: _secondaryText(context), size: 18),
         const SizedBox(width: 8),
         Text(text,
-            style: const TextStyle(
-                color: kSecondaryTextColor,
+            style: TextStyle(
+                color: _secondaryText(context),
                 fontSize: 13,
                 fontFamily: 'Gilroy')),
       ],
@@ -777,7 +805,20 @@ class WaveformPainter extends CustomPainter {
 }
 
 class ParticleBackground extends StatefulWidget {
-  const ParticleBackground({super.key});
+  final Color backgroundColor;
+  final Color tintColor;
+  final double tintAlpha;
+  final Color particleColor;
+  final double particleAlpha;
+
+  const ParticleBackground({
+    super.key,
+    required this.backgroundColor,
+    required this.tintColor,
+    required this.tintAlpha,
+    required this.particleColor,
+    required this.particleAlpha,
+  });
   @override
   State<ParticleBackground> createState() => _ParticleBackgroundState();
 }
@@ -860,14 +901,35 @@ class _ParticleBackgroundState extends State<ParticleBackground>
             }
           }
           return CustomPaint(
-              size: Size.infinite, painter: ParticlePainter(_particles));
+              size: Size.infinite,
+              painter: ParticlePainter(
+                _particles,
+                backgroundColor: widget.backgroundColor,
+                tintColor: widget.tintColor,
+                tintAlpha: widget.tintAlpha,
+                particleColor: widget.particleColor,
+                particleAlpha: widget.particleAlpha,
+              ));
         });
   }
 }
 
 class ParticlePainter extends CustomPainter {
   final List<Particle> particles;
-  ParticlePainter(this.particles);
+  final Color backgroundColor;
+  final Color tintColor;
+  final double tintAlpha;
+  final Color particleColor;
+  final double particleAlpha;
+
+  ParticlePainter(
+    this.particles, {
+    required this.backgroundColor,
+    required this.tintColor,
+    required this.tintAlpha,
+    required this.particleColor,
+    required this.particleAlpha,
+  });
   @override
   void paint(Canvas canvas, Size size) {
     final rect = Rect.fromCircle(
@@ -875,8 +937,8 @@ class ParticlePainter extends CustomPainter {
     final bgPaint = Paint()
       // Use a deeper radial tint with slightly higher opacity so edges stay dark
       ..shader = RadialGradient(colors: [
-        const Color(0xFF2A1726).withValues(alpha: 0.6),
-        kBackgroundColor.withValues(alpha: 0)
+        tintColor.withValues(alpha: tintAlpha),
+        backgroundColor.withValues(alpha: 0)
       ]).createShader(rect);
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), bgPaint);
 
@@ -886,7 +948,7 @@ class ParticlePainter extends CustomPainter {
       final opacity = max(0.0, -4 * (progress - 0.5) * (progress - 0.5) + 1);
 
       // Lower particle brightness so they don't wash out the dark background
-      paint.color = Colors.white.withValues(alpha: opacity * 0.35);
+      paint.color = particleColor.withValues(alpha: opacity * particleAlpha);
       paint.maskFilter =
           p.isSharp ? null : MaskFilter.blur(BlurStyle.normal, p.radius * 2);
 

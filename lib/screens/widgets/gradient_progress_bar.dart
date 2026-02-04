@@ -413,10 +413,12 @@ class _GradientProgressBarState extends State<GradientProgressBar>
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final defaultLabelStyle = widget.timeLabelStyle ??
         TextStyle(
           fontSize: 12,
-          color: Colors.white.withOpacity(0.7),
+          color: scheme.onSurface.withOpacity(isDark ? 0.7 : 0.8),
           fontWeight: FontWeight.w500,
         );
 
@@ -514,7 +516,7 @@ class _GradientProgressBarState extends State<GradientProgressBar>
               _colorAnimation.value,
             )!;
             final currentBufferedColor = Color.lerp(
-              Colors.white.withOpacity(0.1),
+              scheme.onSurface.withOpacity(isDark ? 0.10 : 0.06),
               currentColor.withOpacity(0.02),
               0.08, // Mostly white with subtle color hint
             );
@@ -526,6 +528,9 @@ class _GradientProgressBarState extends State<GradientProgressBar>
                 bufferedRatio: _bufferedRatio,
                 gradientColors: currentGradient,
                 thumbInnerColor: currentThumbColor,
+                thumbOuterColor: scheme.surface,
+                thumbShadowColor: (isDark ? Colors.black : scheme.shadow)
+                    .withOpacity(isDark ? 0.30 : 0.18),
                 trackHeight: widget.trackHeight,
                 thumbRadius: widget.thumbRadius,
                 inactiveTrackColor:
@@ -547,6 +552,8 @@ class _GradientProgressBarPainter extends CustomPainter {
   final double bufferedRatio;
   final List<Color> gradientColors;
   final Color thumbInnerColor;
+  final Color thumbOuterColor;
+  final Color thumbShadowColor;
   final double trackHeight;
   final double thumbRadius;
   final Color inactiveTrackColor;
@@ -558,6 +565,8 @@ class _GradientProgressBarPainter extends CustomPainter {
     required this.bufferedRatio,
     required this.gradientColors,
     required this.thumbInnerColor,
+    required this.thumbOuterColor,
+    required this.thumbShadowColor,
     required this.trackHeight,
     required this.thumbRadius,
     required this.inactiveTrackColor,
@@ -646,7 +655,7 @@ class _GradientProgressBarPainter extends CustomPainter {
 
     // 5. Draw thumb shadow
     final shadowPaint = Paint()
-      ..color = Colors.black.withOpacity(0.3)
+      ..color = thumbShadowColor
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3);
     canvas.drawCircle(
       Offset(thumbX, centerY + 1),
@@ -656,7 +665,7 @@ class _GradientProgressBarPainter extends CustomPainter {
 
     // 6. Draw white outer thumb
     final thumbOuterPaint = Paint()
-      ..color = Colors.white
+      ..color = thumbOuterColor
       ..style = PaintingStyle.fill;
     canvas.drawCircle(Offset(thumbX, centerY), thumbRadius, thumbOuterPaint);
 

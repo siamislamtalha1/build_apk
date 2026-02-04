@@ -1,3 +1,0 @@
-package com.toasterofbread.spmp.widget
-
-class SplitImageControlsWidgetReceiver: SpMpWidgetReceiver(SpMpWidgetType.SPLIT_IMAGE_CONTROLS)

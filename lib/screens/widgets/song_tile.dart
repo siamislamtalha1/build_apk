@@ -16,52 +16,11 @@ import 'package:Bloomee/utils/load_Image.dart';
 
 // Cached styles to avoid repeated merges
 class _SongCardStyles {
-  static final titleStyle = Default_Theme.tertiaryTextStyle.merge(
-    TextStyle(
-      fontWeight: FontWeight.w600,
-      color: Default_Theme.primaryColor1,
-      fontSize: 14,
-    ),
-  );
-
-  static final subtitleStyle = Default_Theme.tertiaryTextStyle.merge(
-    TextStyle(
-      color: Default_Theme.primaryColor1.withValues(alpha: 0.8),
-      fontSize: 13,
-    ),
-  );
-
   static const borderRadius = BorderRadius.all(Radius.circular(12));
   static const imageBorderRadius = BorderRadius.all(Radius.circular(10));
   static const tilePadding =
       EdgeInsets.only(left: 10, right: 2, top: 4, bottom: 4);
   static const buttonPadding = EdgeInsets.symmetric(horizontal: 2);
-
-  // Cached action icons to avoid recreation
-  static final playIcon = Icon(
-    FontAwesome.play_solid,
-    size: 30,
-    color: Default_Theme.primaryColor1,
-  );
-  static final copyIcon = Icon(
-    Icons.copy_outlined,
-    size: 25,
-    color: Default_Theme.primaryColor1,
-  );
-  static final infoIcon = Icon(
-    MingCute.information_line,
-    size: 30,
-    color: Default_Theme.primaryColor1,
-  );
-  static final deleteIcon = Icon(
-    MingCute.delete_2_line,
-    size: 28,
-    color: Default_Theme.primaryColor1,
-  );
-  static final optionsIcon = Icon(
-    MingCute.more_2_fill,
-    color: Default_Theme.primaryColor1,
-  );
 }
 
 class SongCardWidget extends StatelessWidget {
@@ -103,6 +62,18 @@ class SongCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final playerCubit = context.read<BloomeePlayerCubit>();
+    final scheme = Theme.of(context).colorScheme;
+
+    final optionsIcon = Icon(
+      MingCute.more_2_fill,
+      color: scheme.onSurface,
+    );
+
+    final playIcon = Icon(
+      FontAwesome.play_solid,
+      size: 30,
+      color: scheme.onSurface,
+    );
 
     return SizedBox(
       height: 70,
@@ -136,7 +107,7 @@ class SongCardWidget extends StatelessWidget {
               ),
               if (showPlayBtn)
                 _ActionButton(
-                  icon: _SongCardStyles.playIcon,
+                  icon: playIcon,
                   onPressed: onPlayTap,
                 ),
               if (showCopyBtn)
@@ -156,7 +127,7 @@ class SongCardWidget extends StatelessWidget {
                 ),
               if (showOptions)
                 IconButton(
-                  icon: _SongCardStyles.optionsIcon,
+                  icon: optionsIcon,
                   onPressed: onOptionsTap,
                 ),
               if (trailing != null) trailing!,
@@ -304,6 +275,22 @@ class _SongInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final titleStyle = Default_Theme.tertiaryTextStyle.merge(
+      TextStyle(
+        fontWeight: FontWeight.w600,
+        color: scheme.onSurface,
+        fontSize: 14,
+      ),
+    );
+
+    final subtitleStyle = Default_Theme.tertiaryTextStyle.merge(
+      TextStyle(
+        color: scheme.onSurface.withValues(alpha: 0.8),
+        fontSize: 13,
+      ),
+    );
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -315,7 +302,7 @@ class _SongInfo extends StatelessWidget {
             textAlign: TextAlign.start,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
-            style: _SongCardStyles.titleStyle,
+            style: titleStyle,
           ),
         ),
         Text(
@@ -323,7 +310,7 @@ class _SongInfo extends StatelessWidget {
           textAlign: TextAlign.start,
           overflow: TextOverflow.ellipsis,
           maxLines: 1,
-          style: _SongCardStyles.subtitleStyle,
+          style: subtitleStyle,
         ),
         if (source != null)
           Padding(
@@ -381,12 +368,19 @@ class _CopyButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final copyIcon = Icon(
+      Icons.copy_outlined,
+      size: 25,
+      color: scheme.onSurface,
+    );
+
     return Padding(
       padding: _SongCardStyles.buttonPadding,
       child: Tooltip(
         message: "Copy to clipboard",
         child: IconButton(
-          icon: _SongCardStyles.copyIcon,
+          icon: copyIcon,
           onPressed: _copyToClipboard,
         ),
       ),
@@ -418,12 +412,19 @@ class _InfoButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final infoIcon = Icon(
+      MingCute.information_line,
+      size: 30,
+      color: scheme.onSurface,
+    );
+
     return Padding(
       padding: _SongCardStyles.buttonPadding,
       child: Tooltip(
         message: "About this song",
         child: IconButton(
-          icon: _SongCardStyles.infoIcon,
+          icon: infoIcon,
           onPressed: () {
             if (onInfoTap != null) {
               onInfoTap!();
@@ -454,10 +455,17 @@ class _DeleteButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final deleteIcon = Icon(
+      MingCute.delete_2_line,
+      size: 28,
+      color: scheme.onSurface,
+    );
+
     return Padding(
       padding: const EdgeInsets.only(left: 2),
       child: IconButton(
-        icon: _SongCardStyles.deleteIcon,
+        icon: deleteIcon,
         onPressed: _handleDelete,
       ),
     );
@@ -483,6 +491,9 @@ class SongCardDummyWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final skeletonColor = scheme.onSurface.withValues(alpha: isDark ? 0.15 : 0.08);
     return SizedBox(
       height: 70,
       child: InkWell(
@@ -498,7 +509,7 @@ class SongCardDummyWidget extends StatelessWidget {
                 height: 55,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
-                  color: Colors.white.withValues(alpha: 0.15),
+                  color: skeletonColor,
                 ),
               ),
               const SizedBox(width: 10),
@@ -513,7 +524,7 @@ class SongCardDummyWidget extends StatelessWidget {
                       height: 17,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
-                        color: Colors.white.withValues(alpha: 0.15),
+                        color: skeletonColor,
                       ),
                     ),
                   ),
@@ -522,7 +533,7 @@ class SongCardDummyWidget extends StatelessWidget {
                     height: 15,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
-                      color: Colors.white.withValues(alpha: 0.15),
+                      color: skeletonColor,
                     ),
                   ),
                 ],

@@ -39,6 +39,7 @@ class _AIPlaylistScreenState extends State<AIPlaylistScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       backgroundColor: Default_Theme.themeColor,
       appBar: AppBar(
@@ -206,11 +207,11 @@ class _AIPlaylistScreenState extends State<AIPlaylistScreen> {
               child: ElevatedButton.icon(
                 onPressed: _isLoading ? null : _generatePlaylist,
                 icon: _isLoading
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 20,
                         height: 20,
                         child: CircularProgressIndicator(
-                          color: Colors.white,
+                          color: scheme.onPrimary,
                           strokeWidth: 2,
                         ),
                       )
@@ -224,7 +225,7 @@ class _AIPlaylistScreenState extends State<AIPlaylistScreen> {
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Default_Theme.accentColor2,
-                  foregroundColor: Colors.white,
+                  foregroundColor: scheme.onPrimary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),

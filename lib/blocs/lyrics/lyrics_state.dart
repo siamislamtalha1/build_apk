@@ -5,21 +5,71 @@ class LyricsState extends Equatable {
   const LyricsState(
     this.lyrics,
     this.mediaItem,
+    this.translationEnabled,
+    this.translationTargetLang,
+    this.isTranslating,
+    this.translatedPlain,
+    this.translatedSyncedLines,
   );
 
   final Lyrics lyrics;
   final MediaItemModel mediaItem;
+  final bool translationEnabled;
+  final String translationTargetLang;
+  final bool isTranslating;
+  final String? translatedPlain;
+  final List<String>? translatedSyncedLines;
 
   @override
-  List<Object> get props => [lyrics, lyrics.id, lyrics.title, mediaItem];
+  List<Object?> get props => [
+        lyrics,
+        lyrics.id,
+        lyrics.title,
+        mediaItem,
+        translationEnabled,
+        translationTargetLang,
+        isTranslating,
+        translatedPlain,
+        translatedSyncedLines,
+      ];
 
   LyricsState copyWith({
     Lyrics? lyrics,
     MediaItemModel? mediaItem,
+    bool? translationEnabled,
+    String? translationTargetLang,
+    bool? isTranslating,
+    String? translatedPlain,
+    List<String>? translatedSyncedLines,
   }) {
+    final nextLyrics = lyrics ?? this.lyrics;
+    final nextMediaItem = mediaItem ?? this.mediaItem;
+    final nextEnabled = translationEnabled ?? this.translationEnabled;
+    final nextLang = translationTargetLang ?? this.translationTargetLang;
+    final nextIsTranslating = isTranslating ?? this.isTranslating;
+    final nextPlain = translatedPlain ?? this.translatedPlain;
+    final nextLines = translatedSyncedLines ?? this.translatedSyncedLines;
+
+    if (this is LyricsLoaded) {
+      return LyricsLoaded.withTranslation(
+        nextLyrics,
+        nextMediaItem,
+        translationEnabled: nextEnabled,
+        translationTargetLang: nextLang,
+        isTranslating: nextIsTranslating,
+        translatedPlain: nextPlain,
+        translatedSyncedLines: nextLines,
+      );
+    }
+
     return LyricsState(
-      lyrics ?? this.lyrics,
-      mediaItem ?? this.mediaItem,
+      nextLyrics,
+      nextMediaItem,
+      nextEnabled,
+      nextLang,
+      nextIsTranslating,
+      nextPlain,
+      nextLines,
     );
   }
 }
@@ -33,7 +83,12 @@ final class LyricsInitial extends LyricsState {
                 id: "id",
                 lyricsPlain: "",
                 provider: LyricsProvider.none),
-            mediaItemModelNull);
+            mediaItemModelNull,
+            false,
+            'en',
+            false,
+            null,
+            null);
 }
 
 final class LyricsLoading extends LyricsState {
@@ -45,7 +100,12 @@ final class LyricsLoading extends LyricsState {
                 id: "id",
                 lyricsPlain: "",
                 provider: LyricsProvider.none),
-            mediaItem);
+            mediaItem,
+            false,
+            'en',
+            false,
+            null,
+            null);
 }
 
 final class LyricsError extends LyricsState {
@@ -57,10 +117,33 @@ final class LyricsError extends LyricsState {
                 id: "id",
                 lyricsPlain: "",
                 provider: LyricsProvider.none),
-            mediaItem);
+            mediaItem,
+            false,
+            'en',
+            false,
+            null,
+            null);
 }
 
 final class LyricsLoaded extends LyricsState {
   const LyricsLoaded(Lyrics lyrics, MediaItemModel mediaItem)
-      : super(lyrics, mediaItem);
+      : super(lyrics, mediaItem, false, 'en', false, null, null);
+
+  const LyricsLoaded.withTranslation(
+    Lyrics lyrics,
+    MediaItemModel mediaItem, {
+    required bool translationEnabled,
+    required String translationTargetLang,
+    required bool isTranslating,
+    required String? translatedPlain,
+    required List<String>? translatedSyncedLines,
+  }) : super(
+          lyrics,
+          mediaItem,
+          translationEnabled,
+          translationTargetLang,
+          isTranslating,
+          translatedPlain,
+          translatedSyncedLines,
+        );
 }

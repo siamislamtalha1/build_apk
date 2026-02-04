@@ -116,7 +116,7 @@ class _ShortcutIndicatorState extends State<_ShortcutIndicator>
               child: Transform.scale(
                 scale: _scaleAnimation.value,
                 child: Center(
-                  child: _buildIndicatorContent(),
+                  child: _buildIndicatorContent(context),
                 ),
               ),
             );
@@ -126,30 +126,36 @@ class _ShortcutIndicatorState extends State<_ShortcutIndicator>
     );
   }
 
-  Widget _buildIndicatorContent() {
+  Widget _buildIndicatorContent(BuildContext context) {
     final type = widget.state.type;
     if (type == null) return const SizedBox.shrink();
+
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return SizedBox(
       width: 160,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
         decoration: BoxDecoration(
-          color: Default_Theme.themeColor.withValues(alpha: 0.75),
+          color: (isDark ? Default_Theme.themeColor : scheme.surface)
+              .withValues(alpha: isDark ? 0.75 : 0.92),
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: Default_Theme.primaryColor1.withValues(alpha: 0.08),
+            color: scheme.onSurface.withValues(alpha: isDark ? 0.08 : 0.10),
             width: 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.15),
+              color: (isDark ? Colors.black : scheme.shadow)
+                  .withValues(alpha: isDark ? 0.15 : 0.10),
               blurRadius: 32,
               spreadRadius: 0,
               offset: const Offset(0, 8),
             ),
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
+              color: (isDark ? Colors.black : scheme.shadow)
+                  .withValues(alpha: isDark ? 0.08 : 0.06),
               blurRadius: 16,
               spreadRadius: 0,
               offset: const Offset(0, 4),
@@ -159,12 +165,12 @@ class _ShortcutIndicatorState extends State<_ShortcutIndicator>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildIcon(type),
+            _buildIcon(context, type),
             const SizedBox(height: 12),
-            _buildLabel(type),
+            _buildLabel(context, type),
             if (_shouldShowProgressBar(type)) ...[
               const SizedBox(height: 12),
-              _buildProgressBar(),
+              _buildProgressBar(context),
             ],
           ],
         ),
@@ -172,25 +178,27 @@ class _ShortcutIndicatorState extends State<_ShortcutIndicator>
     );
   }
 
-  Widget _buildIcon(ShortcutIndicatorType type) {
+  Widget _buildIcon(BuildContext context, ShortcutIndicatorType type) {
     final IconData icon;
     final Color color;
+
+    final scheme = Theme.of(context).colorScheme;
 
     switch (type) {
       case ShortcutIndicatorType.volume:
         final level = widget.state.volumeLevel ?? 0;
         if (level == 0) {
           icon = MingCute.volume_off_fill;
-          color = Default_Theme.primaryColor1.withValues(alpha: 0.6);
+          color = scheme.onSurface.withValues(alpha: 0.6);
         } else if (level < 0.3) {
           icon = MingCute.volume_fill;
-          color = Default_Theme.primaryColor1;
+          color = scheme.onSurface;
         } else if (level < 0.7) {
           icon = MingCute.volume_fill;
-          color = Default_Theme.primaryColor1;
+          color = scheme.onSurface;
         } else {
           icon = MingCute.volume_fill;
-          color = Default_Theme.primaryColor1;
+          color = scheme.onSurface;
         }
         break;
 
@@ -198,7 +206,7 @@ class _ShortcutIndicatorState extends State<_ShortcutIndicator>
         final isMuted = widget.state.isMuted ?? false;
         icon = isMuted ? MingCute.volume_off_fill : MingCute.volume_fill;
         color = isMuted
-            ? Default_Theme.primaryColor1.withValues(alpha: 0.6)
+            ? scheme.onSurface.withValues(alpha: 0.6)
             : Default_Theme.accentColor1;
         break;
 
@@ -206,7 +214,7 @@ class _ShortcutIndicatorState extends State<_ShortcutIndicator>
         icon = MingCute.shuffle_2_line;
         color = (widget.state.isShuffleOn ?? false)
             ? Default_Theme.accentColor1
-            : Default_Theme.primaryColor1.withValues(alpha: 0.6);
+            : scheme.onSurface.withValues(alpha: 0.6);
         break;
 
       case ShortcutIndicatorType.loop:
@@ -214,7 +222,7 @@ class _ShortcutIndicatorState extends State<_ShortcutIndicator>
         switch (mode) {
           case LoopMode.off:
             icon = MingCute.repeat_line;
-            color = Default_Theme.primaryColor1.withValues(alpha: 0.6);
+            color = scheme.onSurface.withValues(alpha: 0.6);
             break;
           case LoopMode.one:
             icon = MingCute.repeat_one_line;
@@ -230,8 +238,7 @@ class _ShortcutIndicatorState extends State<_ShortcutIndicator>
       case ShortcutIndicatorType.like:
         final isLiked = widget.state.isLiked ?? false;
         icon = isLiked ? AntDesign.heart_fill : AntDesign.heart_outline;
-        color =
-            isLiked ? Default_Theme.accentColor2 : Default_Theme.primaryColor1;
+        color = isLiked ? Default_Theme.accentColor2 : scheme.onSurface;
         break;
     }
 
@@ -242,9 +249,11 @@ class _ShortcutIndicatorState extends State<_ShortcutIndicator>
     );
   }
 
-  Widget _buildLabel(ShortcutIndicatorType type) {
+  Widget _buildLabel(BuildContext context, ShortcutIndicatorType type) {
     final String label;
     final Color? labelColor;
+
+    final scheme = Theme.of(context).colorScheme;
 
     switch (type) {
       case ShortcutIndicatorType.volume:
@@ -294,7 +303,7 @@ class _ShortcutIndicatorState extends State<_ShortcutIndicator>
       label,
       style: Default_Theme.secondoryTextStyleMedium.copyWith(
         fontSize: 16,
-        color: labelColor ?? Default_Theme.primaryColor1,
+        color: labelColor ?? scheme.onSurface,
       ),
     );
   }
@@ -304,8 +313,9 @@ class _ShortcutIndicatorState extends State<_ShortcutIndicator>
         type == ShortcutIndicatorType.mute;
   }
 
-  Widget _buildProgressBar() {
+  Widget _buildProgressBar(BuildContext context) {
     final level = widget.state.volumeLevel ?? 0;
+    final scheme = Theme.of(context).colorScheme;
 
     return SizedBox(
       width: 140,
@@ -318,12 +328,11 @@ class _ShortcutIndicatorState extends State<_ShortcutIndicator>
             return LinearProgressIndicator(
               value: value,
               minHeight: 6,
-              backgroundColor:
-                  Default_Theme.primaryColor1.withValues(alpha: 0.2),
+              backgroundColor: scheme.onSurface.withValues(alpha: 0.2),
               valueColor: AlwaysStoppedAnimation<Color>(
                 value > 0
                     ? Default_Theme.accentColor1
-                    : Default_Theme.primaryColor1.withValues(alpha: 0.4),
+                    : scheme.onSurface.withValues(alpha: 0.4),
               ),
             );
           },
