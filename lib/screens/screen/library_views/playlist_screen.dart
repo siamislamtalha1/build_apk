@@ -723,9 +723,12 @@ class PlaylistView extends StatelessWidget {
                                                         .trim()
                                                         .isNotEmpty)
                                                 ? state.mediaPlaylist.imgUrl!
-                                                : state.mediaPlaylist.mediaItems
-                                                    .first.artUri
-                                                    .toString(),
+                                                : (state.mediaPlaylist
+                                                        .mediaItems.isNotEmpty
+                                                    ? state.mediaPlaylist
+                                                        .mediaItems.first.artUri
+                                                        .toString()
+                                                    : ''),
                                             ImageQuality.low)),
                                     Positioned(
                                         child: Container(
@@ -786,25 +789,30 @@ class PlaylistView extends StatelessWidget {
                                                   ],
                                                 ),
                                                 child: LoadImageCached(
-                                                    imageUrl: formatImgURL(
-                                                        (state.mediaPlaylist
-                                                                        .imgUrl !=
-                                                                    null &&
-                                                                state
-                                                                    .mediaPlaylist
-                                                                    .imgUrl!
-                                                                    .trim()
-                                                                    .isNotEmpty)
-                                                            ? state
-                                                                .mediaPlaylist
+                                                  imageUrl: formatImgURL(
+                                                    (state.mediaPlaylist
+                                                                    .imgUrl !=
+                                                                null &&
+                                                            state.mediaPlaylist
                                                                 .imgUrl!
-                                                            : state
+                                                                .trim()
+                                                                .isNotEmpty)
+                                                        ? state.mediaPlaylist
+                                                            .imgUrl!
+                                                        : (state
+                                                                .mediaPlaylist
+                                                                .mediaItems
+                                                                .isNotEmpty
+                                                            ? state
                                                                 .mediaPlaylist
                                                                 .mediaItems
                                                                 .first
                                                                 .artUri
-                                                                .toString(),
-                                                        ImageQuality.high)),
+                                                                .toString()
+                                                            : ''),
+                                                    ImageQuality.high,
+                                                  ),
+                                                ),
                                               ),
                                             ),
                                           ),

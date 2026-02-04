@@ -23,6 +23,7 @@ class MainActivity : AudioServiceActivity() {
     private var visualizerSessionId: Int? = null
     private var visualizerEnabled: Boolean = false
     private var visualizerSink: EventChannel.EventSink? = null
+    private var currentVisualizerSessionId: Int? = null
     private val mainHandler = Handler(Looper.getMainLooper())
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
@@ -144,7 +145,7 @@ class MainActivity : AudioServiceActivity() {
         val sessionId = visualizerSessionId ?: return
 
         try {
-            if (visualizer != null && sessionId == visualizer?.audioSessionId) {
+            if (visualizer != null && sessionId == currentVisualizerSessionId) {
                 return
             }
 
@@ -182,6 +183,7 @@ class MainActivity : AudioServiceActivity() {
             v.enabled = true
 
             visualizer = v
+            currentVisualizerSessionId = sessionId
         } catch (_: Exception) {
             stopVisualizer()
         }
@@ -197,5 +199,6 @@ class MainActivity : AudioServiceActivity() {
         } catch (_: Exception) {
         }
         visualizer = null
+        currentVisualizerSessionId = null
     }
 }

@@ -198,7 +198,8 @@ class SyncService {
   /// Start sync for a user
   void _startSync(String userId) async {
     print('🔄 Starting sync for user: $userId');
-    if (_activeUserId == userId && (_startSyncCompleter != null || _initialSyncCompleted)) {
+    if (_activeUserId == userId &&
+        (_startSyncCompleter != null || _initialSyncCompleted)) {
       return;
     }
 
@@ -356,14 +357,16 @@ class SyncService {
     _syncDetailsController.add(
       _syncDetailsController.value.copyWith(syncingPlaylists: true),
     );
-    final cloudPlaylists = await _firestoreService.getPlaylistsFromCloud(userId);
+    final cloudPlaylists =
+        await _firestoreService.getPlaylistsFromCloud(userId);
     if (cloudPlaylists.isNotEmpty) {
       _suppressLocalPlaylistPush = true;
       var totalItems = 0;
       for (final pl in cloudPlaylists) {
         final name = (pl['playlistName'] as String?) ?? '';
         if (name.isEmpty) continue;
-        final items = await _firestoreService.getPlaylistItemsFromCloud(userId, name);
+        final items =
+            await _firestoreService.getPlaylistItemsFromCloud(userId, name);
         totalItems += items.length;
         if (items.isEmpty) {
           await BloomeeDBService.createPlaylist(name);
@@ -430,8 +433,8 @@ class SyncService {
       await isar.writeTxn(() async {
         for (final stat in cloudStats) {
           try {
-            final mediaId = (stat['mediaId'] ?? stat['mediaID'] ?? stat['id'])
-                ?.toString();
+            final mediaId =
+                (stat['mediaId'] ?? stat['mediaID'] ?? stat['id'])?.toString();
             if (mediaId == null || mediaId.isEmpty) continue;
             final playCount = (stat['playCount'] as num?)?.toInt() ?? 0;
             final lastPlayedMs = (stat['lastPlayed'] as num?)?.toInt();
@@ -473,7 +476,8 @@ class SyncService {
     _syncDetailsController.add(
       _syncDetailsController.value.copyWith(syncingSearchHistory: true),
     );
-    final cloudSearch = await _firestoreService.getSearchHistoryFromCloud(userId);
+    final cloudSearch =
+        await _firestoreService.getSearchHistoryFromCloud(userId);
     if (cloudSearch.isNotEmpty) {
       _suppressLocalSearchPush = true;
       final isar = await BloomeeDBService.db;
@@ -512,35 +516,27 @@ class SyncService {
     // Watch Liked Songs from Cloud
     _likedSongsSubscription = _firestoreService.watchLikedSongs(userId).listen(
       (cloudSongs) async {
-      if (cloudSongs.isEmpty) return;
-      print('☁️ Cloud liked songs changed: ${cloudSongs.length} items');
+        if (cloudSongs.isEmpty) return;
+        print('☁️ Cloud liked songs changed: ${cloudSongs.length} items');
 
-      _suppressLocalLikedPush = true;
-
-      // Update Local DB
-      // Note: This might trigger _watchLocalChanges -> _syncLikeSongsToCloud
-      // Loop prevention: _syncLikedSongsToCloud compares content or we rely on Idempotency
-      // Ideally, we shout check if local == cloud before writing.
-      // For now, simpler implementation:
-
-      await BloomeeDBService.createPlaylist(BloomeeDBService.likedPlaylist);
-      // We might want to merge or replace. Cloud is "truth" here for simplicity?
-      // Or merge? Let's just add missing ones for now to be safe against deletion loops.
-
-      for (var item in cloudSongs) {
+        _suppressLocalLikedPush = true;
         try {
-          final mediaItem = MediaItemDB.fromMap(item);
-          // Add if not exists or update.
-          // BloomeeDBService.addMediaItem checks for existence?
-          // Usually yes, or use put.
-          await BloomeeDBService.addMediaItem(
-              mediaItem, BloomeeDBService.likedPlaylist);
-        } catch (e) {
-          print('Error syncing cloud liked item to local: $e');
+          // Update Local DB
+          await BloomeeDBService.createPlaylist(BloomeeDBService.likedPlaylist);
+
+          for (var item in cloudSongs) {
+            try {
+              final mediaItem = MediaItemDB.fromMap(item);
+              await BloomeeDBService.addMediaItem(
+                  mediaItem, BloomeeDBService.likedPlaylist);
+            } catch (e) {
+              print('Error syncing cloud liked item to local: $e');
+            }
+          }
+        } finally {
+          _suppressLocalLikedPush = false;
         }
-      }
-      _suppressLocalLikedPush = false;
-    },
+      },
       onError: (Object e, StackTrace st) {
         CrashReporter.record(e, st, source: 'SyncService.watchLikedSongs');
         _stopSync();
@@ -552,21 +548,23 @@ class SyncService {
     // Note: History stream might be frequent.
     _cloudHistorySubscription = _firestoreService.watchHistory(userId).listen(
       (cloudHistory) async {
-      if (cloudHistory.isEmpty) return;
-      // Similar logic for history
-      _suppressLocalHistoryPush = true;
-      await BloomeeDBService.createPlaylist(
-          BloomeeDBService.recentlyPlayedPlaylist);
-      for (var item in cloudHistory) {
+        if (cloudHistory.isEmpty) return;
+        _suppressLocalHistoryPush = true;
         try {
-          final mediaItem = MediaItemDB.fromMap(item);
-          await BloomeeDBService.putRecentlyPlayed(mediaItem);
-        } catch (e) {
-          print('Error syncing cloud history to local: $e');
+          await BloomeeDBService.createPlaylist(
+              BloomeeDBService.recentlyPlayedPlaylist);
+          for (var item in cloudHistory) {
+            try {
+              final mediaItem = MediaItemDB.fromMap(item);
+              await BloomeeDBService.putRecentlyPlayed(mediaItem);
+            } catch (e) {
+              print('Error syncing cloud history to local: $e');
+            }
+          }
+        } finally {
+          _suppressLocalHistoryPush = false;
         }
-      }
-      _suppressLocalHistoryPush = false;
-    },
+      },
       onError: (Object e, StackTrace st) {
         CrashReporter.record(e, st, source: 'SyncService.watchHistory');
         _stopSync();
@@ -579,17 +577,20 @@ class SyncService {
       (cloudSearch) async {
         if (cloudSearch.isEmpty) return;
         _suppressLocalSearchPush = true;
-        final isar = await BloomeeDBService.db;
-        await isar.writeTxn(() async {
-          for (final item in cloudSearch) {
-            try {
-              await isar.searchHistoryDBs.put(SearchHistoryDB.fromMap(item));
-            } catch (e) {
-              print('Error syncing cloud search history to local: $e');
+        try {
+          final isar = await BloomeeDBService.db;
+          await isar.writeTxn(() async {
+            for (final item in cloudSearch) {
+              try {
+                await isar.searchHistoryDBs.put(SearchHistoryDB.fromMap(item));
+              } catch (e) {
+                print('Error syncing cloud search history to local: $e');
+              }
             }
-          }
-        });
-        _suppressLocalSearchPush = false;
+          });
+        } finally {
+          _suppressLocalSearchPush = false;
+        }
       },
       onError: (Object e, StackTrace st) {
         CrashReporter.record(e, st, source: 'SyncService.watchSearchHistory');
@@ -598,30 +599,32 @@ class SyncService {
       },
     );
 
-    _preferencesSubscription = _firestoreService
-        .watchUserPreferences(userId)
-        .listen((prefs) async {
+    _preferencesSubscription =
+        _firestoreService.watchUserPreferences(userId).listen((prefs) async {
       if (prefs == null) return;
       _suppressLocalPrefsPush = true;
-      final b = prefs['bool'] as Map<String, dynamic>?;
-      if (b != null) {
-        for (final entry in b.entries) {
-          final v = entry.value;
-          if (v is bool) {
-            await BloomeeDBService.putSettingBool(entry.key, v);
+      try {
+        final b = prefs['bool'] as Map<String, dynamic>?;
+        if (b != null) {
+          for (final entry in b.entries) {
+            final v = entry.value;
+            if (v is bool) {
+              await BloomeeDBService.putSettingBool(entry.key, v);
+            }
           }
         }
-      }
-      final s = prefs['str'] as Map<String, dynamic>?;
-      if (s != null) {
-        for (final entry in s.entries) {
-          final v = entry.value;
-          if (v is String) {
-            await BloomeeDBService.putSettingStr(entry.key, v);
+        final s = prefs['str'] as Map<String, dynamic>?;
+        if (s != null) {
+          for (final entry in s.entries) {
+            final v = entry.value;
+            if (v is String) {
+              await BloomeeDBService.putSettingStr(entry.key, v);
+            }
           }
         }
+      } finally {
+        _suppressLocalPrefsPush = false;
       }
-      _suppressLocalPrefsPush = false;
     }, onError: (Object e, StackTrace st) {
       CrashReporter.record(e, st, source: 'SyncService.watchUserPreferences');
       _stopSync();
@@ -630,44 +633,49 @@ class SyncService {
 
     _statisticsSubscription = _firestoreService.watchStatistics(userId).listen(
       (cloudStats) async {
-      if (cloudStats.isEmpty) return;
-      _suppressLocalStatsPush = true;
-      final isar = await BloomeeDBService.db;
-      await isar.writeTxn(() async {
-        for (final stat in cloudStats) {
-          try {
-            final mediaId = (stat['mediaId'] ?? stat['mediaID'] ?? stat['id'])
-                ?.toString();
-            if (mediaId == null || mediaId.isEmpty) continue;
-            final playCount = (stat['playCount'] as num?)?.toInt() ?? 0;
-            final lastPlayedMs = (stat['lastPlayed'] as num?)?.toInt();
-            final lastPlayed = lastPlayedMs != null
-                ? DateTime.fromMillisecondsSinceEpoch(lastPlayedMs)
-                : DateTime.now();
-            final ts = (stat['playTimestamps'] as List?)
-                    ?.whereType<num>()
-                    .map((e) => DateTime.fromMillisecondsSinceEpoch(e.toInt()))
-                    .toList() ??
-                <DateTime>[];
+        if (cloudStats.isEmpty) return;
+        _suppressLocalStatsPush = true;
+        try {
+          final isar = await BloomeeDBService.db;
+          await isar.writeTxn(() async {
+            for (final stat in cloudStats) {
+              try {
+                final mediaId =
+                    (stat['mediaId'] ?? stat['mediaID'] ?? stat['id'])
+                        ?.toString();
+                if (mediaId == null || mediaId.isEmpty) continue;
+                final playCount = (stat['playCount'] as num?)?.toInt() ?? 0;
+                final lastPlayedMs = (stat['lastPlayed'] as num?)?.toInt();
+                final lastPlayed = lastPlayedMs != null
+                    ? DateTime.fromMillisecondsSinceEpoch(lastPlayedMs)
+                    : DateTime.now();
+                final ts = (stat['playTimestamps'] as List?)
+                        ?.whereType<num>()
+                        .map((e) =>
+                            DateTime.fromMillisecondsSinceEpoch(e.toInt()))
+                        .toList() ??
+                    <DateTime>[];
 
-            await isar.playStatisticsDBs.put(
-              PlayStatisticsDB(
-                mediaId: mediaId,
-                title: (stat['title'] ?? '').toString(),
-                artist: (stat['artist'] ?? '').toString(),
-                album: (stat['album'] ?? '').toString(),
-                playCount: playCount,
-                lastPlayed: lastPlayed,
-                playTimestamps: ts,
-              ),
-            );
-          } catch (e) {
-            print('Error syncing statistics from cloud: $e');
-          }
+                await isar.playStatisticsDBs.put(
+                  PlayStatisticsDB(
+                    mediaId: mediaId,
+                    title: (stat['title'] ?? '').toString(),
+                    artist: (stat['artist'] ?? '').toString(),
+                    album: (stat['album'] ?? '').toString(),
+                    playCount: playCount,
+                    lastPlayed: lastPlayed,
+                    playTimestamps: ts,
+                  ),
+                );
+              } catch (e) {
+                print('Error syncing statistics from cloud: $e');
+              }
+            }
+          });
+        } finally {
+          _suppressLocalStatsPush = false;
         }
-      });
-      _suppressLocalStatsPush = false;
-    },
+      },
       onError: (Object e, StackTrace st) {
         CrashReporter.record(e, st, source: 'SyncService.watchStatistics');
         _stopSync();
@@ -675,65 +683,74 @@ class SyncService {
       },
     );
 
-    _cloudPlaylistsSubscription = _firestoreService.watchPlaylists(userId)
-        .listen((_) async {
-      // Pull playlist headers changed; items are stored in subcollections.
-      // We'll refresh by pulling each playlist's items and applying to local.
-      final cloudPlaylists = await _firestoreService.getPlaylistsFromCloud(userId);
-      if (cloudPlaylists.isEmpty) return;
+    _cloudPlaylistsSubscription =
+        _firestoreService.watchPlaylists(userId).listen(
+      (_) async {
+        // Pull playlist headers changed; items are stored in subcollections.
+        // We'll refresh by pulling each playlist's items and applying to local.
+        final cloudPlaylists =
+            await _firestoreService.getPlaylistsFromCloud(userId);
+        if (cloudPlaylists.isEmpty) return;
 
-      _suppressLocalPlaylistPush = true;
-      for (final pl in cloudPlaylists) {
-        final name = (pl['playlistName'] as String?) ?? '';
-        if (name.isEmpty) continue;
-        final items = await _firestoreService.getPlaylistItemsFromCloud(userId, name);
-        if (items.isEmpty) continue;
+        _suppressLocalPlaylistPush = true;
+        try {
+          for (final pl in cloudPlaylists) {
+            final name = (pl['playlistName'] as String?) ?? '';
+            if (name.isEmpty) continue;
+            final items =
+                await _firestoreService.getPlaylistItemsFromCloud(userId, name);
+            if (items.isEmpty) continue;
 
-        await BloomeeDBService.createPlaylist(
-          name,
-          artURL: pl['artURL'] as String?,
-          description: pl['description'] as String?,
-          permaURL: pl['permaURL'] as String?,
-          source: pl['source'] as String?,
-          artists: pl['artists'] as String?,
-          isAlbum: (pl['isAlbum'] as bool?) ?? false,
-        );
+            await BloomeeDBService.createPlaylist(
+              name,
+              artURL: pl['artURL'] as String?,
+              description: pl['description'] as String?,
+              permaURL: pl['permaURL'] as String?,
+              source: pl['source'] as String?,
+              artists: pl['artists'] as String?,
+              isAlbum: (pl['isAlbum'] as bool?) ?? false,
+            );
 
-        final order = (pl['mediaOrder'] as List?)
-                ?.whereType<String>()
-                .toList(growable: false) ??
-            const <String>[];
+            final order = (pl['mediaOrder'] as List?)
+                    ?.whereType<String>()
+                    .toList(growable: false) ??
+                const <String>[];
 
-        final idsInOrder = <int>[];
-        final mapById = <String, Map<String, dynamic>>{
-          for (final it in items)
-            if ((it['mediaID'] ?? it['mediaId'] ?? it['id']) != null)
-              (it['mediaID'] ?? it['mediaId'] ?? it['id']).toString(): it,
-        };
+            final idsInOrder = <int>[];
+            final mapById = <String, Map<String, dynamic>>{
+              for (final it in items)
+                if ((it['mediaID'] ?? it['mediaId'] ?? it['id']) != null)
+                  (it['mediaID'] ?? it['mediaId'] ?? it['id']).toString(): it,
+            };
 
-        final orderedKeys = order.isNotEmpty ? order : mapById.keys.toList();
-        for (final mediaId in orderedKeys) {
-          final m = mapById[mediaId];
-          if (m == null) continue;
-          try {
-            final dbItem = MediaItemDB.fromMap(m);
-            final id = await BloomeeDBService.addMediaItem(dbItem, name);
-            if (id != null) idsInOrder.add(id);
-          } catch (e) {
-            print('Error syncing cloud playlist item to local: $e');
+            final orderedKeys =
+                order.isNotEmpty ? order : mapById.keys.toList();
+            for (final mediaId in orderedKeys) {
+              final m = mapById[mediaId];
+              if (m == null) continue;
+              try {
+                final dbItem = MediaItemDB.fromMap(m);
+                final id = await BloomeeDBService.addMediaItem(dbItem, name);
+                if (id != null) idsInOrder.add(id);
+              } catch (e) {
+                print('Error syncing cloud playlist item to local: $e');
+              }
+            }
+
+            if (idsInOrder.isNotEmpty) {
+              await BloomeeDBService.updatePltItemsRankByName(name, idsInOrder);
+            }
           }
+        } finally {
+          _suppressLocalPlaylistPush = false;
         }
-
-        if (idsInOrder.isNotEmpty) {
-          await BloomeeDBService.updatePltItemsRankByName(name, idsInOrder);
-        }
-      }
-      _suppressLocalPlaylistPush = false;
-    }, onError: (Object e, StackTrace st) {
-      CrashReporter.record(e, st, source: 'SyncService.watchPlaylists');
-      _stopSync();
-      _syncStatusController.add(SyncStatus.error);
-    });
+      },
+      onError: (Object e, StackTrace st) {
+        CrashReporter.record(e, st, source: 'SyncService.watchPlaylists');
+        _stopSync();
+        _syncStatusController.add(SyncStatus.error);
+      },
+    );
   }
 
   void _watchLocalChanges(String userId) async {
@@ -808,11 +825,14 @@ class SyncService {
       // Then sync each playlist items + order
       for (final playlist in playlists) {
         final items = await BloomeeDBService.getPlaylistItems(playlist);
-        final info = await BloomeeDBService.getPlaylistInfo(playlist.playlistName);
+        final info =
+            await BloomeeDBService.getPlaylistInfo(playlist.playlistName);
 
         // Try to construct a stable cross-device order based on mediaID
         final rankedIds = await BloomeeDBService.getPlaylistItemsRank(playlist);
-        final mapByIsarId = {for (final it in items ?? <MediaItemDB>[]) it.id: it};
+        final mapByIsarId = {
+          for (final it in items ?? <MediaItemDB>[]) it.id: it
+        };
         final ordered = <MediaItemDB>[];
         for (final rid in rankedIds) {
           final it = mapByIsarId[rid];
@@ -822,7 +842,8 @@ class SyncService {
           if (!ordered.any((e) => e.id == it.id)) ordered.add(it);
         }
 
-        final mediaOrder = ordered.map((e) => e.mediaID).toList(growable: false);
+        final mediaOrder =
+            ordered.map((e) => e.mediaID).toList(growable: false);
 
         await _firestoreService.syncPlaylistToCloud(
           userId,
@@ -885,8 +906,7 @@ class SyncService {
         _syncDetailsController.value.copyWith(
           syncingHistory: false,
           status: _initialSyncCompleted ? SyncStatus.synced : SyncStatus.idle,
-          lastSuccessfulSyncAt:
-              _initialSyncCompleted ? DateTime.now() : null,
+          lastSuccessfulSyncAt: _initialSyncCompleted ? DateTime.now() : null,
         ),
       );
     }
@@ -912,8 +932,7 @@ class SyncService {
         _syncDetailsController.value.copyWith(
           syncingSearchHistory: false,
           status: _initialSyncCompleted ? SyncStatus.synced : SyncStatus.idle,
-          lastSuccessfulSyncAt:
-              _initialSyncCompleted ? DateTime.now() : null,
+          lastSuccessfulSyncAt: _initialSyncCompleted ? DateTime.now() : null,
         ),
       );
     }
@@ -958,8 +977,7 @@ class SyncService {
         _syncDetailsController.value.copyWith(
           syncingPreferences: false,
           status: _initialSyncCompleted ? SyncStatus.synced : SyncStatus.idle,
-          lastSuccessfulSyncAt:
-              _initialSyncCompleted ? DateTime.now() : null,
+          lastSuccessfulSyncAt: _initialSyncCompleted ? DateTime.now() : null,
         ),
       );
     }
@@ -992,8 +1010,7 @@ class SyncService {
         _syncDetailsController.value.copyWith(
           syncingLikedSongs: false,
           status: _initialSyncCompleted ? SyncStatus.synced : SyncStatus.idle,
-          lastSuccessfulSyncAt:
-              _initialSyncCompleted ? DateTime.now() : null,
+          lastSuccessfulSyncAt: _initialSyncCompleted ? DateTime.now() : null,
         ),
       );
     }
@@ -1020,8 +1037,7 @@ class SyncService {
         _syncDetailsController.value.copyWith(
           syncingStatistics: false,
           status: _initialSyncCompleted ? SyncStatus.synced : SyncStatus.idle,
-          lastSuccessfulSyncAt:
-              _initialSyncCompleted ? DateTime.now() : null,
+          lastSuccessfulSyncAt: _initialSyncCompleted ? DateTime.now() : null,
         ),
       );
     }
