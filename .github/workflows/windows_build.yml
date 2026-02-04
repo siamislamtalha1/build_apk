@@ -1,0 +1,89 @@
+name: Windows Installer Build
+
+concurrency:
+  group: windows-build-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-windows-installer:
+    runs-on: windows-latest
+    env:
+      PUB_CACHE: ${{ github.workspace }}\.pub-cache
+      FLUTTER_VERSION: 3.38.9
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Flutter (no actions)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $version = $env:FLUTTER_VERSION
+          $zipUrl = "https://storage.googleapis.com/flutter_infra_release/releases/stable/windows/flutter_windows_${version}-stable.zip"
+          $zipPath = Join-Path $env:RUNNER_TEMP "flutter_windows.zip"
+          $extractPath = Join-Path $env:RUNNER_TEMP "flutter_sdk"
+
+          if (Test-Path $extractPath) { Remove-Item -Recurse -Force $extractPath }
+          New-Item -ItemType Directory -Path $extractPath | Out-Null
+
+          $maxAttempts = 5
+          for ($i = 1; $i -le $maxAttempts; $i++) {
+            try {
+              Write-Host "Downloading Flutter SDK (attempt $i/$maxAttempts) from $zipUrl"
+              Invoke-WebRequest -Uri $zipUrl -OutFile $zipPath -UseBasicParsing -TimeoutSec 300
+              break
+            } catch {
+              if ($i -eq $maxAttempts) { throw }
+              Start-Sleep -Seconds (10 * $i)
+            }
+          }
+
+          Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
+          $flutterBin = Join-Path $extractPath "flutter\bin"
+          "${flutterBin}" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Flutter Version
+        shell: pwsh
+        run: flutter --version
+
+      - name: Disable analytics
+        shell: pwsh
+        run: flutter config --no-analytics
+
+      - name: Cache Pub
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.PUB_CACHE }}
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      - name: Pub get
+        shell: pwsh
+        run: flutter pub get
+
+      - name: Build Windows (Release)
+        shell: pwsh
+        run: flutter build windows --release --build-number ${{ github.run_number }}
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: |
+          choco install innosetup -y --no-progress
+
+      - name: Build Installer
+        shell: pwsh
+        run: |
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" installer_script.iss
+
+      - name: Upload Installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: musicly-installer-${{ github.run_number }}
+          path: Output\Musicly-installer.exe

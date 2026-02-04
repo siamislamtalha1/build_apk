@@ -3,46 +3,45 @@
  ;   flutter build windows --release
  ;
  ; Compile (local):
- ;   "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer_script.iss
  
- #define AppName "Musicly"
- #define AppExe "Musicly.exe"
+#define AppName "Musicly"
+#define AppExe "Musicly.exe"
  
- [Setup]
- AppId={{8E2B5C7B-0F2C-4A35-9B0F-9D4C8E9A1A1B}
- AppName=Musicly
- AppVersion=1.0
- AppPublisher=Your Name
- DefaultDirName={localappdata}\Musicly
- DefaultGroupName=Musicly
- DisableProgramGroupPage=yes
- OutputDir=Output
- OutputBaseFilename=Musicly-Setup
- Compression=lzma2
- SolidCompression=yes
- ArchitecturesInstallIn64BitMode=x64
- PrivilegesRequired=lowest
- SetupIconFile=windows\runner\resources\app_icon.ico
- UninstallDisplayIcon={app}\{#AppExe}
- WizardStyle=modern
- CloseApplications=yes
- CloseApplicationsFilter={#AppExe}
- RestartApplications=no
- RestartIfNeededByRun=no
+[Setup]
+AppId={{8E2B5C7B-0F2C-4A35-9B0F-9D4C8E9A1A1B}
+AppName=Musicly
+AppVersion=1.0
+AppPublisher=Your Name
+DefaultDirName={localappdata}\Musicly
+DefaultGroupName=Musicly
+DisableProgramGroupPage=yes
+OutputDir=Output
+OutputBaseFilename=Musicly-installer
+Compression=lzma2
+SolidCompression=yes
+ArchitecturesInstallIn64BitMode=x64
+PrivilegesRequired=lowest
+SetupIconFile=windows\runner\resources\app_icon.ico
+UninstallDisplayIcon={app}\{#AppExe}
+WizardStyle=modern
+CloseApplications=yes
+CloseApplicationsFilter={#AppExe}
+RestartApplications=no
+RestartIfNeededByRun=no
  
- [Files]
- Source: "build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+[Files]
+Source: "build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
  
- [Icons]
- Name: "{autodesktop}\Musicly"; Filename: "{app}\{#AppExe}"; Tasks: desktopicon
- Name: "{group}\Musicly"; Filename: "{app}\{#AppExe}"
- Name: "{group}\Uninstall Musicly"; Filename: "{uninstallexe}"
- 
- [Tasks]
- Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription: "Additional icons:"
- 
- [Run]
- Filename: "{app}\{#AppExe}"; Description: "Launch Musicly"; Flags: postinstall nowait skipifsilent unchecked
+[Icons]
+Name: "{autodesktop}\Musicly"; Filename: "{app}\{#AppExe}"; Tasks: desktopicon
+Name: "{group}\Musicly"; Filename: "{app}\{#AppExe}"
+Name: "{group}\Uninstall Musicly"; Filename: "{uninstallexe}"
+
+[Tasks]
+Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription: "Additional icons:"
+
+[Run]
+Filename: "{app}\{#AppExe}"; Description: "Launch Musicly"; Flags: postinstall nowait skipifsilent unchecked
  
  [UninstallDelete]
  Type: filesandordirs; Name: "{app}"
