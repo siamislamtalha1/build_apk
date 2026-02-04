@@ -180,7 +180,6 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
             backgroundColor: Default_Theme.themeColor,
           ),
-          backgroundColor: Default_Theme.themeColor,
           body: NestedScrollView(
             headerSliverBuilder: (context, innerBoxIsScrolled) => [
               SliverToBoxAdapter(

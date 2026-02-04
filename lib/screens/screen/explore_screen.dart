@@ -222,7 +222,6 @@ class _ExploreScreenState extends State<ExploreScreen> {
               ],
             ),
           ),
-          backgroundColor: Default_Theme.themeColor,
         ),
       ),
     );
