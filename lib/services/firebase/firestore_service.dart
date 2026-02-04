@@ -13,6 +13,49 @@ class FirestoreService {
     return _firestore.collection('users').doc(userId);
   }
 
+  // ==================== Search History Sync ====================
+
+  Future<void> syncSearchHistoryToCloud(
+      String userId, List<SearchHistoryDB> items) async {
+    if (FirebaseAuth.instance.currentUser?.isAnonymous ?? true) return;
+    try {
+      final batch = _firestore.batch();
+      final ref = _userDoc(userId).collection('searchHistory');
+
+      final existing = await ref.get();
+      for (final doc in existing.docs) {
+        batch.delete(doc.reference);
+      }
+
+      for (final it in items) {
+        final docRef = ref.doc(fastHash(it.query).toString());
+        batch.set(docRef, {
+          ...it.toMap(),
+          'syncedAt': FieldValue.serverTimestamp(),
+        });
+      }
+
+      await batch.commit();
+    } catch (e) {
+      print('❌ Failed to sync search history: $e');
+      rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getSearchHistoryFromCloud(
+      String userId) async {
+    try {
+      final snapshot = await _userDoc(userId)
+          .collection('searchHistory')
+          .orderBy('lastSearched', descending: true)
+          .get();
+      return snapshot.docs.map((doc) => doc.data()).toList();
+    } catch (e) {
+      print('❌ Failed to get search history from cloud: $e');
+      return [];
+    }
+  }
+
   DocumentReference _usernameDoc(String usernameLower) {
     return _firestore.collection('usernames').doc(usernameLower);
   }
@@ -642,6 +685,20 @@ class FirestoreService {
     return _userDoc(userId)
         .collection('history')
         .orderBy('syncedAt', descending: true)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs.map((doc) => doc.data()).toList(),
+        )
+        .handleError((_) => <Map<String, dynamic>>[]);
+  }
+
+  Stream<List<Map<String, dynamic>>> watchSearchHistory(String userId) {
+    if (FirebaseAuth.instance.currentUser?.isAnonymous ?? true) {
+      return Stream.value(<Map<String, dynamic>>[]);
+    }
+    return _userDoc(userId)
+        .collection('searchHistory')
+        .orderBy('lastSearched', descending: true)
         .snapshots()
         .map(
           (snapshot) => snapshot.docs.map((doc) => doc.data()).toList(),

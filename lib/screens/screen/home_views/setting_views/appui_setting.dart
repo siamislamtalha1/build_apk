@@ -24,13 +24,18 @@ class _AppUISettingsState extends State<AppUISettings> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         centerTitle: true,
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        scrolledUnderElevation: 0,
         title: Text(
           'UI & Services Settings',
           style: TextStyle(
-                  color: Default_Theme.primaryColor1,
+                  color: scheme.onSurface,
                   fontSize: 20,
                   fontWeight: FontWeight.bold)
               .merge(Default_Theme.secondoryTextStyle),
@@ -50,13 +55,13 @@ class _AppUISettingsState extends State<AppUISettings> {
                     Text(
                       "App Theme",
                       style: TextStyle(
-                              color: Default_Theme.primaryColor1, fontSize: 16)
+                              color: scheme.onSurface, fontSize: 16)
                           .merge(Default_Theme.secondoryTextStyleMedium),
                     ),
                     DropdownButton<ThemeMode>(
                       value: state.themeMode,
-                      dropdownColor: Default_Theme.themeColor,
-                      style: TextStyle(color: Default_Theme.primaryColor1),
+                      dropdownColor: scheme.surface,
+                      style: TextStyle(color: scheme.onSurface),
                       items: const [
                         DropdownMenuItem(
                           value: ThemeMode.system,
@@ -80,21 +85,20 @@ class _AppUISettingsState extends State<AppUISettings> {
                   ],
                 ),
               ),
-              const Divider(color: Colors.white10),
+              Divider(color: scheme.onSurface.withValues(alpha: 0.12)),
               SwitchListTile(
                   value: state.autoSlideCharts,
                   subtitle: Text(
                     "Slide charts automatically in home screen.",
                     style: TextStyle(
-                            color: Default_Theme.primaryColor1
-                                .withValues(alpha: 0.5),
+                            color: scheme.onSurface.withValues(alpha: 0.6),
                             fontSize: 12)
                         .merge(Default_Theme.secondoryTextStyleMedium),
                   ),
                   title: Text(
                     "Auto slide charts",
                     style: TextStyle(
-                            color: Default_Theme.primaryColor1, fontSize: 16)
+                            color: scheme.onSurface, fontSize: 16)
                         .merge(Default_Theme.secondoryTextStyleMedium),
                   ),
                   onChanged: (value) {
@@ -105,15 +109,14 @@ class _AppUISettingsState extends State<AppUISettings> {
                   subtitle: Text(
                     "Suggestions from Last.FM will be shown in the home screen. (Login & Restart required)",
                     style: TextStyle(
-                            color: Default_Theme.primaryColor1
-                                .withValues(alpha: 0.5),
+                            color: scheme.onSurface.withValues(alpha: 0.6),
                             fontSize: 12)
                         .merge(Default_Theme.secondoryTextStyleMedium),
                   ),
                   title: Text(
                     "Last.FM Suggested Picks",
                     style: TextStyle(
-                            color: Default_Theme.primaryColor1, fontSize: 16)
+                            color: scheme.onSurface, fontSize: 16)
                         .merge(Default_Theme.secondoryTextStyleMedium),
                   ),
                   onChanged: (value) {
@@ -130,18 +133,17 @@ class _AppUISettingsState extends State<AppUISettings> {
                 title: Text(
                   "Source Engines",
                   style: TextStyle(
-                          color: Default_Theme.primaryColor1, fontSize: 16)
+                          color: scheme.onSurface, fontSize: 16)
                       .merge(Default_Theme.secondoryTextStyleMedium),
                 ),
                 subtitle: Text(
                   "Manage the source engines you want to use for Music search. (Restart required)",
                   style: TextStyle(
-                          color: Default_Theme.primaryColor1
-                              .withValues(alpha: 0.5),
+                          color: scheme.onSurface.withValues(alpha: 0.6),
                           fontSize: 12)
                       .merge(Default_Theme.secondoryTextStyleMedium),
                 ),
-                collapsedIconColor: Default_Theme.primaryColor1,
+                collapsedIconColor: scheme.onSurface,
                 children: SourceEngine.values.map((e) {
                   if (e == SourceEngine.eng_YTM) return Container();
                   return SwitchListTile(
@@ -150,7 +152,7 @@ class _AppUISettingsState extends State<AppUISettings> {
                       title: Text(
                         e.value,
                         style: TextStyle(
-                                color: Default_Theme.primaryColor1,
+                                color: scheme.onSurface,
                                 fontSize: 17)
                             .merge(Default_Theme.secondoryTextStyleMedium),
                       ),
@@ -164,25 +166,24 @@ class _AppUISettingsState extends State<AppUISettings> {
                 title: Text(
                   "Allowed Chart Sources",
                   style: TextStyle(
-                          color: Default_Theme.primaryColor1, fontSize: 16)
+                          color: scheme.onSurface, fontSize: 16)
                       .merge(Default_Theme.secondoryTextStyleMedium),
                 ),
                 subtitle: Text(
                   "Manage the chart sources you want to see in the home screen.",
                   style: TextStyle(
-                          color: Default_Theme.primaryColor1
-                              .withValues(alpha: 0.5),
+                          color: scheme.onSurface.withValues(alpha: 0.6),
                           fontSize: 12)
                       .merge(Default_Theme.secondoryTextStyleMedium),
                 ),
-                collapsedIconColor: Default_Theme.primaryColor1,
+                collapsedIconColor: scheme.onSurface,
                 children: chartInfoList.map((e) {
                   return SwitchListTile(
                       value: state.chartMap[e.title] ?? true,
                       title: Text(
                         e.title,
                         style: TextStyle(
-                                color: Default_Theme.primaryColor1,
+                                color: scheme.onSurface,
                                 fontSize: 17)
                             .merge(Default_Theme.secondoryTextStyleMedium),
                       ),

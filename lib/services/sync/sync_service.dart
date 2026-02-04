@@ -9,6 +9,89 @@ import 'package:rxdart/rxdart.dart';
 
 enum SyncStatus { idle, syncing, synced, error }
 
+class SyncDetails {
+  final SyncStatus status;
+  final bool initialSyncInProgress;
+  final bool syncingLikedSongs;
+  final bool syncingPlaylists;
+  final bool syncingHistory;
+  final bool syncingSearchHistory;
+  final bool syncingPreferences;
+  final bool syncingStatistics;
+
+  final int likedSongsCount;
+  final int playlistsCount;
+  final int playlistItemsCount;
+  final int historyCount;
+  final int searchHistoryCount;
+  final int settingsBoolCount;
+  final int settingsStrCount;
+  final int statisticsCount;
+
+  final DateTime? lastSuccessfulSyncAt;
+
+  const SyncDetails({
+    required this.status,
+    required this.initialSyncInProgress,
+    required this.syncingLikedSongs,
+    required this.syncingPlaylists,
+    required this.syncingHistory,
+    required this.syncingSearchHistory,
+    required this.syncingPreferences,
+    required this.syncingStatistics,
+    required this.likedSongsCount,
+    required this.playlistsCount,
+    required this.playlistItemsCount,
+    required this.historyCount,
+    required this.searchHistoryCount,
+    required this.settingsBoolCount,
+    required this.settingsStrCount,
+    required this.statisticsCount,
+    required this.lastSuccessfulSyncAt,
+  });
+
+  SyncDetails copyWith({
+    SyncStatus? status,
+    bool? initialSyncInProgress,
+    bool? syncingLikedSongs,
+    bool? syncingPlaylists,
+    bool? syncingHistory,
+    bool? syncingSearchHistory,
+    bool? syncingPreferences,
+    bool? syncingStatistics,
+    int? likedSongsCount,
+    int? playlistsCount,
+    int? playlistItemsCount,
+    int? historyCount,
+    int? searchHistoryCount,
+    int? settingsBoolCount,
+    int? settingsStrCount,
+    int? statisticsCount,
+    DateTime? lastSuccessfulSyncAt,
+  }) {
+    return SyncDetails(
+      status: status ?? this.status,
+      initialSyncInProgress:
+          initialSyncInProgress ?? this.initialSyncInProgress,
+      syncingLikedSongs: syncingLikedSongs ?? this.syncingLikedSongs,
+      syncingPlaylists: syncingPlaylists ?? this.syncingPlaylists,
+      syncingHistory: syncingHistory ?? this.syncingHistory,
+      syncingSearchHistory: syncingSearchHistory ?? this.syncingSearchHistory,
+      syncingPreferences: syncingPreferences ?? this.syncingPreferences,
+      syncingStatistics: syncingStatistics ?? this.syncingStatistics,
+      likedSongsCount: likedSongsCount ?? this.likedSongsCount,
+      playlistsCount: playlistsCount ?? this.playlistsCount,
+      playlistItemsCount: playlistItemsCount ?? this.playlistItemsCount,
+      historyCount: historyCount ?? this.historyCount,
+      searchHistoryCount: searchHistoryCount ?? this.searchHistoryCount,
+      settingsBoolCount: settingsBoolCount ?? this.settingsBoolCount,
+      settingsStrCount: settingsStrCount ?? this.settingsStrCount,
+      statisticsCount: statisticsCount ?? this.statisticsCount,
+      lastSuccessfulSyncAt: lastSuccessfulSyncAt ?? this.lastSuccessfulSyncAt,
+    );
+  }
+}
+
 /// Service to handle synchronization between local Isar DB and Firestore
 class SyncService {
   final AuthService _authService = AuthService();
@@ -16,6 +99,8 @@ class SyncService {
   StreamSubscription? _authSubscription;
   StreamSubscription? _likedSongsSubscription;
   StreamSubscription? _playlistsSubscription;
+  StreamSubscription? _searchHistorySubscription;
+  StreamSubscription? _recentlyPlayedSubscription;
   StreamSubscription? _settingsBoolSubscription;
   StreamSubscription? _settingsStrSubscription;
   StreamSubscription? _preferencesSubscription;
@@ -23,12 +108,14 @@ class SyncService {
   StreamSubscription? _localStatisticsSubscription;
   StreamSubscription? _cloudPlaylistsSubscription;
   StreamSubscription? _cloudHistorySubscription;
+  StreamSubscription? _cloudSearchHistorySubscription;
 
   bool _suppressLocalPlaylistPush = false;
   bool _suppressLocalHistoryPush = false;
   bool _suppressLocalLikedPush = false;
   bool _suppressLocalPrefsPush = false;
   bool _suppressLocalStatsPush = false;
+  bool _suppressLocalSearchPush = false;
 
   bool _initialized = false;
   String? _activeUserId;
@@ -40,12 +127,40 @@ class SyncService {
   bool _syncingHistory = false;
   bool _syncingLikedSongs = false;
   bool _syncingStatistics = false;
+  bool _syncingSearchHistory = false;
+
+  bool _initialSyncCompleted = false;
 
   // Stream controller for sync status
   final BehaviorSubject<SyncStatus> _syncStatusController =
       BehaviorSubject<SyncStatus>.seeded(SyncStatus.idle);
 
   Stream<SyncStatus> get syncStatus => _syncStatusController.stream;
+
+  final BehaviorSubject<SyncDetails> _syncDetailsController =
+      BehaviorSubject<SyncDetails>.seeded(
+    const SyncDetails(
+      status: SyncStatus.idle,
+      initialSyncInProgress: false,
+      syncingLikedSongs: false,
+      syncingPlaylists: false,
+      syncingHistory: false,
+      syncingSearchHistory: false,
+      syncingPreferences: false,
+      syncingStatistics: false,
+      likedSongsCount: 0,
+      playlistsCount: 0,
+      playlistItemsCount: 0,
+      historyCount: 0,
+      searchHistoryCount: 0,
+      settingsBoolCount: 0,
+      settingsStrCount: 0,
+      statisticsCount: 0,
+      lastSuccessfulSyncAt: null,
+    ),
+  );
+
+  Stream<SyncDetails> get syncDetails => _syncDetailsController.stream;
 
   // Singleton instance
   static final SyncService _instance = SyncService._internal();
@@ -76,22 +191,28 @@ class SyncService {
     _authSubscription?.cancel();
     _stopSync();
     _syncStatusController.close();
+    _syncDetailsController.close();
     _initialized = false;
   }
 
   /// Start sync for a user
   void _startSync(String userId) async {
     print('🔄 Starting sync for user: $userId');
-    if (_activeUserId == userId && _startSyncCompleter != null) {
-      // Already starting/started for this user.
+    if (_activeUserId == userId && (_startSyncCompleter != null || _initialSyncCompleted)) {
       return;
     }
+
+    _stopSync();
     _activeUserId = userId;
 
     _startSyncCompleter ??= Completer<void>();
-
-    _stopSync();
     _syncStatusController.add(SyncStatus.syncing);
+    _syncDetailsController.add(
+      _syncDetailsController.value.copyWith(
+        status: SyncStatus.syncing,
+        initialSyncInProgress: true,
+      ),
+    );
 
     // 1. Initial Pull from Cloud (pessimistic strategy: cloud wins if conflict/empty)
     try {
@@ -116,6 +237,8 @@ class SyncService {
     _localDebounce?.cancel();
     _likedSongsSubscription?.cancel();
     _playlistsSubscription?.cancel();
+    _searchHistorySubscription?.cancel();
+    _recentlyPlayedSubscription?.cancel();
     _settingsBoolSubscription?.cancel();
     _settingsStrSubscription?.cancel();
     _preferencesSubscription?.cancel();
@@ -123,12 +246,30 @@ class SyncService {
     _localStatisticsSubscription?.cancel();
     _cloudPlaylistsSubscription?.cancel();
     _cloudHistorySubscription?.cancel();
+    _cloudSearchHistorySubscription?.cancel();
+    _activeUserId = null;
+    _initialSyncCompleted = false;
     _syncStatusController.add(SyncStatus.idle);
+    _syncDetailsController.add(
+      _syncDetailsController.value.copyWith(
+        status: SyncStatus.idle,
+        initialSyncInProgress: false,
+        syncingLikedSongs: false,
+        syncingPlaylists: false,
+        syncingHistory: false,
+        syncingSearchHistory: false,
+        syncingPreferences: false,
+        syncingStatistics: false,
+      ),
+    );
   }
 
   Future<void> _performInitialSync(String userId) async {
     print('⬇️ Performing initial sync from cloud...');
     // 1. Sync Liked Songs
+    _syncDetailsController.add(
+      _syncDetailsController.value.copyWith(syncingLikedSongs: true),
+    );
     final cloudLiked = await _firestoreService.getLikedSongsFromCloud(userId);
     if (cloudLiked.isNotEmpty) {
       _suppressLocalLikedPush = true;
@@ -143,8 +284,17 @@ class SyncService {
         }
       }
     }
+    _syncDetailsController.add(
+      _syncDetailsController.value.copyWith(
+        syncingLikedSongs: false,
+        likedSongsCount: cloudLiked.length,
+      ),
+    );
 
     // 2. Sync History (Recently Played)
+    _syncDetailsController.add(
+      _syncDetailsController.value.copyWith(syncingHistory: true),
+    );
     final cloudHistory = await _firestoreService.getHistoryFromCloud(userId);
     if (cloudHistory.isNotEmpty) {
       await BloomeeDBService.createPlaylist(
@@ -158,8 +308,17 @@ class SyncService {
         }
       }
     }
+    _syncDetailsController.add(
+      _syncDetailsController.value.copyWith(
+        syncingHistory: false,
+        historyCount: cloudHistory.length,
+      ),
+    );
 
     // 3. Sync Preferences/Settings
+    _syncDetailsController.add(
+      _syncDetailsController.value.copyWith(syncingPreferences: true),
+    );
     final prefs = await _firestoreService.getUserPreferences(userId);
     if (prefs != null) {
       _suppressLocalPrefsPush = true;
@@ -182,16 +341,30 @@ class SyncService {
         }
       }
       _suppressLocalPrefsPush = false;
+      _syncDetailsController.add(
+        _syncDetailsController.value.copyWith(
+          settingsBoolCount: (b?.length ?? 0),
+          settingsStrCount: (s?.length ?? 0),
+        ),
+      );
     }
+    _syncDetailsController.add(
+      _syncDetailsController.value.copyWith(syncingPreferences: false),
+    );
 
     // 4. Sync Playlists (including items)
+    _syncDetailsController.add(
+      _syncDetailsController.value.copyWith(syncingPlaylists: true),
+    );
     final cloudPlaylists = await _firestoreService.getPlaylistsFromCloud(userId);
     if (cloudPlaylists.isNotEmpty) {
       _suppressLocalPlaylistPush = true;
+      var totalItems = 0;
       for (final pl in cloudPlaylists) {
         final name = (pl['playlistName'] as String?) ?? '';
         if (name.isEmpty) continue;
         final items = await _firestoreService.getPlaylistItemsFromCloud(userId, name);
+        totalItems += items.length;
         if (items.isEmpty) {
           await BloomeeDBService.createPlaylist(name);
           continue;
@@ -235,9 +408,21 @@ class SyncService {
         }
       }
       _suppressLocalPlaylistPush = false;
+      _syncDetailsController.add(
+        _syncDetailsController.value.copyWith(
+          playlistsCount: cloudPlaylists.length,
+          playlistItemsCount: totalItems,
+        ),
+      );
     }
+    _syncDetailsController.add(
+      _syncDetailsController.value.copyWith(syncingPlaylists: false),
+    );
 
     // 5. Sync Play Statistics (played)
+    _syncDetailsController.add(
+      _syncDetailsController.value.copyWith(syncingStatistics: true),
+    );
     final cloudStats = await _firestoreService.getStatisticsFromCloud(userId);
     if (cloudStats.isNotEmpty) {
       _suppressLocalStatsPush = true;
@@ -277,8 +462,49 @@ class SyncService {
       });
       _suppressLocalStatsPush = false;
     }
+    _syncDetailsController.add(
+      _syncDetailsController.value.copyWith(
+        syncingStatistics: false,
+        statisticsCount: cloudStats.length,
+      ),
+    );
+
+    // 6. Sync Search History
+    _syncDetailsController.add(
+      _syncDetailsController.value.copyWith(syncingSearchHistory: true),
+    );
+    final cloudSearch = await _firestoreService.getSearchHistoryFromCloud(userId);
+    if (cloudSearch.isNotEmpty) {
+      _suppressLocalSearchPush = true;
+      final isar = await BloomeeDBService.db;
+      await isar.writeTxn(() async {
+        for (final item in cloudSearch) {
+          try {
+            final h = SearchHistoryDB.fromMap(item);
+            await isar.searchHistoryDBs.put(h);
+          } catch (e) {
+            print('Error syncing search history item: $e');
+          }
+        }
+      });
+      _suppressLocalSearchPush = false;
+    }
+    _syncDetailsController.add(
+      _syncDetailsController.value.copyWith(
+        syncingSearchHistory: false,
+        searchHistoryCount: cloudSearch.length,
+      ),
+    );
 
     _syncStatusController.add(SyncStatus.synced);
+    _initialSyncCompleted = true;
+    _syncDetailsController.add(
+      _syncDetailsController.value.copyWith(
+        status: SyncStatus.synced,
+        initialSyncInProgress: false,
+        lastSuccessfulSyncAt: DateTime.now(),
+      ),
+    );
     print('✅ Initial sync completed');
   }
 
@@ -343,6 +569,30 @@ class SyncService {
     },
       onError: (Object e, StackTrace st) {
         CrashReporter.record(e, st, source: 'SyncService.watchHistory');
+        _stopSync();
+        _syncStatusController.add(SyncStatus.error);
+      },
+    );
+
+    _cloudSearchHistorySubscription =
+        _firestoreService.watchSearchHistory(userId).listen(
+      (cloudSearch) async {
+        if (cloudSearch.isEmpty) return;
+        _suppressLocalSearchPush = true;
+        final isar = await BloomeeDBService.db;
+        await isar.writeTxn(() async {
+          for (final item in cloudSearch) {
+            try {
+              await isar.searchHistoryDBs.put(SearchHistoryDB.fromMap(item));
+            } catch (e) {
+              print('Error syncing cloud search history to local: $e');
+            }
+          }
+        });
+        _suppressLocalSearchPush = false;
+      },
+      onError: (Object e, StackTrace st) {
+        CrashReporter.record(e, st, source: 'SyncService.watchSearchHistory');
         _stopSync();
         _syncStatusController.add(SyncStatus.error);
       },
@@ -499,6 +749,26 @@ class SyncService {
         _syncPlaylistsToCloud(userId);
         if (!_suppressLocalHistoryPush) _syncHistoryToCloud(userId);
         if (!_suppressLocalLikedPush) _syncLikedSongsToCloud(userId);
+        if (!_suppressLocalSearchPush) _syncSearchHistoryToCloud(userId);
+      });
+    });
+
+    _searchHistorySubscription =
+        (await BloomeeDBService.getSearchHistoryWatcher()).listen((_) {
+      if (_suppressLocalSearchPush) return;
+      // Search history can change frequently; reuse debounce timer.
+      _localDebounce?.cancel();
+      _localDebounce = Timer(const Duration(milliseconds: 600), () {
+        if (!_suppressLocalSearchPush) _syncSearchHistoryToCloud(userId);
+      });
+    });
+
+    _recentlyPlayedSubscription =
+        (await BloomeeDBService.watchRecentlyPlayed()).listen((_) {
+      if (_suppressLocalHistoryPush) return;
+      _localDebounce?.cancel();
+      _localDebounce = Timer(const Duration(milliseconds: 600), () {
+        if (!_suppressLocalHistoryPush) _syncHistoryToCloud(userId);
       });
     });
 
@@ -528,7 +798,9 @@ class SyncService {
     if (_syncingPlaylists) return;
     _syncingPlaylists = true;
     final playlists = await BloomeeDBService.getAllPlaylistsDB();
-    _syncStatusController.add(SyncStatus.syncing);
+    _syncDetailsController.add(
+      _syncDetailsController.value.copyWith(syncingPlaylists: true),
+    );
     try {
       // First sync playlist headers
       await _firestoreService.syncPlaylistsToCloud(userId, playlists);
@@ -569,12 +841,26 @@ class SyncService {
           items: ordered,
         );
       }
-      _syncStatusController.add(SyncStatus.synced);
+      if (_initialSyncCompleted) {
+        _syncStatusController.add(SyncStatus.synced);
+        _syncDetailsController.add(
+          _syncDetailsController.value.copyWith(
+            status: SyncStatus.synced,
+            lastSuccessfulSyncAt: DateTime.now(),
+          ),
+        );
+      }
     } catch (e) {
       print('Sync Error (Playlists): $e');
       _syncStatusController.add(SyncStatus.error);
+      _syncDetailsController.add(
+        _syncDetailsController.value.copyWith(status: SyncStatus.error),
+      );
     } finally {
       _syncingPlaylists = false;
+      _syncDetailsController.add(
+        _syncDetailsController.value.copyWith(syncingPlaylists: false),
+      );
     }
   }
 
@@ -582,6 +868,12 @@ class SyncService {
     if (_syncingHistory) return;
     _syncingHistory = true;
     final historyItems = await BloomeeDBService.getRecentlyPlayedDBItems();
+    _syncDetailsController.add(
+      _syncDetailsController.value.copyWith(
+        syncingHistory: true,
+        historyCount: historyItems.length,
+      ),
+    );
 
     try {
       await _firestoreService.syncHistoryToCloud(userId, historyItems);
@@ -589,6 +881,41 @@ class SyncService {
       print('Sync Error (History): $e');
     } finally {
       _syncingHistory = false;
+      _syncDetailsController.add(
+        _syncDetailsController.value.copyWith(
+          syncingHistory: false,
+          status: _initialSyncCompleted ? SyncStatus.synced : SyncStatus.idle,
+          lastSuccessfulSyncAt:
+              _initialSyncCompleted ? DateTime.now() : null,
+        ),
+      );
+    }
+  }
+
+  Future<void> _syncSearchHistoryToCloud(String userId) async {
+    if (_syncingSearchHistory) return;
+    _syncingSearchHistory = true;
+    try {
+      final items = await BloomeeDBService.getAllSearchHistoryDBItems();
+      _syncDetailsController.add(
+        _syncDetailsController.value.copyWith(
+          syncingSearchHistory: true,
+          searchHistoryCount: items.length,
+        ),
+      );
+      await _firestoreService.syncSearchHistoryToCloud(userId, items);
+    } catch (e) {
+      print('Sync Error (Search History): $e');
+    } finally {
+      _syncingSearchHistory = false;
+      _syncDetailsController.add(
+        _syncDetailsController.value.copyWith(
+          syncingSearchHistory: false,
+          status: _initialSyncCompleted ? SyncStatus.synced : SyncStatus.idle,
+          lastSuccessfulSyncAt:
+              _initialSyncCompleted ? DateTime.now() : null,
+        ),
+      );
     }
   }
 
@@ -599,6 +926,14 @@ class SyncService {
       final isar = await BloomeeDBService.db;
       final boolSettings = await isar.appSettingsBoolDBs.where().findAll();
       final strSettings = await isar.appSettingsStrDBs.where().findAll();
+
+      _syncDetailsController.add(
+        _syncDetailsController.value.copyWith(
+          syncingPreferences: true,
+          settingsBoolCount: boolSettings.length,
+          settingsStrCount: strSettings.length,
+        ),
+      );
 
       final boolMap = <String, bool>{};
       final strMap = <String, String>{};
@@ -619,6 +954,14 @@ class SyncService {
       print('Sync Error (Preferences): $e');
     } finally {
       _syncingPrefs = false;
+      _syncDetailsController.add(
+        _syncDetailsController.value.copyWith(
+          syncingPreferences: false,
+          status: _initialSyncCompleted ? SyncStatus.synced : SyncStatus.idle,
+          lastSuccessfulSyncAt:
+              _initialSyncCompleted ? DateTime.now() : null,
+        ),
+      );
     }
   }
 
@@ -632,12 +975,27 @@ class SyncService {
       return;
     }
 
+    _syncDetailsController.add(
+      _syncDetailsController.value.copyWith(
+        syncingLikedSongs: true,
+        likedSongsCount: likedItems.length,
+      ),
+    );
+
     try {
       await _firestoreService.syncLikedSongsToCloud(userId, likedItems);
     } catch (e) {
       print('Sync Error (Liked Songs): $e');
     } finally {
       _syncingLikedSongs = false;
+      _syncDetailsController.add(
+        _syncDetailsController.value.copyWith(
+          syncingLikedSongs: false,
+          status: _initialSyncCompleted ? SyncStatus.synced : SyncStatus.idle,
+          lastSuccessfulSyncAt:
+              _initialSyncCompleted ? DateTime.now() : null,
+        ),
+      );
     }
   }
 
@@ -647,11 +1005,25 @@ class SyncService {
     try {
       final isar = await BloomeeDBService.db;
       final stats = await isar.playStatisticsDBs.where().findAll();
+      _syncDetailsController.add(
+        _syncDetailsController.value.copyWith(
+          syncingStatistics: true,
+          statisticsCount: stats.length,
+        ),
+      );
       await _firestoreService.syncStatisticsToCloud(userId, stats);
     } catch (e) {
       print('Sync Error (Statistics): $e');
     } finally {
       _syncingStatistics = false;
+      _syncDetailsController.add(
+        _syncDetailsController.value.copyWith(
+          syncingStatistics: false,
+          status: _initialSyncCompleted ? SyncStatus.synced : SyncStatus.idle,
+          lastSuccessfulSyncAt:
+              _initialSyncCompleted ? DateTime.now() : null,
+        ),
+      );
     }
   }
 }

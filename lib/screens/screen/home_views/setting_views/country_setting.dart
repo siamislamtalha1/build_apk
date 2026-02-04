@@ -9,13 +9,18 @@ class CountrySettings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         centerTitle: true,
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        scrolledUnderElevation: 0,
         title: Text(
           'Country & Language Settings',
           style: TextStyle(
-                  color: Default_Theme.primaryColor1,
+                  color: scheme.onSurface,
                   fontSize: 20,
                   fontWeight: FontWeight.bold)
               .merge(Default_Theme.secondoryTextStyle),
@@ -30,15 +35,14 @@ class CountrySettings extends StatelessWidget {
                   subtitle: Text(
                     "Automatically check the country to your location when you open the app.",
                     style: TextStyle(
-                            color: Default_Theme.primaryColor1
-                                .withValues(alpha: 0.5),
+                            color: scheme.onSurface.withValues(alpha: 0.6),
                             fontSize: 12.5)
                         .merge(Default_Theme.secondoryTextStyleMedium),
                   ),
                   title: Text(
                     "Auto check country",
                     style: TextStyle(
-                            color: Default_Theme.primaryColor1, fontSize: 17)
+                            color: scheme.onSurface, fontSize: 17)
                         .merge(Default_Theme.secondoryTextStyleMedium),
                   ),
                   onChanged: (value) {
@@ -53,7 +57,7 @@ class CountrySettings extends StatelessWidget {
                   style: TextStyle(
                     overflow: TextOverflow.ellipsis,
                     fontWeight: FontWeight.bold,
-                    color: Default_Theme.primaryColor1,
+                    color: scheme.onSurface,
                     fontSize: 15,
                   ).merge(Default_Theme.secondoryTextStyle),
                   underline: const SizedBox(),

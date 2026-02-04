@@ -7,6 +7,7 @@ import 'package:equatable/equatable.dart';
 import 'package:Bloomee/blocs/mediaPlayer/bloomee_player_cubit.dart';
 import 'package:Bloomee/model/songModel.dart';
 import 'package:Bloomee/routes_and_consts/global_conts.dart';
+import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -77,7 +78,9 @@ class MiniPlayerBloc extends Bloc<MiniPlayerEvent, MiniPlayerState> {
 
       var mediaItem2 = mediaItem2MediaItemModel(mediaItem);
 
-      log("$state", name: "MiniPlayer");
+      if (kDebugMode) {
+        log("$state", name: "MiniPlayer");
+      }
       switch (state.processingState) {
         case ProcessingState.idle:
           // Debounce idle -> prevents mini-player flashing during brief

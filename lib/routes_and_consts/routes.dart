@@ -122,13 +122,17 @@ class GlobalRoutes {
           path: '/AdvancedSettings',
           parentNavigatorKey: globalRouterKey,
           name: GlobalStrConsts.advancedSettingsScreen,
-          builder: (context, state) => const AdvancedSettingsScreen(),
+          builder: (context, state) => const GlobalBackdropWrapper(
+            child: AdvancedSettingsScreen(),
+          ),
         ),
         GoRoute(
           path: '/DeveloperTools',
           parentNavigatorKey: globalRouterKey,
           name: GlobalStrConsts.developerToolsScreen,
-          builder: (context, state) => const DeveloperToolsScreen(),
+          builder: (context, state) => const GlobalBackdropWrapper(
+            child: DeveloperToolsScreen(),
+          ),
         ),
         GoRoute(
           path: '/Login',
@@ -152,7 +156,9 @@ class GlobalRoutes {
           path: '/Settings',
           parentNavigatorKey: globalRouterKey,
           name: 'Settings',
-          builder: (context, state) => const SettingsView(),
+          builder: (context, state) => const GlobalBackdropWrapper(
+            child: SettingsView(),
+          ),
         ),
         GoRoute(
           path: '/About',

@@ -9,13 +9,18 @@ class PlayerSettings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         centerTitle: true,
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        scrolledUnderElevation: 0,
         title: Text(
           'Audio Player',
           style: TextStyle(
-                  color: Default_Theme.primaryColor1,
+                  color: scheme.onSurface,
                   fontSize: 20,
                   fontWeight: FontWeight.bold)
               .merge(Default_Theme.secondoryTextStyle),
@@ -31,8 +36,9 @@ class PlayerSettings extends StatelessWidget {
                     "Quality of audio files streamed from online sources.",
                 trailing: DropdownButton(
                   value: state.strmQuality,
+                  dropdownColor: scheme.surface,
                   style: TextStyle(
-                    color: Default_Theme.primaryColor1,
+                    color: scheme.onSurface,
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
                   ).merge(Default_Theme.secondoryTextStyle),
@@ -60,8 +66,9 @@ class PlayerSettings extends StatelessWidget {
                     "Quality of Youtube audio files streamed from Youtube.",
                 trailing: DropdownButton(
                   value: state.ytStrmQuality,
+                  dropdownColor: scheme.surface,
                   style: TextStyle(
-                    color: Default_Theme.primaryColor1,
+                    color: scheme.onSurface,
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
                   ).merge(Default_Theme.secondoryTextStyle),
@@ -88,7 +95,7 @@ class PlayerSettings extends StatelessWidget {
                   title: Text(
                     "Auto Play",
                     style: TextStyle(
-                      color: Default_Theme.primaryColor1,
+                      color: scheme.onSurface,
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
                     ).merge(Default_Theme.secondoryTextStyle),
@@ -96,7 +103,7 @@ class PlayerSettings extends StatelessWidget {
                   subtitle: Text(
                     "Automatically add similar songs to the queue.",
                     style: TextStyle(
-                      color: Default_Theme.primaryColor1.withValues(alpha: 0.5),
+                      color: scheme.onSurface.withValues(alpha: 0.6),
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                     ),

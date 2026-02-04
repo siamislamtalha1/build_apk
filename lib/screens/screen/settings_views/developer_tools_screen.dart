@@ -6,7 +6,13 @@ class DeveloperToolsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Developer Tools')),
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        title: const Text('Developer Tools'),
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        scrolledUnderElevation: 0,
+      ),
       body: const Center(
         child: Text("Developer tools coming soon"),
       ),

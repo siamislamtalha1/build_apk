@@ -70,13 +70,18 @@ class _LastDotFMState extends State<LastDotFM> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         centerTitle: true,
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        scrolledUnderElevation: 0,
         title: Text(
           'Last.FM Settings',
           style: TextStyle(
-                  color: Default_Theme.primaryColor1,
+                  color: scheme.onSurface,
                   fontSize: 20,
                   fontWeight: FontWeight.bold)
               .merge(Default_Theme.secondoryTextStyle),
@@ -91,15 +96,14 @@ class _LastDotFMState extends State<LastDotFM> {
                   subtitle: Text(
                     "Scrobble tracks to Last.FM",
                     style: TextStyle(
-                            color: Default_Theme.primaryColor1
-                                .withValues(alpha: 0.5),
+                            color: scheme.onSurface.withValues(alpha: 0.6),
                             fontSize: 12)
                         .merge(Default_Theme.secondoryTextStyleMedium),
                   ),
                   title: Text(
                     "Scrobble Tracks",
                     style: TextStyle(
-                            color: Default_Theme.primaryColor1, fontSize: 16)
+                            color: scheme.onSurface, fontSize: 16)
                         .merge(Default_Theme.secondoryTextStyleMedium),
                   ),
                   onChanged: (value) {
@@ -120,8 +124,7 @@ class _LastDotFMState extends State<LastDotFM> {
                 child: SelectableText(
                   'To set API Key for Last.FM, \n1. Go to Last.FM create an account there (https://www.last.fm/).\n2. Now generate an API Key and Secret from: https://www.last.fm/api/account/create\n3. Enter the API Key and Secret below and click on \'Start Auth\' to get the session key.\n4. After allowing from browser, click on \'Get and Save Session Key\' to save the session key.',
                   style: TextStyle(
-                          color: Default_Theme.primaryColor1
-                              .withValues(alpha: 0.5),
+                          color: scheme.onSurface.withValues(alpha: 0.6),
                           fontSize: 12)
                       .merge(Default_Theme.secondoryTextStyleMedium),
                 ),
@@ -135,23 +138,20 @@ class _LastDotFMState extends State<LastDotFM> {
                   decoration: InputDecoration(
                     labelText: 'API Key',
                     labelStyle: TextStyle(
-                        color:
-                            Default_Theme.primaryColor1.withValues(alpha: 0.5),
+                        color: scheme.onSurface.withValues(alpha: 0.6),
                         fontFamily: 'Unageo',
                         fontWeight: FontWeight.w500,
                         fontSize: 12),
                     enabledBorder: UnderlineInputBorder(
                       borderSide: BorderSide(
-                          color: Default_Theme.primaryColor1
-                              .withValues(alpha: 0.5)),
+                          color: scheme.onSurface.withValues(alpha: 0.35)),
                     ),
                     focusedBorder: UnderlineInputBorder(
-                      borderSide:
-                          BorderSide(color: Default_Theme.primaryColor1),
+                      borderSide: BorderSide(color: scheme.primary),
                     ),
                   ),
                   style: TextStyle(
-                      color: Default_Theme.primaryColor1,
+                      color: scheme.onSurface,
                       fontFamily: 'Unageo',
                       fontWeight: FontWeight.w500,
                       fontSize: 16),
@@ -166,23 +166,20 @@ class _LastDotFMState extends State<LastDotFM> {
                   decoration: InputDecoration(
                     labelText: 'API Secret',
                     labelStyle: TextStyle(
-                        color:
-                            Default_Theme.primaryColor1.withValues(alpha: 0.5),
+                        color: scheme.onSurface.withValues(alpha: 0.6),
                         fontFamily: 'Unageo',
                         fontWeight: FontWeight.w500,
                         fontSize: 12),
                     enabledBorder: UnderlineInputBorder(
                       borderSide: BorderSide(
-                          color: Default_Theme.primaryColor1
-                              .withValues(alpha: 0.5)),
+                          color: scheme.onSurface.withValues(alpha: 0.35)),
                     ),
                     focusedBorder: UnderlineInputBorder(
-                      borderSide:
-                          BorderSide(color: Default_Theme.primaryColor1),
+                      borderSide: BorderSide(color: scheme.primary),
                     ),
                   ),
                   style: TextStyle(
-                      color: Default_Theme.primaryColor1,
+                      color: scheme.onSurface,
                       fontFamily: 'Unageo',
                       fontWeight: FontWeight.w500,
                       fontSize: 16),

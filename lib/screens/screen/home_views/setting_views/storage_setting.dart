@@ -46,13 +46,18 @@ class BackupSettings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         centerTitle: true,
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        scrolledUnderElevation: 0,
         title: Text(
           'Storage',
           style: TextStyle(
-                  color: Default_Theme.primaryColor1,
+                  color: scheme.onSurface,
                   fontSize: 20,
                   fontWeight: FontWeight.bold)
               .merge(Default_Theme.secondoryTextStyle),
@@ -68,7 +73,7 @@ class BackupSettings extends StatelessWidget {
                 trailing: DropdownButton(
                   value: state.historyClearTime,
                   style: TextStyle(
-                    color: Default_Theme.primaryColor1,
+                    color: scheme.onSurface,
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ).merge(Default_Theme.secondoryTextStyle),
@@ -108,14 +113,15 @@ class BackupSettings extends StatelessWidget {
                     context: context,
                     builder: (context) {
                       return AlertDialog(
-                        backgroundColor: const Color.fromARGB(255, 24, 24, 24),
-                        surfaceTintColor: const Color.fromARGB(255, 24, 24, 24),
+                        backgroundColor: scheme.surface,
+                        surfaceTintColor: Colors.transparent,
                         title: Text(
                           "Backup Location",
                           style: Default_Theme.secondoryTextStyle.merge(
-                            const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
+                            TextStyle(
+                              color: scheme.onSurface,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                         content: Text(
@@ -123,7 +129,10 @@ class BackupSettings extends StatelessWidget {
                               ? "Currently, the backup will be stored in:\n\n1. Download directory\n2. Android/data/com.musiclyco.musicly/data directory\n\nYou can copy the file from these locations."
                               : "Currently, the backup will be stored in the Downloads directory. You can copy the file from there.",
                           style: Default_Theme.secondoryTextStyle.merge(
-                            const TextStyle(color: Colors.white, fontSize: 14),
+                            TextStyle(
+                              color: scheme.onSurface.withValues(alpha: 0.75),
+                              fontSize: 14,
+                            ),
                           ),
                         ),
                         actions: [
@@ -134,9 +143,10 @@ class BackupSettings extends StatelessWidget {
                             child: Text(
                               "OK",
                               style: Default_Theme.secondoryTextStyle.merge(
-                                const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold),
+                                TextStyle(
+                                  color: scheme.onSurface,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
@@ -190,22 +200,28 @@ class BackupSettings extends StatelessWidget {
                   final proceed = await showDialog<bool>(
                     context: context,
                     builder: (ctx) {
+                      final dialogScheme = Theme.of(ctx).colorScheme;
                       return AlertDialog(
-                        backgroundColor: const Color.fromARGB(255, 24, 24, 24),
-                        surfaceTintColor: const Color.fromARGB(255, 24, 24, 24),
+                        backgroundColor: dialogScheme.surface,
+                        surfaceTintColor: Colors.transparent,
                         title: Text(
                           "Confirm Reset",
                           style: Default_Theme.secondoryTextStyle.merge(
-                            const TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold),
+                            TextStyle(
+                              color: dialogScheme.onSurface,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                         content: Text(
                           "Are you sure you want to reset the Bloomee app? This will delete all your data, including tunes you listened to, and reset the app to its default state. This action cannot be undone.",
                           style: Default_Theme.secondoryTextStyle.merge(
-                            const TextStyle(color: Colors.white, fontSize: 14),
+                            TextStyle(
+                              color:
+                                  dialogScheme.onSurface.withValues(alpha: 0.75),
+                              fontSize: 14,
+                            ),
                           ),
                         ),
                         actions: [
@@ -216,9 +232,10 @@ class BackupSettings extends StatelessWidget {
                             child: Text(
                               "No",
                               style: Default_Theme.secondoryTextStyle.merge(
-                                const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold),
+                                TextStyle(
+                                  color: dialogScheme.onSurface,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
@@ -231,8 +248,8 @@ class BackupSettings extends StatelessWidget {
                             child: Text(
                               "Yes",
                               style: Default_Theme.secondoryTextStyle.merge(
-                                const TextStyle(
-                                    color: Colors.white,
+                                TextStyle(
+                                    color: dialogScheme.onPrimary,
                                     fontWeight: FontWeight.bold),
                               ),
                             ),
@@ -251,19 +268,18 @@ class BackupSettings extends StatelessWidget {
                 },
                 trailing: Icon(
                   Icons.delete,
-                  color: Default_Theme.primaryColor1,
+                  color: scheme.onSurface,
                 ),
               ),
               SwitchListTile(
                 title: Text("Auto Backup",
                     style: TextStyle(
-                            color: Default_Theme.primaryColor1, fontSize: 16)
+                            color: scheme.onSurface, fontSize: 16)
                         .merge(Default_Theme.secondoryTextStyleMedium)),
                 subtitle: Text(
                     "Automatically create a backup of your data on regular basis.",
                     style: TextStyle(
-                            color: Default_Theme.primaryColor1
-                                .withValues(alpha: 0.5),
+                            color: scheme.onSurface.withValues(alpha: 0.6),
                             fontSize: 12)
                         .merge(Default_Theme.secondoryTextStyleMedium)),
                 value: state.autoBackup,
@@ -274,13 +290,12 @@ class BackupSettings extends StatelessWidget {
               SwitchListTile(
                   title: Text("Auto Save Lyrics",
                       style: TextStyle(
-                              color: Default_Theme.primaryColor1, fontSize: 16)
+                              color: scheme.onSurface, fontSize: 16)
                           .merge(Default_Theme.secondoryTextStyleMedium)),
                   subtitle: Text(
                       "Automatically save lyrics of the song when played.",
                       style: TextStyle(
-                              color: Default_Theme.primaryColor1
-                                  .withValues(alpha: 0.5),
+                              color: scheme.onSurface.withValues(alpha: 0.6),
                               fontSize: 12)
                           .merge(Default_Theme.secondoryTextStyleMedium)),
                   value: state.autoSaveLyrics,
@@ -330,6 +345,7 @@ Future<void> _onRestoreTap(BuildContext context) async {
         bool selectAll = true;
 
         return StatefulBuilder(builder: (ctx2, setState) {
+          final dialogScheme = Theme.of(ctx2).colorScheme;
           void updateSelectAllFromChildren() {
             final all = mediaItems && searchHistory && settingsAndPrefs;
             if (selectAll != all) setState(() => selectAll = all);
@@ -346,10 +362,11 @@ Future<void> _onRestoreTap(BuildContext context) async {
           }
 
           return AlertDialog(
-            backgroundColor: const Color.fromARGB(255, 24, 24, 24),
+            backgroundColor: dialogScheme.surface,
+            surfaceTintColor: Colors.transparent,
             title: Text("Restore Options",
                 style: Default_Theme.secondoryTextStyle
-                    .merge(const TextStyle(color: Colors.white))),
+                    .merge(TextStyle(color: dialogScheme.onSurface))),
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -358,7 +375,11 @@ Future<void> _onRestoreTap(BuildContext context) async {
                     "Choose which data you want to restore from the selected backup file. "
                     "Unselect any items you do NOT want to be imported. By default all are selected.",
                     style: Default_Theme.secondoryTextStyle.merge(
-                        const TextStyle(color: Colors.white70, fontSize: 13)),
+                      TextStyle(
+                        color: dialogScheme.onSurface.withValues(alpha: 0.75),
+                        fontSize: 13,
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 12),
                   CheckboxListTile(
@@ -366,12 +387,12 @@ Future<void> _onRestoreTap(BuildContext context) async {
                     onChanged: toggleSelectAll,
                     title: Text("Select All",
                         style: Default_Theme.secondoryTextStyle
-                            .merge(const TextStyle(color: Colors.white))),
+                            .merge(TextStyle(color: dialogScheme.onSurface))),
                     controlAffinity: ListTileControlAffinity.leading,
                     activeColor: Default_Theme.accentColor2,
-                    checkColor: Colors.white,
+                    checkColor: dialogScheme.onPrimary,
                   ),
-                  const Divider(color: Colors.white12),
+                  Divider(color: dialogScheme.onSurface.withValues(alpha: 0.12)),
                   CheckboxListTile(
                     value: mediaItems,
                     onChanged: (v) {
@@ -380,10 +401,10 @@ Future<void> _onRestoreTap(BuildContext context) async {
                     },
                     title: Text("Media items (songs, tracks, library entries)",
                         style: Default_Theme.secondoryTextStyle
-                            .merge(const TextStyle(color: Colors.white))),
+                            .merge(TextStyle(color: dialogScheme.onSurface))),
                     controlAffinity: ListTileControlAffinity.leading,
                     activeColor: Default_Theme.accentColor2,
-                    checkColor: Colors.white,
+                    checkColor: dialogScheme.onPrimary,
                   ),
                   CheckboxListTile(
                     value: searchHistory,
@@ -393,10 +414,10 @@ Future<void> _onRestoreTap(BuildContext context) async {
                     },
                     title: Text("Search history",
                         style: Default_Theme.secondoryTextStyle
-                            .merge(const TextStyle(color: Colors.white))),
+                            .merge(TextStyle(color: dialogScheme.onSurface))),
                     controlAffinity: ListTileControlAffinity.leading,
                     activeColor: Default_Theme.accentColor2,
-                    checkColor: Colors.white,
+                    checkColor: dialogScheme.onPrimary,
                   ),
                   // CheckboxListTile(
                   //   value: settingsAndPrefs,
@@ -420,7 +441,7 @@ Future<void> _onRestoreTap(BuildContext context) async {
                 onPressed: () => Navigator.of(ctx2).pop(null),
                 child: Text("Cancel",
                     style: Default_Theme.secondoryTextStyle
-                        .merge(const TextStyle(color: Colors.white))),
+                        .merge(TextStyle(color: dialogScheme.onSurface))),
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
@@ -434,7 +455,7 @@ Future<void> _onRestoreTap(BuildContext context) async {
                 },
                 child: Text("Continue",
                     style: Default_Theme.secondoryTextStyle
-                        .merge(const TextStyle(color: Colors.white))),
+                        .merge(TextStyle(color: dialogScheme.onPrimary))),
               ),
             ],
           );
@@ -449,11 +470,13 @@ Future<void> _onRestoreTap(BuildContext context) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) {
+        final dialogScheme = Theme.of(ctx).colorScheme;
         return AlertDialog(
-          backgroundColor: const Color.fromARGB(255, 24, 24, 24),
+          backgroundColor: dialogScheme.surface,
+          surfaceTintColor: Colors.transparent,
           title: Text("Confirm Restore",
-              style: Default_Theme.secondoryTextStyle.merge(const TextStyle(
-                  color: Colors.white,
+              style: Default_Theme.secondoryTextStyle.merge(TextStyle(
+                  color: dialogScheme.onSurface,
                   fontSize: 18,
                   fontWeight: FontWeight.bold))),
           content: Text(
@@ -462,15 +485,16 @@ Future<void> _onRestoreTap(BuildContext context) async {
             "${options.restoreSearchHistory ? "• Search history\n" : ""}"
             // "${options.restoreSettings ? "• Settings & preferences\n" : ""}\n"
             "Your current data will be modified/merged. Are you sure you want to proceed?",
-            style: Default_Theme.secondoryTextStyle
-                .merge(const TextStyle(color: Colors.white70, fontSize: 14)),
+            style: Default_Theme.secondoryTextStyle.merge(TextStyle(
+                color: dialogScheme.onSurface.withValues(alpha: 0.7),
+                fontSize: 14)),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(false),
               child: Text("No",
                   style: Default_Theme.secondoryTextStyle
-                      .merge(const TextStyle(color: Colors.white))),
+                      .merge(TextStyle(color: dialogScheme.onSurface))),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -478,7 +502,7 @@ Future<void> _onRestoreTap(BuildContext context) async {
               onPressed: () => Navigator.of(ctx).pop(true),
               child: Text("Yes, restore",
                   style: Default_Theme.secondoryTextStyle
-                      .merge(const TextStyle(color: Colors.white))),
+                      .merge(TextStyle(color: dialogScheme.onPrimary))),
             ),
           ],
         );
@@ -497,10 +521,12 @@ Future<void> _onRestoreTap(BuildContext context) async {
       barrierDismissible: false,
       builder: (ctx) {
         progressDialogContext = ctx; // capture
+        final dialogScheme = Theme.of(ctx).colorScheme;
         return WillPopScope(
           onWillPop: () async => false,
           child: AlertDialog(
-            backgroundColor: const Color.fromARGB(255, 24, 24, 24),
+            backgroundColor: dialogScheme.surface,
+            surfaceTintColor: Colors.transparent,
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -510,7 +536,7 @@ Future<void> _onRestoreTap(BuildContext context) async {
                   "Restoring selected data...\nPlease wait until the operation completes.",
                   textAlign: TextAlign.center,
                   style: Default_Theme.secondoryTextStyle
-                      .merge(const TextStyle(color: Colors.white)),
+                      .merge(TextStyle(color: dialogScheme.onSurface)),
                 ),
               ],
             ),
@@ -631,12 +657,14 @@ Future<void> _showResultDialog(
   await showDialog(
     context: context,
     builder: (ctx) {
+      final dialogScheme = Theme.of(ctx).colorScheme;
       return AlertDialog(
-        backgroundColor: const Color.fromARGB(255, 24, 24, 24),
+        backgroundColor: dialogScheme.surface,
+        surfaceTintColor: Colors.transparent,
         title: Text(
           success ? "Restore Completed" : "Restore Failed",
-          style: Default_Theme.secondoryTextStyle.merge(const TextStyle(
-              color: Colors.white, fontWeight: FontWeight.bold)),
+          style: Default_Theme.secondoryTextStyle.merge(TextStyle(
+              color: dialogScheme.onSurface, fontWeight: FontWeight.bold)),
         ),
         content: SingleChildScrollView(
           child: Column(
@@ -647,7 +675,7 @@ Future<void> _showResultDialog(
                     ? "The selected data was restored successfully. For best results, please restart the app now."
                     : "The restore process failed with the following errors:",
                 style: Default_Theme.secondoryTextStyle
-                    .merge(const TextStyle(color: Colors.white)),
+                    .merge(TextStyle(color: dialogScheme.onSurface)),
               ),
               const SizedBox(height: 12),
               if (!success && errors.isNotEmpty)
@@ -656,21 +684,26 @@ Future<void> _showResultDialog(
                       child: Text(
                         "- $e",
                         style: Default_Theme.secondoryTextStyle.merge(
-                            const TextStyle(
-                                color: Colors.white70, fontSize: 13)),
+                            TextStyle(
+                                color: dialogScheme.onSurface
+                                    .withValues(alpha: 0.7),
+                                fontSize: 13)),
                       ),
                     )),
               if (!success && errors.isEmpty)
                 Text(
                   "Unknown error occurred during restore.",
                   style: Default_Theme.secondoryTextStyle
-                      .merge(const TextStyle(color: Colors.white70)),
+                      .merge(TextStyle(
+                          color: dialogScheme.onSurface.withValues(alpha: 0.7))),
                 ),
               const SizedBox(height: 8),
               Text(
                 "Please restart the app for better consistency.",
                 style: Default_Theme.secondoryTextStyle.merge(
-                    const TextStyle(color: Colors.white54, fontSize: 12)),
+                    TextStyle(
+                        color: dialogScheme.onSurface.withValues(alpha: 0.55),
+                        fontSize: 12)),
               ),
             ],
           ),
@@ -683,7 +716,7 @@ Future<void> _showResultDialog(
             child: Text(
               "OK",
               style: Default_Theme.secondoryTextStyle.merge(const TextStyle(
-                  color: Colors.white, fontWeight: FontWeight.bold)),
+                  fontWeight: FontWeight.bold)),
             ),
           ),
         ],

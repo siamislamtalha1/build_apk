@@ -50,13 +50,18 @@ Future<bool> storagePermission() async {
 class _DownloadSettingsState extends State<DownloadSettings> {
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         centerTitle: true,
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        scrolledUnderElevation: 0,
         title: Text(
           'Download Settings',
           style: TextStyle(
-                  color: Default_Theme.primaryColor1,
+                  color: scheme.onSurface,
                   fontSize: 20,
                   fontWeight: FontWeight.bold)
               .merge(Default_Theme.secondoryTextStyle),
@@ -72,9 +77,10 @@ class _DownloadSettingsState extends State<DownloadSettings> {
                     "Quality of audio files downloaded from online sources.",
                 trailing: DropdownButton(
                   value: state.downQuality,
+                  dropdownColor: scheme.surface,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: Default_Theme.primaryColor1,
+                    color: scheme.onSurface,
                     fontSize: 15,
                   ).merge(Default_Theme.secondoryTextStyle),
                   underline: const SizedBox(),
@@ -101,8 +107,9 @@ class _DownloadSettingsState extends State<DownloadSettings> {
                     "Quality of Youtube audio files downloaded from Youtube.",
                 trailing: DropdownButton(
                   value: state.ytDownQuality,
+                  dropdownColor: scheme.surface,
                   style: TextStyle(
-                    color: Default_Theme.primaryColor1,
+                    color: scheme.onSurface,
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
                   ).merge(Default_Theme.secondoryTextStyle),
@@ -132,7 +139,7 @@ class _DownloadSettingsState extends State<DownloadSettings> {
                     : IconButton(
                         icon: Icon(
                           MingCute.refresh_1_line,
-                          color: Default_Theme.primaryColor1,
+                          color: scheme.onSurface,
                         ),
                         onPressed: () {
                           context.read<SettingsCubit>().resetDownPath();

@@ -183,7 +183,7 @@ class SettingsInitial extends SettingsState {
           lastFMScrobble: true,
           autoSaveLyrics: false,
           autoPlay: true,
-          themeMode: ThemeMode.dark,
+          themeMode: ThemeMode.system,
           // New advanced settings
           audioDecoderMode: "system",
           hardwareOffloadEnabled: false,

@@ -1,5 +1,6 @@
 import 'package:Bloomee/blocs/settings_cubit/cubit/settings_cubit.dart';
 import 'package:Bloomee/screens/screen/home_views/setting_views/check_update_view.dart';
+import 'package:Bloomee/screens/widgets/global_footer.dart';
 import 'package:Bloomee/screens/widgets/setting_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:Bloomee/theme_data/default.dart';
@@ -10,13 +11,18 @@ class UpdatesSettings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         centerTitle: true,
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        scrolledUnderElevation: 0,
         title: Text(
           'Updates',
           style: TextStyle(
-                  color: Default_Theme.primaryColor1,
+                  color: scheme.onSurface,
                   fontSize: 20,
                   fontWeight: FontWeight.bold)
               .merge(Default_Theme.secondoryTextStyle),
@@ -33,7 +39,9 @@ class UpdatesSettings extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const CheckUpdateView(),
+                      builder: (context) => const GlobalBackdropWrapper(
+                        child: CheckUpdateView(),
+                      ),
                     ),
                   );
                 },
@@ -43,14 +51,14 @@ class UpdatesSettings extends StatelessWidget {
                   subtitle: Text(
                     "Get notified when new updates are available in app start up.",
                     style: TextStyle(
-                            color: Default_Theme.primaryColor1.withValues(alpha: 0.5),
+                            color: scheme.onSurface.withValues(alpha: 0.6),
                             fontSize: 12.5)
                         .merge(Default_Theme.secondoryTextStyleMedium),
                   ),
                   title: Text(
                     "Auto update notify",
                     style: TextStyle(
-                            color: Default_Theme.primaryColor1, fontSize: 17)
+                            color: scheme.onSurface, fontSize: 17)
                         .merge(Default_Theme.secondoryTextStyleMedium),
                   ),
                   onChanged: (value) {

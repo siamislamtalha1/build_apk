@@ -404,66 +404,71 @@ class BloomeeDBService {
     isarDB.writeTxn(() => isarDB.searchHistoryDBs.clear());
   }
 
+  static Future<List<SearchHistoryDB>> getAllSearchHistoryDBItems({
+    int limit = 100,
+  }) async {
+    final isarDB = await db;
+    return isarDB.searchHistoryDBs
+        .where()
+        .sortByLastSearchedDesc()
+        .limit(limit)
+        .findAll();
+  }
+
+  static Future<Stream<void>> getSearchHistoryWatcher() async {
+    final isarDB = await db;
+    return isarDB.searchHistoryDBs.watchLazy(fireImmediately: true);
+  }
+
   static Future<int?> addMediaItem(
-      MediaItemDB mediaItemDB, String playlistName) async {
-    int? id;
-    Isar isarDB = await db;
-    MediaPlaylistDB mediaPlaylistDB =
-        MediaPlaylistDB(playlistName: playlistName);
+      MediaItemDB mediaItem, String playlistName) async {
+    final isarDB = await db;
+    final normalizedName = playlistName.trim();
+    if (normalizedName.isEmpty) return null;
 
-    // search for media item if already exists
-    MediaItemDB? mediaitem = isarDB.mediaItemDBs
+    // Find (or create) target playlist.
+    MediaPlaylistDB? playlist = isarDB.mediaPlaylistDBs
         .filter()
-        .permaURLEqualTo(mediaItemDB.permaURL)
+        .playlistNameEqualTo(normalizedName)
         .findFirstSync();
-
-    // search for playlist if already exists
-    MediaPlaylistDB? mediaPlaylistDB0 = isarDB.mediaPlaylistDBs
-        .filter()
-        .isarIdEqualTo(mediaPlaylistDB.isarId)
-        .findFirstSync();
-    log(mediaPlaylistDB0.toString(), name: "DB");
-
-    if (mediaPlaylistDB0 == null) {
-      // create playlist if not exists
-      final tmpId = await createPlaylist(playlistName);
-      mediaPlaylistDB0 = isarDB.mediaPlaylistDBs
+    if (playlist == null) {
+      await createPlaylist(normalizedName);
+      playlist = isarDB.mediaPlaylistDBs
           .filter()
-          .isarIdEqualTo(mediaPlaylistDB.isarId)
+          .playlistNameEqualTo(normalizedName)
           .findFirstSync();
-      log("${mediaPlaylistDB0.toString()} ID: $tmpId", name: "DB");
     }
+    if (playlist == null) return null;
+    final targetPlaylist = playlist;
 
-    // add playlist to _mediaitem
-    if (mediaitem != null) {
-      // update and save existing media item
-      mediaitem.mediaInPlaylistsDB.add(mediaPlaylistDB0!);
-      id = mediaitem.id;
-      isarDB.writeTxnSync(() => isarDB.mediaItemDBs.putSync(mediaitem!));
-    } else {
-      // save given new media item
-      mediaitem = mediaItemDB;
-      log("id: ${mediaitem.id}", name: "DB");
-      mediaitem.mediaInPlaylistsDB.add(mediaPlaylistDB);
-      isarDB.writeTxnSync(() => id = isarDB.mediaItemDBs.putSync(mediaitem!));
-    }
+    // Find existing media item by permaURL.
+    final existing = await isarDB.mediaItemDBs
+        .filter()
+        .permaURLEqualTo(mediaItem.permaURL)
+        .findFirst();
 
-    // add current rank for media item in playlist orderList
-    if (!(mediaPlaylistDB0?.mediaRanks.contains(mediaitem.id) ?? false)) {
-      mediaPlaylistDB = mediaitem.mediaInPlaylistsDB
-          .filter()
-          .isarIdEqualTo(mediaPlaylistDB.isarId)
-          .findFirstSync()!;
+    int? savedId;
+    await isarDB.writeTxn(() async {
+      final itemToSave = existing ?? mediaItem;
 
-      List<int> list = mediaPlaylistDB.mediaRanks.toList(growable: true);
-      list.add(mediaitem.id!);
-      mediaPlaylistDB.mediaRanks = list;
-      isarDB
-          .writeTxnSync(() => isarDB.mediaPlaylistDBs.putSync(mediaPlaylistDB));
-      log(mediaPlaylistDB.mediaRanks.toString(), name: "DB");
-    }
+      // Upsert the media item first so we have a stable id.
+      savedId = await isarDB.mediaItemDBs.put(itemToSave);
 
-    return id;
+      // Ensure link is present.
+      if (!itemToSave.mediaInPlaylistsDB.contains(targetPlaylist)) {
+        itemToSave.mediaInPlaylistsDB.add(targetPlaylist);
+        await itemToSave.mediaInPlaylistsDB.save();
+      }
+
+      // Keep playlist rank list in sync.
+      final itemId = itemToSave.id ?? savedId;
+      if (itemId != null && !targetPlaylist.mediaRanks.contains(itemId)) {
+        targetPlaylist.mediaRanks = [...targetPlaylist.mediaRanks, itemId];
+        await isarDB.mediaPlaylistDBs.put(targetPlaylist);
+      }
+    });
+
+    return savedId;
   }
 
   static Future<bool> playlistExists(String playlistName) async {

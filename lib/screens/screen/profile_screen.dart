@@ -2,7 +2,6 @@ import 'dart:ui';
 import 'package:Bloomee/blocs/auth/auth_cubit.dart';
 import 'package:Bloomee/services/sync/sync_service.dart';
 import 'package:Bloomee/services/firebase/firestore_service.dart';
-import 'package:Bloomee/theme_data/default.dart';
 import 'package:Bloomee/utils/load_Image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,9 +21,14 @@ class ProfileScreen extends StatelessWidget {
     final next = await showDialog<String>(
       context: context,
       builder: (ctx) {
+        final scheme = Theme.of(ctx).colorScheme;
         return AlertDialog(
-          backgroundColor: Default_Theme.themeColor,
-          title: Text(title),
+          backgroundColor: scheme.surface,
+          surfaceTintColor: Colors.transparent,
+          title: Text(
+            title,
+            style: TextStyle(color: scheme.onSurface),
+          ),
           content: TextField(
             controller: controller,
             decoration: const InputDecoration(
@@ -57,10 +61,11 @@ class ProfileScreen extends StatelessWidget {
       );
     } catch (e) {
       if (!context.mounted) return;
+      final scheme = Theme.of(context).colorScheme;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(e.toString()),
-          backgroundColor: Colors.red,
+          backgroundColor: scheme.error,
         ),
       );
     }
@@ -68,6 +73,7 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final footerSafeSpace = MediaQuery.of(context).padding.bottom + 160;
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: BlocBuilder<AuthCubit, AuthState>(
@@ -101,6 +107,9 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+                SliverToBoxAdapter(
+                  child: SizedBox(height: footerSafeSpace),
+                ),
               ],
             ),
           );
@@ -111,6 +120,7 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildProfileHeader(BuildContext context, dynamic user, bool isGuest) {
     final firestore = FirestoreService();
+    final scheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -127,13 +137,13 @@ class ProfileScreen extends StatelessWidget {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Default_Theme.accentColor2.withValues(alpha: 0.2),
-                      Default_Theme.themeColor.withValues(alpha: 0.3),
+                      scheme.primary.withValues(alpha: 0.2),
+                      scheme.surface.withValues(alpha: 0.3),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.1),
+                    color: scheme.onSurface.withValues(alpha: 0.1),
                     width: 1.5,
                   ),
                 ),
@@ -151,8 +161,7 @@ class ProfileScreen extends StatelessWidget {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Default_Theme.accentColor2
-                                    .withValues(alpha: 0.4),
+                                color: scheme.primary.withValues(alpha: 0.4),
                                 blurRadius: 30,
                                 spreadRadius: 5,
                               ),
@@ -166,14 +175,14 @@ class ProfileScreen extends StatelessWidget {
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: Default_Theme.accentColor2,
+                              color: scheme.primary,
                               width: 3,
                             ),
                           ),
                           child: CircleAvatar(
                             radius: 48,
-                            backgroundColor: Default_Theme.accentColor2
-                                .withValues(alpha: 0.3),
+                            backgroundColor:
+                                scheme.primary.withValues(alpha: 0.3),
                             backgroundImage: user.photoURL != null
                                 ? safeImageProvider(user.photoURL)
                                 : null,
@@ -183,7 +192,7 @@ class ProfileScreen extends StatelessWidget {
                                         ? MingCute.user_3_line
                                         : MingCute.user_4_fill,
                                     size: 48,
-                                    color: Default_Theme.accentColor2,
+                                    color: scheme.primary,
                                   )
                                 : null,
                           ),
@@ -195,17 +204,17 @@ class ProfileScreen extends StatelessWidget {
                           child: Container(
                             padding: const EdgeInsets.all(6),
                             decoration: BoxDecoration(
-                              color: Default_Theme.accentColor2,
+                              color: scheme.primary,
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color: Default_Theme.themeColor,
+                                color: scheme.surface,
                                 width: 2,
                               ),
                             ),
-                            child: const Icon(
+                            child: Icon(
                               MingCute.user_4_fill,
                               size: 16,
-                              color: Colors.white,
+                              color: scheme.onPrimary,
                             ),
                           ),
                         ),
@@ -218,7 +227,7 @@ class ProfileScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
-                        color: Default_Theme.primaryColor1,
+                        color: scheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -236,8 +245,7 @@ class ProfileScreen extends StatelessWidget {
                                     : username,
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: Default_Theme.accentColor2
-                                      .withValues(alpha: 0.95),
+                                  color: scheme.primary.withValues(alpha: 0.95),
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
@@ -259,8 +267,8 @@ class ProfileScreen extends StatelessWidget {
                                   child: Icon(
                                     MingCute.edit_line,
                                     size: 16,
-                                    color: Default_Theme.primaryColor2
-                                        .withValues(alpha: 0.75),
+                                    color: scheme.onSurface
+                                        .withValues(alpha: 0.6),
                                   ),
                                 ),
                               )
@@ -275,8 +283,7 @@ class ProfileScreen extends StatelessWidget {
                         user.email!,
                         style: TextStyle(
                           fontSize: 14,
-                          color: Default_Theme.primaryColor2
-                              .withValues(alpha: 0.8),
+                          color: scheme.onSurface.withValues(alpha: 0.7),
                         ),
                       ),
                     if (isGuest)
@@ -284,12 +291,10 @@ class ProfileScreen extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16, vertical: 6),
                         decoration: BoxDecoration(
-                          color:
-                              Default_Theme.accentColor2.withValues(alpha: 0.2),
+                          color: scheme.primary.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: Default_Theme.accentColor2
-                                .withValues(alpha: 0.5),
+                            color: scheme.primary.withValues(alpha: 0.5),
                             width: 1,
                           ),
                         ),
@@ -298,7 +303,7 @@ class ProfileScreen extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
-                            color: Default_Theme.accentColor2,
+                            color: scheme.primary,
                             letterSpacing: 1.2,
                           ),
                         ),
@@ -314,6 +319,7 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildSyncStatusCard(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
       child: BackdropFilter(
@@ -321,18 +327,37 @@ class ProfileScreen extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Default_Theme.themeColor.withValues(alpha: 0.4),
+            color: scheme.surface.withValues(alpha: 0.4),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: Colors.white.withValues(alpha: 0.1),
+              color: scheme.onSurface.withValues(alpha: 0.08),
               width: 1.5,
             ),
           ),
-          child: StreamBuilder<SyncStatus>(
-            stream: SyncService().syncStatus,
-            initialData: SyncStatus.idle,
+          child: StreamBuilder<SyncDetails>(
+            stream: SyncService().syncDetails,
+            initialData: const SyncDetails(
+              status: SyncStatus.idle,
+              initialSyncInProgress: false,
+              syncingLikedSongs: false,
+              syncingPlaylists: false,
+              syncingHistory: false,
+              syncingSearchHistory: false,
+              syncingPreferences: false,
+              syncingStatistics: false,
+              likedSongsCount: 0,
+              playlistsCount: 0,
+              playlistItemsCount: 0,
+              historyCount: 0,
+              searchHistoryCount: 0,
+              settingsBoolCount: 0,
+              settingsStrCount: 0,
+              statisticsCount: 0,
+              lastSuccessfulSyncAt: null,
+            ),
             builder: (context, snapshot) {
-              final status = snapshot.data ?? SyncStatus.idle;
+              final details = snapshot.data;
+              final status = details?.status ?? SyncStatus.idle;
 
               String statusText;
               IconData statusIcon;
@@ -340,14 +365,16 @@ class ProfileScreen extends StatelessWidget {
 
               switch (status) {
                 case SyncStatus.syncing:
-                  statusText = 'Syncing...';
+                  statusText = (details?.initialSyncInProgress ?? true)
+                      ? 'Syncing...'
+                      : 'Synced';
                   statusIcon = MingCute.loading_3_fill;
-                  statusColor = Default_Theme.accentColor2;
+                  statusColor = scheme.primary;
                   break;
                 case SyncStatus.synced:
                   statusText = 'Synced';
                   statusIcon = MingCute.check_circle_fill;
-                  statusColor = Colors.green;
+                  statusColor = scheme.primary;
                   break;
                 case SyncStatus.error:
                   statusText = 'Sync Error';
@@ -357,23 +384,31 @@ class ProfileScreen extends StatelessWidget {
                 default:
                   statusText = 'Ready';
                   statusIcon = MingCute.cloud_fill;
-                  statusColor = Default_Theme.primaryColor2;
+                  statusColor = scheme.onSurface.withValues(alpha: 0.7);
               }
+
+              final likedCount = details?.likedSongsCount ?? 0;
+              final plCount = details?.playlistsCount ?? 0;
+              final plItemsCount = details?.playlistItemsCount ?? 0;
+              final historyCount = details?.historyCount ?? 0;
+              final searchCount = details?.searchHistoryCount ?? 0;
+              final settingsCount =
+                  (details?.settingsBoolCount ?? 0) + (details?.settingsStrCount ?? 0);
+              final statsCount = details?.statisticsCount ?? 0;
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      Icon(MingCute.cloud_fill,
-                          color: Default_Theme.accentColor2, size: 24),
+                      Icon(MingCute.cloud_fill, color: scheme.primary, size: 24),
                       const SizedBox(width: 12),
                       Text(
                         'Cloud Sync',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Default_Theme.primaryColor1,
+                          color: scheme.onSurface,
                         ),
                       ),
                       const Spacer(),
@@ -393,25 +428,49 @@ class ProfileScreen extends StatelessWidget {
                   _buildSyncRow(
                     icon: MingCute.heart_fill,
                     label: 'Liked Songs',
-                    status: statusText,
-                    statusIcon: statusIcon,
-                    color: statusColor,
+                    trailingText: '$likedCount',
+                    isSyncing: details?.syncingLikedSongs ?? false,
+                    scheme: scheme,
                   ),
                   const SizedBox(height: 12),
                   _buildSyncRow(
                     icon: MingCute.music_2_fill,
                     label: 'Playlists',
-                    status: statusText,
-                    statusIcon: statusIcon,
-                    color: statusColor,
+                    trailingText: '$plCount • $plItemsCount',
+                    isSyncing: details?.syncingPlaylists ?? false,
+                    scheme: scheme,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildSyncRow(
+                    icon: MingCute.time_fill,
+                    label: 'Listened History',
+                    trailingText: '$historyCount',
+                    isSyncing: details?.syncingHistory ?? false,
+                    scheme: scheme,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildSyncRow(
+                    icon: MingCute.search_fill,
+                    label: 'Search History',
+                    trailingText: '$searchCount',
+                    isSyncing: details?.syncingSearchHistory ?? false,
+                    scheme: scheme,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildSyncRow(
+                    icon: MingCute.settings_3_fill,
+                    label: 'Settings',
+                    trailingText: '$settingsCount',
+                    isSyncing: details?.syncingPreferences ?? false,
+                    scheme: scheme,
                   ),
                   const SizedBox(height: 12),
                   _buildSyncRow(
                     icon: MingCute.chart_line_fill,
                     label: 'Statistics',
-                    status: statusText,
-                    statusIcon: statusIcon,
-                    color: statusColor,
+                    trailingText: '$statsCount',
+                    isSyncing: details?.syncingStatistics ?? false,
+                    scheme: scheme,
                   ),
                 ],
               );
@@ -425,23 +484,38 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildSyncRow({
     required IconData icon,
     required String label,
-    required String status,
-    required IconData statusIcon,
-    required Color color,
+    required String trailingText,
+    required bool isSyncing,
+    required ColorScheme scheme,
   }) {
     return Row(
       children: [
-        Icon(icon, color: Default_Theme.primaryColor2, size: 20),
+        Icon(icon, color: scheme.onSurface.withValues(alpha: 0.75), size: 20),
         const SizedBox(width: 12),
         Text(
           label,
           style: TextStyle(
             fontSize: 15,
-            color: Default_Theme.primaryColor2,
+            color: scheme.onSurface.withValues(alpha: 0.8),
           ),
         ),
         const Spacer(),
-        Icon(statusIcon, color: color, size: 16),
+        Text(
+          trailingText,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: scheme.onSurface.withValues(alpha: 0.7),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Icon(
+          isSyncing ? MingCute.loading_3_fill : MingCute.check_circle_fill,
+          color: isSyncing
+              ? scheme.primary
+              : scheme.onSurface.withValues(alpha: 0.6),
+          size: 16,
+        ),
       ],
     );
   }
@@ -503,16 +577,19 @@ class ProfileScreen extends StatelessWidget {
   void _showDeleteAccountDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        backgroundColor: Default_Theme.themeColor,
+      builder: (dialogContext) {
+        final scheme = Theme.of(dialogContext).colorScheme;
+        return AlertDialog(
+        backgroundColor: scheme.surface,
+        surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           'Delete Account',
-          style: TextStyle(color: Default_Theme.primaryColor1),
+          style: TextStyle(color: scheme.onSurface),
         ),
         content: Text(
           'This will permanently delete your account. Your username will become available again.',
-          style: TextStyle(color: Default_Theme.primaryColor2),
+          style: TextStyle(color: scheme.onSurface.withValues(alpha: 0.7)),
         ),
         actions: [
           TextButton(
@@ -530,7 +607,8 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
         ],
-      ),
+      );
+      },
     );
   }
 
@@ -542,18 +620,19 @@ class ProfileScreen extends StatelessWidget {
     required VoidCallback onTap,
     bool isDestructive = false,
   }) {
+    final scheme = Theme.of(context).colorScheme;
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
         child: Container(
           decoration: BoxDecoration(
-            color: Default_Theme.themeColor.withValues(alpha: 0.4),
+            color: scheme.surface.withValues(alpha: 0.4),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: isDestructive
                   ? Colors.red.withValues(alpha: 0.3)
-                  : Colors.white.withValues(alpha: 0.1),
+                  : scheme.onSurface.withValues(alpha: 0.08),
               width: 1.5,
             ),
           ),
@@ -571,7 +650,7 @@ class ProfileScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: (isDestructive
                                 ? Colors.red
-                                : Default_Theme.accentColor2)
+                                : scheme.primary)
                             .withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -579,7 +658,7 @@ class ProfileScreen extends StatelessWidget {
                         icon,
                         color: isDestructive
                             ? Colors.red
-                            : Default_Theme.accentColor2,
+                            : scheme.primary,
                         size: 24,
                       ),
                     ),
@@ -595,7 +674,7 @@ class ProfileScreen extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                               color: isDestructive
                                   ? Colors.red
-                                  : Default_Theme.primaryColor1,
+                                  : scheme.onSurface,
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -603,8 +682,7 @@ class ProfileScreen extends StatelessWidget {
                             subtitle,
                             style: TextStyle(
                               fontSize: 13,
-                              color: Default_Theme.primaryColor2
-                                  .withValues(alpha: 0.7),
+                              color: scheme.onSurface.withValues(alpha: 0.7),
                             ),
                           ),
                         ],
@@ -612,7 +690,7 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     Icon(
                       MingCute.right_line,
-                      color: Default_Theme.primaryColor2.withValues(alpha: 0.5),
+                      color: scheme.onSurface.withValues(alpha: 0.5),
                       size: 20,
                     ),
                   ],
@@ -626,6 +704,7 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildSignInButton(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: BackdropFilter(
@@ -635,14 +714,14 @@ class ProfileScreen extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Default_Theme.accentColor2,
-                Default_Theme.accentColor2.withValues(alpha: 0.7),
+                scheme.primary,
+                scheme.primary.withValues(alpha: 0.7),
               ],
             ),
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Default_Theme.accentColor2.withValues(alpha: 0.3),
+                color: scheme.primary.withValues(alpha: 0.3),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
@@ -653,19 +732,20 @@ class ProfileScreen extends StatelessWidget {
             child: InkWell(
               onTap: () => context.push('/Login'),
               borderRadius: BorderRadius.circular(16),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(vertical: 16),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(MingCute.user_add_fill, color: Colors.white, size: 24),
-                    SizedBox(width: 12),
+                    Icon(MingCute.user_add_fill,
+                        color: scheme.onPrimary, size: 24),
+                    const SizedBox(width: 12),
                     Text(
                       'Sign In to Sync',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: scheme.onPrimary,
                       ),
                     ),
                   ],
@@ -679,6 +759,7 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildNotLoggedIn(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -688,7 +769,7 @@ class ProfileScreen extends StatelessWidget {
             Icon(
               MingCute.user_3_line,
               size: 100,
-              color: Default_Theme.primaryColor2.withValues(alpha: 0.5),
+              color: scheme.onSurface.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 24),
             Text(
@@ -696,7 +777,7 @@ class ProfileScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Default_Theme.primaryColor1,
+                color: scheme.onSurface,
               ),
             ),
             const SizedBox(height: 12),
@@ -705,7 +786,7 @@ class ProfileScreen extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
-                color: Default_Theme.primaryColor2.withValues(alpha: 0.8),
+                color: scheme.onSurface.withValues(alpha: 0.7),
               ),
             ),
             const SizedBox(height: 32),
@@ -719,16 +800,19 @@ class ProfileScreen extends StatelessWidget {
   void _showSignOutDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        backgroundColor: Default_Theme.themeColor,
+      builder: (dialogContext) {
+        final scheme = Theme.of(dialogContext).colorScheme;
+        return AlertDialog(
+        backgroundColor: scheme.surface,
+        surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           'Sign Out',
-          style: TextStyle(color: Default_Theme.primaryColor1),
+          style: TextStyle(color: scheme.onSurface),
         ),
         content: Text(
           'Are you sure you want to sign out?',
-          style: TextStyle(color: Default_Theme.primaryColor2),
+          style: TextStyle(color: scheme.onSurface.withValues(alpha: 0.7)),
         ),
         actions: [
           TextButton(
@@ -746,7 +830,8 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
         ],
-      ),
+      );
+      },
     );
   }
 }

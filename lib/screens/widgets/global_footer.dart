@@ -18,7 +18,7 @@ class GlobalFooter extends StatelessWidget {
     return PlayerOverlayWrapper(
       child: Stack(
         children: [
-          const _GlobalBackdrop(),
+          const RepaintBoundary(child: GlobalBackdrop()),
           PopScope(
             canPop: !context.watch<PlayerOverlayCubit>().state &&
                 navigationShell.currentIndex == 0,
@@ -62,21 +62,24 @@ class GlobalFooter extends StatelessWidget {
                       ),
               ),
               bottomNavigationBar: SafeArea(
-                bottom: false, // Don't add solid background at bottom
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const MiniPlayerWidget(),
-                    Container(
-                      color: Colors.transparent,
-                      margin: const EdgeInsets.symmetric(
-                          vertical: 5, horizontal: 10),
-                      child: ResponsiveBreakpoints.of(context).isMobile
-                          ? HorizontalNavBar(navigationShell: navigationShell)
-                          : const Wrap(),
-                    ),
-                  ],
+                child: RepaintBoundary(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const MiniPlayerWidget(),
+                      Container(
+                        color: Colors.transparent,
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 5, horizontal: 10),
+                        child: ResponsiveBreakpoints.of(context).isMobile
+                            ? HorizontalNavBar(
+                                navigationShell: navigationShell,
+                              )
+                            : const Wrap(),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -87,8 +90,23 @@ class GlobalFooter extends StatelessWidget {
   }
 }
 
-class _GlobalBackdrop extends StatelessWidget {
-  const _GlobalBackdrop();
+class GlobalBackdropWrapper extends StatelessWidget {
+  const GlobalBackdropWrapper({super.key, required this.child});
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        const RepaintBoundary(child: GlobalBackdrop()),
+        child,
+      ],
+    );
+  }
+}
+
+class GlobalBackdrop extends StatelessWidget {
+  const GlobalBackdrop({super.key});
 
   @override
   Widget build(BuildContext context) {

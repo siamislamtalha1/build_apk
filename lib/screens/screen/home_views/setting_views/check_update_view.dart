@@ -9,13 +9,18 @@ class CheckUpdateView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         centerTitle: true,
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        scrolledUnderElevation: 0,
         title: Text(
           'Check for Updates',
           style: TextStyle(
-                  color: Default_Theme.primaryColor1,
+                  color: scheme.onSurface,
                   fontSize: 20,
                   fontWeight: FontWeight.bold)
               .merge(Default_Theme.secondoryTextStyle),
@@ -73,8 +78,7 @@ class CheckUpdateView extends StatelessWidget {
                       child: Text(
                         'Current Version: ${snapshot.data?["currVer"]} + ${snapshot.data?["currBuild"]}',
                         style: TextStyle(
-                                color: Default_Theme.primaryColor2
-                                    .withValues(alpha: 0.5),
+                                color: scheme.onSurface.withValues(alpha: 0.55),
                                 fontSize: 12)
                             .merge(Default_Theme.tertiaryTextStyle),
                       ),
@@ -98,8 +102,7 @@ class CheckUpdateView extends StatelessWidget {
                       child: Text(
                         'Version: ${snapshot.data?["newVer"]}+ ${snapshot.data?["newBuild"]}',
                         style: TextStyle(
-                                color: Default_Theme.primaryColor1
-                                    .withValues(alpha: 0.8),
+                                color: scheme.onSurface.withValues(alpha: 0.8),
                                 fontSize: 16)
                             .merge(Default_Theme.tertiaryTextStyle),
                         textAlign: TextAlign.center,
@@ -135,8 +138,7 @@ class CheckUpdateView extends StatelessWidget {
                       child: Text(
                         'Current Version: ${snapshot.data?["currVer"]} + ${snapshot.data?["currBuild"]}',
                         style: TextStyle(
-                                color: Default_Theme.primaryColor2
-                                    .withValues(alpha: 0.5),
+                                color: scheme.onSurface.withValues(alpha: 0.55),
                                 fontSize: 12)
                             .merge(Default_Theme.tertiaryTextStyle),
                       ),

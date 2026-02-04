@@ -184,7 +184,7 @@ class SettingsCubit extends Cubit<SettingsState> {
           themeMode = ThemeMode.system;
           break;
         default:
-          themeMode = ThemeMode.dark;
+          themeMode = ThemeMode.system;
       }
       emit(state.copyWith(themeMode: themeMode));
     });

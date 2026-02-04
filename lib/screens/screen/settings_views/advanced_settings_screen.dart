@@ -10,7 +10,13 @@ class AdvancedSettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Advanced Settings')),
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        title: const Text('Advanced Settings'),
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        scrolledUnderElevation: 0,
+      ),
       body: BlocBuilder<SettingsCubit, SettingsState>(
         builder: (context, state) {
           final cubit = context.read<SettingsCubit>();

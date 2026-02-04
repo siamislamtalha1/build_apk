@@ -249,12 +249,59 @@ class CustomDiscoverBar extends StatelessWidget {
       title: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Text("Discover",
-              style: Default_Theme.primaryTextStyle.merge(TextStyle(
-                  fontSize: 34, color: scheme.onSurface))),
+          _DiscoverTitlePill(
+            child: Text(
+              "Discover",
+              style: Default_Theme.primaryTextStyle.merge(
+                TextStyle(
+                  fontSize: 34,
+                  color: scheme.onSurface,
+                ),
+              ),
+            ),
+          ),
           const Spacer(),
           const _HeaderActionPill(),
         ],
+      ),
+    );
+  }
+}
+
+class _DiscoverTitlePill extends StatelessWidget {
+  const _DiscoverTitlePill({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final tint = (isDark ? Colors.white : Colors.black)
+        .withValues(alpha: isDark ? 0.10 : 0.06);
+
+    return RepaintBoundary(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(999),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                colors: [
+                  Colors.transparent,
+                  tint,
+                  tint,
+                  Colors.transparent,
+                ],
+                stops: const [0.0, 0.18, 0.82, 1.0],
+              ),
+            ),
+            child: child,
+          ),
+        ),
       ),
     );
   }
@@ -269,29 +316,31 @@ class _HeaderActionPill extends StatelessWidget {
     final glassTint = (isDark ? Colors.white : Colors.black)
         .withValues(alpha: isDark ? 0.06 : 0.03);
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(999),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
-        child: Container(
-          decoration: BoxDecoration(
-            color: glassTint,
-            borderRadius: BorderRadius.circular(999),
-            border: Border.all(
-              color: Theme.of(context).colorScheme.onSurface.withValues(
-                    alpha: 0.12,
-                  ),
-              width: 1.0,
+    return RepaintBoundary(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(999),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+          child: Container(
+            decoration: BoxDecoration(
+              color: glassTint,
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.onSurface.withValues(
+                      alpha: 0.12,
+                    ),
+                width: 1.0,
+              ),
             ),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-          child: const Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              NotificationIcon(),
-              SizedBox(width: 2),
-              TimerIcon(),
-            ],
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                NotificationIcon(),
+                SizedBox(width: 6),
+                TimerIcon(),
+              ],
+            ),
           ),
         ),
       ),
@@ -309,7 +358,7 @@ class NotificationIcon extends StatelessWidget {
         if (state is NotificationInitial || state.notifications.isEmpty) {
           return IconButton(
             padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
             visualDensity: VisualDensity.compact,
             style: IconButton.styleFrom(
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -342,7 +391,7 @@ class NotificationIcon extends StatelessWidget {
           position: badges.BadgePosition.topEnd(top: -10, end: -5),
           child: IconButton(
             padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
             visualDensity: VisualDensity.compact,
             style: IconButton.styleFrom(
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -369,7 +418,7 @@ class TimerIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return IconButton(
       padding: EdgeInsets.zero,
-      constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+      constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
       visualDensity: VisualDensity.compact,
       style: IconButton.styleFrom(
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
