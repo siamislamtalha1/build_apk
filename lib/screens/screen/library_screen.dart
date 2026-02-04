@@ -103,6 +103,7 @@ class _LibraryScreenViewState extends State<_LibraryScreenView> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
+        bottom: false,
         child: BlocBuilder<LibraryItemsCubit, LibraryItemsState>(
           builder: (context, itemsState) {
             if (itemsState is LibraryItemsLoading) {

@@ -2,7 +2,6 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:Bloomee/theme_data/default.dart';
 import 'package:http/http.dart' as http;
 
 ImageProvider<Object> safeImageProvider(
@@ -21,7 +20,7 @@ ImageProvider<Object> safeImageProvider(
   }
 
   final scheme = (uri?.scheme ?? '').toLowerCase();
-  if (scheme == 'http' || scheme == 'https') {
+  if ((scheme == 'http' || scheme == 'https') && (uri?.host.isNotEmpty ?? false)) {
     return NetworkImage(raw);
   }
 
@@ -65,12 +64,23 @@ Image loadImage(coverImageUrl,
   );
 }
 
-CachedNetworkImage loadImageCached(coverImageURL,
+Widget loadImageCached(coverImageURL,
     {placeholderPath = "assets/icons/bloomee_new_logo_c.png",
     fit = BoxFit.cover}) {
+  final raw = (coverImageURL?.toString() ?? '').trim();
+  if (raw.isEmpty) {
+    return Image(image: AssetImage(placeholderPath), fit: fit);
+  }
+  final uri = Uri.tryParse(raw);
+  final scheme = (uri?.scheme ?? '').toLowerCase();
+  final isValid = (scheme == 'http' || scheme == 'https') && (uri?.host.isNotEmpty ?? false);
+  if (!isValid) {
+    return Image(image: AssetImage(placeholderPath), fit: fit);
+  }
+
   ImageProvider<Object> placeHolder = AssetImage(placeholderPath);
   return CachedNetworkImage(
-    imageUrl: coverImageURL,
+    imageUrl: raw,
     memCacheWidth: 500,
     // memCacheHeight: 500,
     placeholder: (context, url) => Image(
@@ -105,8 +115,46 @@ class LoadImageCached extends StatefulWidget {
 }
 
 class _LoadImageCachedState extends State<LoadImageCached> {
+  bool _isValidUrl(String url) {
+    if (url.trim().isEmpty) return false;
+    try {
+      final uri = Uri.parse(url);
+      final scheme = uri.scheme.toLowerCase();
+      // Must have http/https scheme and a valid host
+      return (scheme == 'http' || scheme == 'https') && uri.host.isNotEmpty;
+    } catch (_) {
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Validate primary URL
+    if (!_isValidUrl(widget.imageUrl)) {
+      // Try fallback URL if available
+      if (widget.fallbackUrl != null && _isValidUrl(widget.fallbackUrl!)) {
+        return CachedNetworkImage(
+          imageUrl: widget.fallbackUrl!,
+          memCacheWidth: 500,
+          placeholder: (context, url) => Image(
+            image: const AssetImage("assets/icons/lazy_loading.png"),
+            fit: widget.fit,
+          ),
+          errorWidget: (context, url, error) => Image(
+            image: AssetImage(widget.placeholderUrl),
+            fit: widget.fit,
+          ),
+          fadeInDuration: const Duration(milliseconds: 300),
+          fit: widget.fit,
+        );
+      }
+      // No valid URL, return placeholder
+      return Image(
+        image: AssetImage(widget.placeholderUrl),
+        fit: widget.fit,
+      );
+    }
+
     return CachedNetworkImage(
       imageUrl: widget.imageUrl,
       placeholder: (context, url) => Image(
@@ -118,21 +166,26 @@ class _LoadImageCachedState extends State<LoadImageCached> {
               image: AssetImage(widget.placeholderUrl),
               fit: widget.fit,
             )
-          : CachedNetworkImage(
-              // now using fallback url
-              imageUrl: widget.fallbackUrl!,
-              memCacheWidth: 500,
-              placeholder: (context, url) => Image(
-                image: const AssetImage("assets/icons/lazy_loading.png"),
-                fit: widget.fit,
-              ),
-              errorWidget: (context, url, error) => Image(
-                image: AssetImage(widget.placeholderUrl),
-                fit: widget.fit,
-              ),
-              fadeInDuration: const Duration(milliseconds: 300),
-              fit: widget.fit,
-            ),
+          : _isValidUrl(widget.fallbackUrl!)
+              ? CachedNetworkImage(
+                  // now using fallback url
+                  imageUrl: widget.fallbackUrl!,
+                  memCacheWidth: 500,
+                  placeholder: (context, url) => Image(
+                    image: const AssetImage("assets/icons/lazy_loading.png"),
+                    fit: widget.fit,
+                  ),
+                  errorWidget: (context, url, error) => Image(
+                    image: AssetImage(widget.placeholderUrl),
+                    fit: widget.fit,
+                  ),
+                  fadeInDuration: const Duration(milliseconds: 300),
+                  fit: widget.fit,
+                )
+              : Image(
+                  image: AssetImage(widget.placeholderUrl),
+                  fit: widget.fit,
+                ),
       fadeInDuration: const Duration(milliseconds: 300),
       fit: widget.fit,
     );
@@ -141,15 +194,22 @@ class _LoadImageCachedState extends State<LoadImageCached> {
 
 Future<ImageProvider> getImageProvider(String imageUrl,
     {String placeholderUrl = "assets/icons/bloomee_new_logo_c.png"}) async {
-  if (imageUrl != "") {
-    final response = await http.head(Uri.parse(imageUrl));
+  final raw = imageUrl.trim();
+  if (raw.isEmpty) return AssetImage(placeholderUrl);
+  final uri = Uri.tryParse(raw);
+  final scheme = (uri?.scheme ?? '').toLowerCase();
+  final isValid = (scheme == 'http' || scheme == 'https') && (uri?.host.isNotEmpty ?? false);
+  if (!isValid) return AssetImage(placeholderUrl);
+
+  try {
+    final response = await http.head(uri!);
     if (response.statusCode == 200) {
       CachedNetworkImageProvider cachedImageProvider =
-          CachedNetworkImageProvider(imageUrl);
+          CachedNetworkImageProvider(raw);
       return cachedImageProvider;
-    } else {
-      return AssetImage(placeholderUrl);
     }
+    return AssetImage(placeholderUrl);
+  } catch (_) {
+    return AssetImage(placeholderUrl);
   }
-  return AssetImage(placeholderUrl);
 }

@@ -651,8 +651,9 @@ class _MyAppState extends State<MyApp> {
                       ],
                       supportedLocales: AppLocalizations.supportedLocales,
                       builder: (context, child) {
-                        final isDark =
-                            Theme.of(context).brightness == Brightness.dark;
+                        final brightness = Theme.of(context).brightness;
+                        final isDark = brightness == Brightness.dark;
+                        Default_Theme.setBrightness(brightness);
                         return AnnotatedRegion<SystemUiOverlayStyle>(
                           value: SystemUiOverlayStyle(
                             statusBarColor: Default_Theme.themeColor,

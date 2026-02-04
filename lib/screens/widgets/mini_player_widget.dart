@@ -71,8 +71,6 @@ class MiniPlayerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final glassTint = Colors.white.withValues(
-        alpha: Theme.of(context).brightness == Brightness.dark ? 0.10 : 0.18);
     return GestureDetector(
       onTap: () {
         context.read<PlayerOverlayCubit>().showPlayer();
@@ -105,16 +103,6 @@ class MiniPlayerCard extends StatelessWidget {
               child: Stack(
                 clipBehavior: Clip.hardEdge,
                 children: [
-                  // Pure glassmorphic overlay - no background image
-                  Positioned.fill(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        // Extremely subtle tint for better readability, almost fully transparent
-                        color: glassTint,
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
-                  ),
                   // Content
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 12),

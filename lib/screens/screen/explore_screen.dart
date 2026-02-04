@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:ui';
 import 'package:Bloomee/blocs/explore/cubit/explore_cubits.dart';
 import 'package:Bloomee/blocs/internet_connectivity/cubit/connectivity_cubit.dart';
 import 'package:Bloomee/blocs/lastdotfm/lastdotfm_cubit.dart';
@@ -62,6 +63,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
+      bottom: false,
       child: MultiBlocProvider(
         providers: [
           BlocProvider<RecentlyCubit>(
@@ -235,22 +237,63 @@ class CustomDiscoverBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return SliverAppBar(
       floating: true,
-      surfaceTintColor: Default_Theme.themeColor,
-      backgroundColor: Default_Theme.themeColor,
+      forceMaterialTransparency: true,
+      backgroundColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      shadowColor: Colors.transparent,
+      elevation: 0,
+      scrolledUnderElevation: 0,
       title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Text("Discover",
-              style: Default_Theme.primaryTextStyle.merge( TextStyle(
-                  fontSize: 34, color: Default_Theme.primaryColor1))),
+              style: Default_Theme.primaryTextStyle.merge(TextStyle(
+                  fontSize: 34, color: scheme.onSurface))),
           const Spacer(),
-          const NotificationIcon(),
-          const SiteIcon(),
-          const TimerIcon(),
-          const SettingsIcon(),
+          const _HeaderActionPill(),
         ],
+      ),
+    );
+  }
+}
+
+class _HeaderActionPill extends StatelessWidget {
+  const _HeaderActionPill();
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final glassTint = (isDark ? Colors.white : Colors.black)
+        .withValues(alpha: isDark ? 0.06 : 0.03);
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(999),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+        child: Container(
+          decoration: BoxDecoration(
+            color: glassTint,
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.onSurface.withValues(
+                    alpha: 0.12,
+                  ),
+              width: 1.0,
+            ),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+          child: const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              NotificationIcon(),
+              SizedBox(width: 2),
+              TimerIcon(),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -265,8 +308,12 @@ class NotificationIcon extends StatelessWidget {
       builder: (context, state) {
         if (state is NotificationInitial || state.notifications.isEmpty) {
           return IconButton(
-            padding: const EdgeInsets.all(5),
-            constraints: const BoxConstraints(),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+            visualDensity: VisualDensity.compact,
+            style: IconButton.styleFrom(
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
             onPressed: () {
               Navigator.push(
                   context,
@@ -274,7 +321,7 @@ class NotificationIcon extends StatelessWidget {
                       builder: (context) => const NotificationView()));
             },
             icon: Icon(MingCute.notification_line,
-                color: Default_Theme.primaryColor1, size: 30.0),
+                color: Theme.of(context).colorScheme.onSurface, size: 30.0),
           );
         }
         return badges.Badge(
@@ -282,20 +329,24 @@ class NotificationIcon extends StatelessWidget {
             padding: const EdgeInsets.all(1.5),
             child: Text(
               state.notifications.length.toString(),
-              style: Default_Theme.primaryTextStyle.merge( TextStyle(
+              style: Default_Theme.primaryTextStyle.merge(TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
-                  color: Default_Theme.primaryColor2)),
+                  color: Theme.of(context).colorScheme.onPrimary)),
             ),
           ),
           badgeStyle: badges.BadgeStyle(
-            badgeColor: Default_Theme.accentColor2,
+            badgeColor: Theme.of(context).colorScheme.primary,
             shape: badges.BadgeShape.circle,
           ),
           position: badges.BadgePosition.topEnd(top: -10, end: -5),
           child: IconButton(
-            padding: const EdgeInsets.all(5),
-            constraints: const BoxConstraints(),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+            visualDensity: VisualDensity.compact,
+            style: IconButton.styleFrom(
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
             onPressed: () {
               Navigator.push(
                   context,
@@ -303,7 +354,7 @@ class NotificationIcon extends StatelessWidget {
                       builder: (context) => const NotificationView()));
             },
             icon: Icon(MingCute.notification_line,
-                color: Default_Theme.primaryColor1, size: 30.0),
+                color: Theme.of(context).colorScheme.onSurface, size: 30.0),
           ),
         );
       },
@@ -317,14 +368,18 @@ class TimerIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      padding: const EdgeInsets.all(5),
-      constraints: const BoxConstraints(),
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+      visualDensity: VisualDensity.compact,
+      style: IconButton.styleFrom(
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
       onPressed: () {
         Navigator.push(context,
             MaterialPageRoute(builder: (context) => const TimerView()));
       },
       icon: Icon(MingCute.stopwatch_line,
-          color: Default_Theme.primaryColor1, size: 30.0),
+          color: Theme.of(context).colorScheme.onSurface, size: 30.0),
     );
   }
 }
@@ -342,7 +397,7 @@ class SettingsIcon extends StatelessWidget {
             MaterialPageRoute(builder: (context) => const SettingsView()));
       },
       icon: Icon(MingCute.settings_3_line,
-          color: Default_Theme.primaryColor1, size: 30.0),
+          color: Theme.of(context).colorScheme.onSurface, size: 30.0),
     );
   }
 }
@@ -360,7 +415,7 @@ class SiteIcon extends StatelessWidget {
             context, MaterialPageRoute(builder: (context) => const About()));
       },
       icon: Icon(MingCute.flower_4_fill,
-          color: Default_Theme.primaryColor1, size: 28.0),
+          color: Theme.of(context).colorScheme.onSurface, size: 28.0),
     );
   }
 }

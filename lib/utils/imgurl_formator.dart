@@ -14,6 +14,22 @@ enum ImageSource {
 }
 
 String formatImgURL(String imgURL, ImageQuality quality) {
+  // Validate URL first to prevent crashes
+  if (imgURL.trim().isEmpty) return imgURL;
+
+  Uri? uri;
+  try {
+    uri = Uri.parse(imgURL);
+  } catch (_) {
+    return imgURL; // Return original if parsing fails
+  }
+
+  // Ensure URL has valid scheme and host
+  final scheme = uri.scheme.toLowerCase();
+  if ((scheme != 'http' && scheme != 'https') || uri.host.isEmpty) {
+    return imgURL; // Return original if invalid
+  }
+
   ImageSource source;
   if (imgURL.contains('youtube') ||
       imgURL.contains('ytimg') ||

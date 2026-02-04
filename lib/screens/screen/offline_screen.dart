@@ -65,6 +65,7 @@ class _OfflineScreenState extends State<OfflineScreen> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
+      bottom: false,
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: BlocBuilder<DownloaderCubit, DownloaderState>(
@@ -123,11 +124,16 @@ class _OfflineScreenState extends State<OfflineScreen> {
   }
 
   SliverAppBar customDiscoverSliverBar(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return SliverAppBar(
       floating: true,
       pinned: true,
-      surfaceTintColor: Default_Theme.themeColor,
-      backgroundColor: Default_Theme.themeColor,
+      forceMaterialTransparency: true,
+      backgroundColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      shadowColor: Colors.transparent,
+      elevation: 0,
+      scrolledUnderElevation: 0,
       title: AnimatedSwitcher(
         duration: const Duration(milliseconds: 350),
         transitionBuilder: (Widget child, Animation<double> animation) {
@@ -165,7 +171,7 @@ class _OfflineScreenState extends State<OfflineScreen> {
           child: IconButton(
             icon: Icon(
               _isSearch ? Icons.close : Icons.search,
-              color: Default_Theme.primaryColor1,
+              color: scheme.onSurface,
             ),
             onPressed: _toggleSearch,
           ),
@@ -175,6 +181,7 @@ class _OfflineScreenState extends State<OfflineScreen> {
   }
 
   Widget _buildTitle() {
+    final scheme = Theme.of(context).colorScheme;
     // Using a ValueKey tells the AnimatedSwitcher that this is a distinct widget.
     return Container(
       key: const ValueKey('title'),
@@ -182,8 +189,8 @@ class _OfflineScreenState extends State<OfflineScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text("Offline",
-              style: Default_Theme.primaryTextStyle.merge(TextStyle(
-                  fontSize: 34, color: Default_Theme.primaryColor1))),
+              style: Default_Theme.primaryTextStyle.merge(
+                  TextStyle(fontSize: 34, color: scheme.onSurface))),
           const Spacer(),
         ],
       ),
@@ -191,22 +198,23 @@ class _OfflineScreenState extends State<OfflineScreen> {
   }
 
   Widget _buildSearchField() {
+    final scheme = Theme.of(context).colorScheme;
     // Using a ValueKey tells the AnimatedSwitcher that this is a new, distinct widget.
     return Container(
       key: const ValueKey('search'),
       child: TextField(
         controller: _searchController,
         autofocus: true,
-        cursorColor: Default_Theme.primaryColor1,
+        cursorColor: scheme.onSurface,
         decoration: InputDecoration(
           hintText: "Search your songs...",
           border: InputBorder.none,
           hintStyle: TextStyle(
-              color: Default_Theme.primaryColor1.withValues(alpha: 0.7)),
+              color: scheme.onSurface.withValues(alpha: 0.7)),
         ),
         style: Default_Theme.secondoryTextStyle.merge(
           TextStyle(
-            color: Default_Theme.primaryColor1,
+            color: scheme.onSurface,
             fontSize: 15.0,
           ),
         ),

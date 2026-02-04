@@ -80,6 +80,7 @@ class ProfileScreen extends StatelessWidget {
           final isGuest = user.isAnonymous;
 
           return SafeArea(
+            bottom: false,
             child: CustomScrollView(
               slivers: [
                 // Header with profile card

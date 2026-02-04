@@ -62,6 +62,7 @@ class GlobalFooter extends StatelessWidget {
                       ),
               ),
               bottomNavigationBar: SafeArea(
+                bottom: false, // Don't add solid background at bottom
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
@@ -92,11 +93,12 @@ class _GlobalBackdrop extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final base = Default_Theme.themeColor;
-    final c1 = (isDark ? Default_Theme.accentColor2 : Default_Theme.accentColor1)
-        .withValues(alpha: isDark ? 0.18 : 0.12);
-    final c2 = (isDark ? Default_Theme.accentColor1 : Default_Theme.accentColor2)
-        .withValues(alpha: isDark ? 0.14 : 0.10);
+    final scheme = Theme.of(context).colorScheme;
+    final base = scheme.surface;
+    // Reduced opacity for true glassmorphism effect
+    final c1 = scheme.primary.withValues(alpha: isDark ? 0.05 : 0.03);
+    final c2 = scheme.secondary.withValues(alpha: isDark ? 0.04 : 0.02);
+    final c3 = scheme.primary.withValues(alpha: isDark ? 0.03 : 0.02);
 
     return Positioned.fill(
       child: IgnorePointer(
@@ -104,18 +106,37 @@ class _GlobalBackdrop extends StatelessWidget {
           children: [
             DecoratedBox(
               decoration: BoxDecoration(
-                color: base,
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
                     base,
-                    base,
-                    base.withValues(alpha: 0.96),
+                    Color.lerp(base, c1, 0.05) ?? base,
+                    Color.lerp(base, c2, 0.04) ?? base,
+                    Color.lerp(base, c3, 0.03) ?? base,
                   ],
+                  stops: const [0.0, 0.35, 0.7, 1.0],
                 ),
               ),
               child: const SizedBox.expand(),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                height: 280,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      c2,
+                    ],
+                  ),
+                ),
+              ),
             ),
             Positioned(
               top: -180,
@@ -132,11 +153,25 @@ class _GlobalBackdrop extends StatelessWidget {
               ),
             ),
             Positioned(
-              bottom: -220,
-              right: -180,
+              bottom: -240,
+              left: -200,
               child: Container(
                 width: 520,
                 height: 520,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [c3, Colors.transparent],
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: -120,
+              right: -140,
+              child: Container(
+                width: 560,
+                height: 560,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
@@ -241,6 +276,9 @@ class VerticalNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final glassTint = (isDark ? Colors.white : Colors.black)
+        .withValues(alpha: isDark ? 0.06 : 0.03);
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       child: ClipRRect(
@@ -250,10 +288,7 @@ class VerticalNavBar extends StatelessWidget {
           child: Container(
             // Glassmorphism overlay
             decoration: BoxDecoration(
-              color: Theme.of(context)
-                  .colorScheme
-                  .surface
-                  .withValues(alpha: 0.06),
+              color: glassTint,
               borderRadius: BorderRadius.circular(32),
               border: Border.all(
                 color: Theme.of(context)
@@ -314,12 +349,13 @@ class HorizontalNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final glassTint = Colors.white.withValues(
-        alpha: Theme.of(context).brightness == Brightness.dark ? 0.10 : 0.18);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final glassTint = (isDark ? Colors.white : Colors.black)
+        .withValues(alpha: isDark ? 0.06 : 0.03);
     return ClipRRect(
       borderRadius: BorderRadius.circular(30),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+        filter: ImageFilter.blur(sigmaX: 32, sigmaY: 32),
         child: Container(
           decoration: BoxDecoration(
             // Pure glassmorphic - transparent background like mini player

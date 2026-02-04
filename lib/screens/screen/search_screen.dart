@@ -70,6 +70,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
+      bottom: false,
       child: GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         onVerticalDragEnd: (DragEndDetails details) =>
@@ -77,8 +78,12 @@ class _SearchScreenState extends State<SearchScreen> {
         child: Scaffold(
           backgroundColor: Colors.transparent,
           appBar: AppBar(
-            shadowColor: Colors.black,
-            surfaceTintColor: Default_Theme.themeColor,
+            forceMaterialTransparency: true,
+            backgroundColor: Colors.transparent,
+            surfaceTintColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            elevation: 0,
+            scrolledUnderElevation: 0,
             title: Row(
               children: [
                 Expanded(
@@ -178,7 +183,6 @@ class _SearchScreenState extends State<SearchScreen> {
                 ),
               ],
             ),
-            backgroundColor: Default_Theme.themeColor,
           ),
           body: NestedScrollView(
             headerSliverBuilder: (context, innerBoxIsScrolled) => [
