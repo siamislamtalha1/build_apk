@@ -10,6 +10,7 @@ import 'package:Bloomee/theme_data/default.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:Bloomee/screens/widgets/glass_widgets.dart';
 
 class BackupSettings extends StatelessWidget {
   const BackupSettings({super.key});
@@ -112,9 +113,7 @@ class BackupSettings extends StatelessWidget {
                   showDialog(
                     context: context,
                     builder: (context) {
-                      return AlertDialog(
-                        backgroundColor: scheme.surface,
-                        surfaceTintColor: Colors.transparent,
+                      return GlassDialog(
                         title: Text(
                           "Backup Location",
                           style: Default_Theme.secondoryTextStyle.merge(
@@ -201,9 +200,7 @@ class BackupSettings extends StatelessWidget {
                     context: context,
                     builder: (ctx) {
                       final dialogScheme = Theme.of(ctx).colorScheme;
-                      return AlertDialog(
-                        backgroundColor: dialogScheme.surface,
-                        surfaceTintColor: Colors.transparent,
+                      return GlassDialog(
                         title: Text(
                           "Confirm Reset",
                           style: Default_Theme.secondoryTextStyle.merge(
@@ -359,9 +356,7 @@ Future<void> _onRestoreTap(BuildContext context) async {
             });
           }
 
-          return AlertDialog(
-            backgroundColor: dialogScheme.surface,
-            surfaceTintColor: Colors.transparent,
+          return GlassDialog(
             title: Text("Restore Options",
                 style: Default_Theme.secondoryTextStyle
                     .merge(TextStyle(color: dialogScheme.onSurface))),
@@ -470,9 +465,7 @@ Future<void> _onRestoreTap(BuildContext context) async {
       context: context,
       builder: (ctx) {
         final dialogScheme = Theme.of(ctx).colorScheme;
-        return AlertDialog(
-          backgroundColor: dialogScheme.surface,
-          surfaceTintColor: Colors.transparent,
+        return GlassDialog(
           title: Text("Confirm Restore",
               style: Default_Theme.secondoryTextStyle.merge(TextStyle(
                   color: dialogScheme.onSurface,
@@ -523,9 +516,7 @@ Future<void> _onRestoreTap(BuildContext context) async {
         final dialogScheme = Theme.of(ctx).colorScheme;
         return PopScope(
           canPop: false,
-          child: AlertDialog(
-            backgroundColor: dialogScheme.surface,
-            surfaceTintColor: Colors.transparent,
+          child: GlassDialog(
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -658,9 +649,7 @@ Future<void> _showResultDialog(
     context: context,
     builder: (ctx) {
       final dialogScheme = Theme.of(ctx).colorScheme;
-      return AlertDialog(
-        backgroundColor: dialogScheme.surface,
-        surfaceTintColor: Colors.transparent,
+      return GlassDialog(
         title: Text(
           success ? "Restore Completed" : "Restore Failed",
           style: Default_Theme.secondoryTextStyle.merge(TextStyle(

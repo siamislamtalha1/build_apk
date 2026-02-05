@@ -94,8 +94,8 @@ class MixedAPI {
       return null;
     }
 
-    var jsItem;
-    var ytItem;
+    Map<String, dynamic>? jsItem;
+    Map<String, dynamic>? ytItem;
     int idx = 0;
     if (ytItems != null && ytItems["songs"].isNotEmpty) {
       ytItem = ytItems[0]["items"][0];

@@ -29,13 +29,6 @@ class FirestoreService {
     return _userDoc(userId).collection('savedCollections');
   }
 
-  DocumentReference<Map<String, dynamic>> _queueDoc(
-    String userId,
-    String queueName,
-  ) {
-    return _userDoc(userId).collection('queues').doc(queueName);
-  }
-
   // ==================== Search History Sync ====================
 
   Future<void> syncSearchHistoryToCloud(

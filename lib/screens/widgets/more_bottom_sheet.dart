@@ -16,6 +16,7 @@ import 'package:go_router/go_router.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:Bloomee/screens/widgets/glass_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 void showMoreBottomSheet(
@@ -189,8 +190,8 @@ void showMoreBottomSheet(
                         final int? chosen = await showDialog<int>(
                           context: context,
                           builder: (dialogContext) {
-                            return AlertDialog(
-                              backgroundColor: Default_Theme.themeColor,
+                            final scheme = Theme.of(dialogContext).colorScheme;
+                            return GlassDialog(
                               title: const Text(
                                 'Insert into Queue',
                                 style: Default_Theme.secondoryTextStyleMedium,
@@ -208,17 +209,17 @@ void showMoreBottomSheet(
                                         onChanged: (val) =>
                                             setState(() => selectedPos = val),
                                         textStyle: TextStyle(
-                                            color: Default_Theme.primaryColor1
+                                            color: scheme.onSurface
                                                 .withValues(alpha: 0.6)),
                                         selectedTextStyle: TextStyle(
-                                            color: Default_Theme.primaryColor1,
+                                            color: scheme.onSurface,
                                             fontWeight: FontWeight.w600),
                                       ),
                                       const SizedBox(height: 8),
                                       Text(
                                         'Position $selectedPos of ${queueLength + 1}',
                                         style: TextStyle(
-                                            color: Default_Theme.primaryColor1
+                                            color: scheme.onSurface
                                                 .withValues(alpha: 0.8)),
                                       ),
                                     ],

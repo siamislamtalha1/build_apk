@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:Bloomee/screens/widgets/glass_widgets.dart';
 
 class GradientPreset {
   final String name;
@@ -72,8 +73,7 @@ class _GradientDialogState extends State<GradientDialog> {
             : 0;
     final preset = presets[presetIndex];
 
-    return AlertDialog(
-      backgroundColor: Colors.transparent,
+    return GlassDialog(
       contentPadding: EdgeInsets.zero,
       content: ClipRRect(
         borderRadius: BorderRadius.circular(14.0),

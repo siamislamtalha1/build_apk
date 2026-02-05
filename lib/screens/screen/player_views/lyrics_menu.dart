@@ -4,6 +4,7 @@ import 'package:Bloomee/theme_data/default.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:Bloomee/screens/widgets/glass_widgets.dart';
 
 class LyricsMenu extends StatefulWidget {
   final LyricsState state;
@@ -65,18 +66,19 @@ class _LyricsMenuState extends State<LyricsMenu> {
               context: context,
               builder: (context) {
                 String selected = widget.state.translationTargetLang;
-                return AlertDialog(
-                  backgroundColor: Theme.of(context).colorScheme.surface,
+                return GlassDialog(
                   title: Text(
                     'Translation Language',
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                    style:
+                        TextStyle(color: Theme.of(context).colorScheme.onSurface),
                   ),
                   content: StatefulBuilder(
                     builder: (context, setState) {
                       return DropdownButton<String>(
                         value: selected,
-                        dropdownColor:
-                            Theme.of(context).colorScheme.surfaceContainerHighest,
+                        dropdownColor: Theme.of(context)
+                            .colorScheme
+                            .surfaceContainerHighest,
                         style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurface),
                         items: const [

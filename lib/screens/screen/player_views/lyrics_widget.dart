@@ -3,6 +3,7 @@ import 'package:Bloomee/blocs/lyrics/lyrics_cubit.dart';
 import 'package:Bloomee/blocs/mediaPlayer/bloomee_player_cubit.dart';
 import 'package:Bloomee/screens/screen/player_views/fullscreen_lyrics_view.dart';
 import 'package:Bloomee/screens/widgets/sign_board_widget.dart';
+import 'package:Bloomee/screens/widgets/glass_widgets.dart';
 import 'package:Bloomee/theme_data/default.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,7 +18,6 @@ class LyricsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return BlocBuilder<LyricsCubit, LyricsState>(
       builder: (context, state) {
         return Stack(
@@ -47,7 +47,7 @@ class LyricsWidget extends StatelessWidget {
               Positioned(
                 left: 0,
                 right: 0,
-                top: 0,
+                top: MediaQuery.of(context).padding.top,
                 child: LinearProgressIndicator(
                   color: Default_Theme.accentColor2,
                   backgroundColor: Colors.transparent,
@@ -57,43 +57,41 @@ class LyricsWidget extends StatelessWidget {
             Positioned(
               right: 3,
               bottom: 0,
-              child: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: (isDark ? Colors.black : scheme.surface)
-                      .withValues(alpha: isDark ? 0.6 : 0.75),
-                  shape: BoxShape.circle,
-                ),
-                child: Tooltip(
-                  message: 'Fullscreen Lyrics',
-                  child: IconButton(
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        PageRouteBuilder(
-                          pageBuilder:
-                              (context, animation, secondaryAnimation) =>
-                                  const FullscreenLyricsView(),
-                          transitionsBuilder:
-                              (context, animation, secondaryAnimation, child) {
-                            return FadeTransition(
-                              opacity: animation,
-                              child: child,
-                            );
-                          },
-                          transitionDuration: const Duration(milliseconds: 300),
-                        ),
-                      );
-                    },
-                    icon: const Icon(
-                      MingCute.fullscreen_fill,
-                      size: 20,
+              child: FooterGlassIconPill(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                children: [
+                  Tooltip(
+                    message: 'Fullscreen Lyrics',
+                    child: IconButton(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          PageRouteBuilder(
+                            pageBuilder:
+                                (context, animation, secondaryAnimation) =>
+                                    const FullscreenLyricsView(),
+                            transitionsBuilder: (context, animation,
+                                secondaryAnimation, child) {
+                              return FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              );
+                            },
+                            transitionDuration:
+                                const Duration(milliseconds: 300),
+                          ),
+                        );
+                      },
+                      icon: const Icon(
+                        MingCute.fullscreen_fill,
+                        size: 20,
+                      ),
+                      color: scheme.onSurface.withValues(alpha: 0.9),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
                     ),
-                    color: scheme.onSurface.withValues(alpha: 0.9),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
                   ),
-                ),
+                ],
               ),
             ),
           ],

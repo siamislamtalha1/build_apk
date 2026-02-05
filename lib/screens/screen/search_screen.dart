@@ -1,6 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:developer';
-import 'dart:ui';
 import 'package:Bloomee/blocs/mediaPlayer/bloomee_player_cubit.dart';
 import 'package:Bloomee/screens/widgets/album_card.dart';
 import 'package:Bloomee/screens/widgets/artist_card.dart';
@@ -17,6 +16,7 @@ import 'package:Bloomee/screens/screen/search_views/search_page.dart';
 import 'package:Bloomee/theme_data/default.dart';
 import 'package:Bloomee/model/search_filter_model.dart';
 import 'package:Bloomee/screens/widgets/search_filter_bottom_sheet.dart';
+import 'package:Bloomee/screens/widgets/glass_widgets.dart';
 
 class SearchScreen extends StatefulWidget {
   final String searchQuery;
@@ -70,7 +70,6 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return SafeArea(
       bottom: false,
       child: GestureDetector(
@@ -78,7 +77,7 @@ class _SearchScreenState extends State<SearchScreen> {
         onVerticalDragEnd: (DragEndDetails details) =>
             FocusManager.instance.primaryFocus?.unfocus(),
         child: Scaffold(
-          backgroundColor: Colors.transparent,
+          backgroundColor: scheme.surface,
           appBar: AppBar(
             forceMaterialTransparency: true,
             backgroundColor: Colors.transparent,
@@ -89,116 +88,88 @@ class _SearchScreenState extends State<SearchScreen> {
             title: Row(
               children: [
                 Expanded(
-                  child: SizedBox(
-                    height: 50.0,
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                        top: 10,
-                      ),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(20),
-                        onTap: () {
-                          showSearch(
-                                  context: context,
-                                  delegate: SearchPageDelegate(
-                                    resultType.value,
-                                    filter: _searchFilter,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(999),
+                      onTap: () {
+                        showSearch(
+                                context: context,
+                                delegate: SearchPageDelegate(
+                                  resultType.value,
+                                  filter: _searchFilter,
+                                ),
+                                query: _textEditingController.text)
+                            .then((value) {
+                          if (value != null) {
+                            _textEditingController.text = value.toString();
+                          }
+                        });
+                      },
+                      child: FooterGlassPill(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 10),
+                        child: Row(
+                          children: [
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                _textEditingController.text.isEmpty
+                                    ? "Find your next song obsession..."
+                                    : _textEditingController.text,
+                                textAlign: TextAlign.center,
+                                style: Default_Theme.secondoryTextStyle.merge(
+                                  TextStyle(
+                                    color: scheme.onSurface
+                                        .withValues(alpha: 0.65),
                                   ),
-                                  query: _textEditingController.text)
-                              .then((value) {
-                            if (value != null) {
-                              _textEditingController.text = value.toString();
-                            }
-                          });
-                        },
-                        child: TextField(
-                          controller: _textEditingController,
-                          enabled: false,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              color: Default_Theme.primaryColor1
-                                  .withValues(alpha: 0.55)),
-                          textInputAction: TextInputAction.search,
-                          decoration: InputDecoration(
-                              filled: true,
-                              suffixIcon: Icon(
-                                MingCute.search_2_fill,
-                                color: (isDark
-                                        ? Default_Theme.primaryColor1
-                                        : Colors.grey[700])!
-                                    .withValues(alpha: 0.4),
+                                ),
                               ),
-                              fillColor: (isDark
-                                      ? Default_Theme.primaryColor2
-                                          .withValues(alpha: 0.07)
-                                      : scheme.surface)
-                                  .withValues(alpha: isDark ? 0.07 : 1.0),
-                              contentPadding: const EdgeInsets.only(
-                                  top: 20, left: 15, right: 5),
-                              hintText: "Find your next song obsession...",
-                              hintStyle: TextStyle(
-                                color: (isDark
-                                        ? Default_Theme.primaryColor1
-                                        : Colors.black)
-                                    .withValues(alpha: 0.4),
-                                fontFamily: "Unageo",
-                                fontWeight: FontWeight.normal,
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: isDark
-                                        ? Colors.transparent
-                                        : Colors.black.withValues(alpha: 0.1),
-                                  ),
-                                  borderRadius: BorderRadius.circular(50)),
-                              disabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: isDark
-                                        ? Colors.transparent
-                                        : Colors.black.withValues(alpha: 0.1),
-                                  ),
-                                  borderRadius: BorderRadius.circular(50)),
-                              focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Default_Theme.primaryColor1
-                                          .withValues(alpha: 0.7)),
-                                  borderRadius: BorderRadius.circular(50))),
+                            ),
+                            Icon(
+                              MingCute.search_2_fill,
+                              color: scheme.onSurface.withValues(alpha: 0.55),
+                            ),
+                          ],
                         ),
                       ),
                     ),
                   ),
                 ),
                 const SizedBox(width: 8),
-                IconButton(
-                  onPressed: () {
-                    showModalBottomSheet(
-                      context: context,
-                      backgroundColor: Colors.transparent,
-                      isScrollControlled: true,
-                      builder: (context) => SearchFilterBottomSheet(
-                        currentFilter: _searchFilter,
-                        onFilterChanged: (newFilter) {
-                          setState(() {
-                            _searchFilter = newFilter;
-                          });
-                          // Re-search with new filters
-                          if (_textEditingController.text.isNotEmpty) {
-                            context
-                                .read<FetchSearchResultsCubit>()
-                                .searchAllSources(
-                                  _textEditingController.text,
-                                  resultType: resultType.value,
-                                  filter: newFilter,
-                                );
-                          }
-                        },
+                FooterGlassIconPill(
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        showModalBottomSheet(
+                          context: context,
+                          backgroundColor: Colors.transparent,
+                          isScrollControlled: true,
+                          builder: (context) => SearchFilterBottomSheet(
+                            currentFilter: _searchFilter,
+                            onFilterChanged: (newFilter) {
+                              setState(() {
+                                _searchFilter = newFilter;
+                              });
+                              if (_textEditingController.text.isNotEmpty) {
+                                context
+                                    .read<FetchSearchResultsCubit>()
+                                    .searchAllSources(
+                                      _textEditingController.text,
+                                      resultType: resultType.value,
+                                      filter: newFilter,
+                                    );
+                              }
+                            },
+                          ),
+                        );
+                      },
+                      icon: Icon(
+                        MingCute.filter_2_fill,
+                        color: scheme.onSurface,
                       ),
-                    );
-                  },
-                  icon: Icon(
-                    MingCute.filter_2_fill,
-                    color: Default_Theme.primaryColor1,
-                  ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -209,87 +180,64 @@ class _SearchScreenState extends State<SearchScreen> {
                 child: Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(25),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                      child: Container(
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color:
-                              Default_Theme.themeColor.withValues(alpha: 0.3),
-                          borderRadius: BorderRadius.circular(25),
-                          border: Border.all(
-                            color: scheme.onSurface
-                                .withValues(alpha: isDark ? 0.10 : 0.08),
-                            width: 1.5,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: (isDark ? Colors.black : scheme.shadow)
-                                  .withValues(alpha: 0.10),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: ValueListenableBuilder(
-                          valueListenable: resultType,
-                          builder: (context, value, child) {
-                            return Row(
-                              children: ResultTypes.values.map((type) {
-                                final isSelected = resultType.value == type;
-                                return Expanded(
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      resultType.value = type;
-                                      // Use unified search when result type changes
-                                      if (_textEditingController
-                                          .text.isNotEmpty) {
-                                        context
-                                            .read<FetchSearchResultsCubit>()
-                                            .searchAllSources(
-                                              _textEditingController.text
-                                                  .toString(),
-                                              resultType: type,
-                                            );
-                                      }
-                                    },
-                                    child: Container(
-                                      height: 50,
-                                      decoration: BoxDecoration(
-                                        color: isSelected
-                                            ? Default_Theme.accentColor2
-                                                .withValues(alpha: 0.3)
-                                            : Colors.transparent,
-                                        borderRadius: BorderRadius.circular(22),
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          type.val,
-                                          style: Default_Theme
-                                              .secondoryTextStyleMedium
-                                              .merge(
-                                            TextStyle(
-                                              color: isSelected
-                                                  ? Default_Theme.accentColor2
-                                                  : Default_Theme.primaryColor1
-                                                      .withValues(alpha: 0.7),
-                                              fontSize: 14,
-                                              fontWeight: isSelected
-                                                  ? FontWeight.bold
-                                                  : FontWeight.normal,
-                                            ),
+                  child: FooterGlassPill(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    child: SizedBox(
+                      height: 50,
+                      child: ValueListenableBuilder(
+                        valueListenable: resultType,
+                        builder: (context, value, child) {
+                          return Row(
+                            children: ResultTypes.values.map((type) {
+                              final isSelected = resultType.value == type;
+                              return Expanded(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    resultType.value = type;
+                                    if (_textEditingController.text.isNotEmpty) {
+                                      context
+                                          .read<FetchSearchResultsCubit>()
+                                          .searchAllSources(
+                                            _textEditingController.text
+                                                .toString(),
+                                            resultType: type,
+                                          );
+                                    }
+                                  },
+                                  child: Container(
+                                    height: 50,
+                                    decoration: BoxDecoration(
+                                      color: isSelected
+                                          ? scheme.primary.withValues(alpha: 0.18)
+                                          : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(22),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        type.val,
+                                        style: Default_Theme
+                                            .secondoryTextStyleMedium
+                                            .merge(
+                                          TextStyle(
+                                            color: isSelected
+                                                ? scheme.onSurface
+                                                : scheme.onSurface
+                                                    .withValues(alpha: 0.70),
+                                            fontSize: 14,
+                                            fontWeight: isSelected
+                                                ? FontWeight.bold
+                                                : FontWeight.normal,
                                           ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                );
-                              }).toList(),
-                            );
-                          },
-                        ),
+                                ),
+                              );
+                            }).toList(),
+                          );
+                        },
                       ),
                     ),
                   ),

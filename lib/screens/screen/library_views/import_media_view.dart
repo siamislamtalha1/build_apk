@@ -7,11 +7,11 @@ import 'package:Bloomee/utils/external_list_importer.dart';
 import 'package:Bloomee/services/import_export_service.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:Bloomee/screens/widgets/import_playlist.dart';
 import 'package:Bloomee/theme_data/default.dart';
+import 'package:Bloomee/screens/widgets/glass_widgets.dart';
 
 enum ImportType {
   spotifyPlaylist,
@@ -118,7 +118,7 @@ class ImportMediaFromPlatformsView extends StatelessWidget {
               onClickFunc: () {
                 showDialog(
                   context: context,
-                  builder: (context) => AlertDialog(
+                  builder: (context) => GlassDialog(
                     title: Text(
                       "Note",
                       style: TextStyle(
@@ -216,18 +216,19 @@ Future getIdAndShowBottomSheet(BuildContext context,
     context: context,
     backgroundColor: Colors.transparent,
     builder: (context) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          height: 190,
-          color: Default_Theme.accentColor2,
-          child: Column(
-            children: [
-              const Spacer(),
-              ClipRRect(
+      return SizedBox(
+        height: 190,
+        child: Column(
+          children: [
+            const Spacer(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: GlassSurface(
                 borderRadius: BorderRadius.circular(20),
-                child: Container(
-                  color: Default_Theme.themeColor,
+                sigmaX: 28,
+                sigmaY: 28,
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: SizedBox(
                   height: 180,
                   child: Center(
                     child: Wrap(
@@ -258,36 +259,29 @@ Future getIdAndShowBottomSheet(BuildContext context,
                                   hintStyle: TextStyle(
                                       color: Default_Theme.primaryColor2
                                           .withValues(alpha: 0.3)),
-                                  enabledBorder: const OutlineInputBorder(
-                                    borderSide:
-                                        BorderSide(style: BorderStyle.none),
-                                  ),
-                                  focusedBorder: const OutlineInputBorder(
-                                    borderSide: BorderSide.none,
-                                  )),
+                                  border: InputBorder.none),
                               onSubmitted: (value) {
+                                Navigator.pop(context);
+
                                 switch (importType) {
                                   case ImportType.spotifyPlaylist:
-                                    context.pop(context);
                                     showDialog(
                                       context: context,
                                       barrierDismissible: false,
-                                      builder: (context) =>
-                                          ImporterDialogWidget(
-                                              strm: ExternalMediaImporter
-                                                  .sfyPlaylistImporter(
-                                                      url: value)),
+                                      builder: (context) => ImporterDialogWidget(
+                                        strm: ExternalMediaImporter
+                                            .sfyPlaylistImporter(url: value),
+                                      ),
                                     );
                                     break;
                                   case ImportType.spotifySingle:
-                                    context.pop(context);
-                                    ExternalMediaImporter.sfyMediaImporter(
-                                            value)
+                                    ExternalMediaImporter.sfyMediaImporter(value)
                                         .then((value) {
                                       if (value != null) {
                                         BloomeeDBService.addMediaItem(
-                                            MediaItem2MediaItemDB(value),
-                                            "Spotify Imports");
+                                          MediaItem2MediaItemDB(value),
+                                          "Spotify Imports",
+                                        );
                                         SnackbarService.showMessage(
                                             "Imported Media: ${value.title}");
                                       } else {
@@ -295,37 +289,35 @@ Future getIdAndShowBottomSheet(BuildContext context,
                                             name: "Import Media");
                                       }
                                     });
+                                    break;
                                   case ImportType.spotifyAlbum:
-                                    context.pop(context);
                                     showDialog(
                                       context: context,
                                       barrierDismissible: false,
-                                      builder: (context) =>
-                                          ImporterDialogWidget(
-                                              strm: ExternalMediaImporter
-                                                  .sfyAlbumImporter(
-                                                      url: value)),
+                                      builder: (context) => ImporterDialogWidget(
+                                        strm: ExternalMediaImporter
+                                            .sfyAlbumImporter(url: value),
+                                      ),
                                     );
                                     break;
                                   case ImportType.youtubeVidPlaylist:
-                                    context.pop(context);
                                     showDialog(
                                       context: context,
                                       barrierDismissible: false,
-                                      builder: (context) =>
-                                          ImporterDialogWidget(
-                                              strm: ExternalMediaImporter
-                                                  .ytPlaylistImporter(value)),
+                                      builder: (context) => ImporterDialogWidget(
+                                        strm: ExternalMediaImporter
+                                            .ytPlaylistImporter(value),
+                                      ),
                                     );
                                     break;
                                   case ImportType.youtubeVidSingle:
-                                    context.pop();
                                     ExternalMediaImporter.ytMediaImporter(value)
                                         .then((value) {
                                       if (value != null) {
                                         BloomeeDBService.addMediaItem(
-                                            MediaItem2MediaItemDB(value),
-                                            "Youtube Imports");
+                                          MediaItem2MediaItemDB(value),
+                                          "Youtube Imports",
+                                        );
                                         SnackbarService.showMessage(
                                             "Imported Media: ${value.title}");
                                       } else {
@@ -335,39 +327,33 @@ Future getIdAndShowBottomSheet(BuildContext context,
                                     });
                                     break;
                                   case ImportType.youtubeMusicPlaylist:
-                                    context.pop();
-
                                     showDialog(
                                       context: context,
                                       barrierDismissible: false,
-                                      builder: (context) {
-                                        return ImporterDialogWidget(
-                                            strm: ExternalMediaImporter
-                                                .ytmPlaylistImporter(value));
-                                      },
+                                      builder: (context) => ImporterDialogWidget(
+                                        strm: ExternalMediaImporter
+                                            .ytmPlaylistImporter(value),
+                                      ),
                                     );
                                     break;
                                   case ImportType.youtubeMusicAlbum:
-                                    context.pop();
                                     showDialog(
                                       context: context,
                                       barrierDismissible: false,
-                                      builder: (context) {
-                                        return ImporterDialogWidget(
-                                            strm: ExternalMediaImporter
-                                                .ytmPlaylistImporter(value));
-                                      },
+                                      builder: (context) => ImporterDialogWidget(
+                                        strm: ExternalMediaImporter
+                                            .ytmPlaylistImporter(value),
+                                      ),
                                     );
                                     break;
                                   case ImportType.youtubeMusicSingle:
-                                    context.pop();
-                                    ExternalMediaImporter.ytmMediaImporter(
-                                            value)
+                                    ExternalMediaImporter.ytmMediaImporter(value)
                                         .then((value) {
                                       if (value != null) {
                                         BloomeeDBService.addMediaItem(
-                                            MediaItem2MediaItemDB(value),
-                                            "Youtube Imports");
+                                          MediaItem2MediaItemDB(value),
+                                          "Youtube Imports",
+                                        );
                                         SnackbarService.showMessage(
                                             "Imported Media: ${value.title}");
                                       } else {
@@ -377,7 +363,7 @@ Future getIdAndShowBottomSheet(BuildContext context,
                                     });
                                     break;
                                   case ImportType.storage:
-                                  // TODO: Handle this case.
+                                    break;
                                 }
                               },
                             ),
@@ -388,8 +374,8 @@ Future getIdAndShowBottomSheet(BuildContext context,
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       );
     },

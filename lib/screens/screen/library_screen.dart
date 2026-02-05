@@ -26,6 +26,7 @@ import 'package:icons_plus/icons_plus.dart';
 import 'package:Bloomee/blocs/library/search_cubit/library_search_cubit.dart';
 import 'package:Bloomee/model/library_search_result.dart';
 import 'package:Bloomee/screens/widgets/animated_list_item.dart';
+import 'package:Bloomee/screens/widgets/glass_widgets.dart';
 
 class LibraryScreen extends StatelessWidget {
   const LibraryScreen({super.key});
@@ -224,15 +225,13 @@ class _LibraryScreenViewState extends State<_LibraryScreenView> {
   }
 
   Widget _buildSearchBar() {
+    final scheme = Theme.of(context).colorScheme;
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeOutCubic,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Default_Theme.primaryColor1.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(12),
-        ),
+      child: FooterGlassPill(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         child: TextField(
           controller: _searchController,
           focusNode: _searchFocusNode,
@@ -240,7 +239,7 @@ class _LibraryScreenViewState extends State<_LibraryScreenView> {
           textInputAction: TextInputAction.search,
           style: Default_Theme.secondoryTextStyle.merge(
             TextStyle(
-              color: Default_Theme.primaryColor1,
+              color: scheme.onSurface,
               fontSize: 15,
             ),
           ),
@@ -248,13 +247,13 @@ class _LibraryScreenViewState extends State<_LibraryScreenView> {
             hintText: 'Search library...',
             hintStyle: Default_Theme.secondoryTextStyle.merge(
               TextStyle(
-                color: Default_Theme.primaryColor1.withValues(alpha: 0.4),
+                color: scheme.onSurface.withValues(alpha: 0.45),
                 fontSize: 15,
               ),
             ),
             prefixIcon: Icon(
               MingCute.search_line,
-              color: Default_Theme.primaryColor1.withValues(alpha: 0.5),
+              color: scheme.onSurface.withValues(alpha: 0.55),
               size: 20,
             ),
             suffixIcon: ValueListenableBuilder<String>(
@@ -268,8 +267,7 @@ class _LibraryScreenViewState extends State<_LibraryScreenView> {
                           key: const ValueKey('clear'),
                           icon: Icon(
                             MingCute.close_fill,
-                            color: Default_Theme.primaryColor1
-                                .withValues(alpha: 0.5),
+                            color: scheme.onSurface.withValues(alpha: 0.55),
                             size: 18,
                           ),
                           onPressed: () {
@@ -423,65 +421,87 @@ class _LibraryScreenViewState extends State<_LibraryScreenView> {
   }
 
   SliverAppBar customDiscoverBar(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return SliverAppBar(
       floating: false,
       pinned: true, // Set to false if you don't want it to stick at the top
-      surfaceTintColor: Default_Theme.themeColor,
-      backgroundColor: Default_Theme.themeColor,
+      forceMaterialTransparency: true,
+      surfaceTintColor: Colors.transparent,
+      backgroundColor: Colors.transparent,
+      shadowColor: Colors.transparent,
+      elevation: 0,
+      scrolledUnderElevation: 0,
       title: Row(
         children: [
-          Text(
-            "Library",
-            style: Default_Theme.primaryTextStyle.merge(
-              TextStyle(
-                fontSize: 34,
-                color: Default_Theme.primaryColor1,
-                fontWeight: FontWeight.w700,
+          FooterGlassPill(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Text(
+              "Library",
+              style: Default_Theme.primaryTextStyle.merge(
+                TextStyle(
+                  fontSize: 34,
+                  color: scheme.onSurface,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ),
           const Spacer(),
-          IconButton(
-            padding: const EdgeInsets.all(8),
-            onPressed: () {
-              if (_isSearching) {
-                _closeSearch();
-              } else {
-                _openSearch();
-              }
-            },
-            icon: Icon(
-              _isSearching ? MingCute.close_fill : MingCute.search_line,
-              size: 24,
-              color: _isSearching
-                  ? Default_Theme.accentColor2
-                  : Default_Theme.primaryColor1,
-            ),
-          ),
-          IconButton(
-            padding: const EdgeInsets.all(8),
-            tooltip: 'Import playlist',
-            onPressed: () async {
-              await showCloudPlaylistImportDialog(context);
-            },
-            icon: Icon(
-              MingCute.download_2_line,
-              size: 24,
-              color: Default_Theme.primaryColor1,
-            ),
-          ),
-          IconButton(
-            padding: const EdgeInsets.all(8),
-            onPressed: () => createPlaylistBottomSheet(context),
-            icon: Icon(MingCute.add_fill,
-                size: 25, color: Default_Theme.primaryColor1),
-          ),
-          IconButton(
-            padding: const EdgeInsets.all(8),
-            onPressed: () =>
-                context.pushNamed(GlobalStrConsts.ImportMediaFromPlatforms),
-            icon: Icon(FontAwesome.file_import_solid,
-                size: 22, color: Default_Theme.primaryColor1),
+          FooterGlassIconPill(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            children: [
+              IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+                onPressed: () {
+                  if (_isSearching) {
+                    _closeSearch();
+                  } else {
+                    _openSearch();
+                  }
+                },
+                icon: Icon(
+                  _isSearching ? MingCute.close_fill : MingCute.search_line,
+                  size: 24,
+                  color:
+                      _isSearching ? scheme.primary : scheme.onSurface,
+                ),
+              ),
+              IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+                tooltip: 'Import playlist',
+                onPressed: () async {
+                  await showCloudPlaylistImportDialog(context);
+                },
+                icon: Icon(
+                  MingCute.download_2_line,
+                  size: 24,
+                  color: scheme.onSurface,
+                ),
+              ),
+              IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+                onPressed: () => createPlaylistBottomSheet(context),
+                icon: Icon(
+                  MingCute.add_fill,
+                  size: 25,
+                  color: scheme.onSurface,
+                ),
+              ),
+              IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+                onPressed: () => context
+                    .pushNamed(GlobalStrConsts.ImportMediaFromPlatforms),
+                icon: Icon(
+                  FontAwesome.file_import_solid,
+                  size: 22,
+                  color: scheme.onSurface,
+                ),
+              ),
+            ],
           ),
         ],
       ),

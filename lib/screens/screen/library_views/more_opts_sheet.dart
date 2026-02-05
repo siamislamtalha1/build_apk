@@ -20,6 +20,7 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter/services.dart';
+import 'package:Bloomee/screens/widgets/glass_widgets.dart';
 
 void showPlaylistOptsInrSheet(
     BuildContext context, MediaPlaylist mediaPlaylist) {
@@ -126,8 +127,7 @@ void showPlaylistOptsInrSheet(
                       final newName = await showDialog<String>(
                         context: context,
                         builder: (ctx) {
-                          return AlertDialog(
-                            backgroundColor: Theme.of(ctx).colorScheme.surface,
+                          return GlassDialog(
                             title: const Text('Rename playlist'),
                             content: TextField(
                               controller: controller,
@@ -181,8 +181,7 @@ void showPlaylistOptsInrSheet(
                       final name = await showDialog<String>(
                         context: context,
                         builder: (ctx) {
-                          return AlertDialog(
-                            backgroundColor: Theme.of(ctx).colorScheme.surface,
+                          return GlassDialog(
                             title: const Text('Duplicate playlist'),
                             content: TextField(
                               controller: controller,

@@ -60,16 +60,16 @@ class _TimerViewState extends State<TimerView> {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: Default_Theme.themeColor,
+      backgroundColor: scheme.surface,
       appBar: AppBar(
-        backgroundColor: Default_Theme.themeColor,
-        surfaceTintColor: Default_Theme.themeColor,
-        foregroundColor: Default_Theme.primaryColor1,
+        backgroundColor: scheme.surface,
+        surfaceTintColor: scheme.surface,
+        foregroundColor: scheme.onSurface,
         centerTitle: true,
         title: Text(
           'Sleep Timer',
           style: TextStyle(
-                  color: Default_Theme.primaryColor1,
+                  color: scheme.onSurface,
                   fontSize: 20,
                   fontWeight: FontWeight.bold)
               .merge(Default_Theme.secondoryTextStyle),
@@ -94,7 +94,7 @@ class _TimerViewState extends State<TimerView> {
                             maxLines: 2,
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                                    color: Default_Theme.primaryColor2,
+                                    color: scheme.onSurface,
                                     fontSize: 25,
                                     fontWeight: FontWeight.bold)
                                 .merge(Default_Theme.secondoryTextStyle),
@@ -133,14 +133,14 @@ class _TimerViewState extends State<TimerView> {
                                   padding: const EdgeInsets.only(right: 10),
                                   child: Icon(
                                     MingCute.stop_circle_fill,
-                                    color: Default_Theme.primaryColor2,
+                                    color: scheme.onPrimary,
                                     size: 40,
                                   ),
                                 ),
                                 Text(
                                   "Stop Timer",
                                   style: TextStyle(
-                                          color: Default_Theme.primaryColor2,
+                                          color: scheme.onPrimary,
                                           fontSize: 20,
                                           fontWeight: FontWeight.bold)
                                       .merge(Default_Theme.secondoryTextStyle),

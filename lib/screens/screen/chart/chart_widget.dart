@@ -52,7 +52,7 @@ final List<TextColorPair> colorPair = [
 ];
 
 class _ChartWidgetState extends State<ChartWidget> {
-  late final cachedClipPath;
+  late final Widget cachedClipPath;
   final _random = Random();
   TextColorPair _color = colorPair[0];
   @override

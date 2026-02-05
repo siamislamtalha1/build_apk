@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:go_router/go_router.dart';
+import 'package:Bloomee/screens/widgets/glass_widgets.dart';
 
 /// Game-style user profile screen with glassmorphic design
 class ProfileScreen extends StatelessWidget {
@@ -22,9 +23,7 @@ class ProfileScreen extends StatelessWidget {
       context: context,
       builder: (ctx) {
         final scheme = Theme.of(ctx).colorScheme;
-        return AlertDialog(
-          backgroundColor: scheme.surface,
-          surfaceTintColor: Colors.transparent,
+        return GlassDialog(
           title: Text(
             title,
             style: TextStyle(color: scheme.onSurface),
@@ -579,35 +578,32 @@ class ProfileScreen extends StatelessWidget {
       context: context,
       builder: (dialogContext) {
         final scheme = Theme.of(dialogContext).colorScheme;
-        return AlertDialog(
-        backgroundColor: scheme.surface,
-        surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(
-          'Delete Account',
-          style: TextStyle(color: scheme.onSurface),
-        ),
-        content: Text(
-          'This will permanently delete your account. Your username will become available again.',
-          style: TextStyle(color: scheme.onSurface.withValues(alpha: 0.7)),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
+        return GlassDialog(
+          title: Text(
+            'Delete Account',
+            style: TextStyle(color: scheme.onSurface),
           ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(dialogContext);
-              await context.read<AuthCubit>().deleteAccount();
-            },
-            child: const Text(
-              'Delete',
-              style: TextStyle(color: Colors.red),
+          content: Text(
+            'This will permanently delete your account. Your username will become available again.',
+            style: TextStyle(color: scheme.onSurface.withValues(alpha: 0.7)),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel'),
             ),
-          ),
-        ],
-      );
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(dialogContext);
+                await context.read<AuthCubit>().deleteAccount();
+              },
+              child: const Text(
+                'Delete',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
       },
     );
   }
@@ -802,35 +798,32 @@ class ProfileScreen extends StatelessWidget {
       context: context,
       builder: (dialogContext) {
         final scheme = Theme.of(dialogContext).colorScheme;
-        return AlertDialog(
-        backgroundColor: scheme.surface,
-        surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(
-          'Sign Out',
-          style: TextStyle(color: scheme.onSurface),
-        ),
-        content: Text(
-          'Are you sure you want to sign out?',
-          style: TextStyle(color: scheme.onSurface.withValues(alpha: 0.7)),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
+        return GlassDialog(
+          title: Text(
+            'Sign Out',
+            style: TextStyle(color: scheme.onSurface),
           ),
-          TextButton(
-            onPressed: () {
-              context.read<AuthCubit>().signOut();
-              Navigator.pop(dialogContext);
-            },
-            child: const Text(
-              'Sign Out',
-              style: TextStyle(color: Colors.red),
+          content: Text(
+            'Are you sure you want to sign out?',
+            style: TextStyle(color: scheme.onSurface.withValues(alpha: 0.7)),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel'),
             ),
-          ),
-        ],
-      );
+            TextButton(
+              onPressed: () {
+                context.read<AuthCubit>().signOut();
+                Navigator.pop(dialogContext);
+              },
+              child: const Text(
+                'Sign Out',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
       },
     );
   }

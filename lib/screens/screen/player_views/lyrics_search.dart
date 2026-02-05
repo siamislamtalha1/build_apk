@@ -6,6 +6,7 @@ import 'package:Bloomee/theme_data/default.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:Bloomee/screens/widgets/glass_widgets.dart';
 
 class LyricsSearchDelegate extends SearchDelegate {
   final String mediaID;
@@ -24,11 +25,13 @@ class LyricsSearchDelegate extends SearchDelegate {
 
   @override
   ThemeData appBarTheme(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Theme.of(context).copyWith(
       appBarTheme: AppBarTheme(
         shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(20))),
-        backgroundColor: const Color.fromARGB(255, 19, 19, 19),
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
         iconTheme: IconThemeData(color: Default_Theme.primaryColor1),
       ),
       textTheme: TextTheme(
@@ -40,6 +43,8 @@ class LyricsSearchDelegate extends SearchDelegate {
         hintStyle: TextStyle(
           color: Default_Theme.primaryColor2.withValues(alpha: 0.3),
         ).merge(Default_Theme.secondoryTextStyle),
+        fillColor: scheme.surface.withValues(alpha: 0.10),
+        filled: true,
       ),
     );
   }
@@ -108,7 +113,7 @@ class LyricsSearchDelegate extends SearchDelegate {
                       showDialog(
                         context: context,
                         builder: (context) {
-                          return AlertDialog(
+                          return GlassDialog(
                             title: Column(
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.start,
@@ -220,7 +225,7 @@ class LyricsSearchDelegate extends SearchDelegate {
                       showDialog(
                         context: context,
                         builder: (context) {
-                          return AlertDialog(
+                          return GlassDialog(
                             title: Column(
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.start,

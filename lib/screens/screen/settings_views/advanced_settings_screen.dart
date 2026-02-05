@@ -1,6 +1,7 @@
 import 'package:Bloomee/blocs/settings_cubit/cubit/settings_cubit.dart';
 import 'package:Bloomee/services/db/bloomee_db_service.dart';
 import 'package:flutter/material.dart';
+import 'package:Bloomee/screens/widgets/glass_widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:icons_plus/icons_plus.dart';
 
@@ -147,7 +148,7 @@ class AdvancedSettingsScreen extends StatelessWidget {
       BuildContext context, String message, Function onConfirm) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => GlassDialog(
         title: const Text("Confirm"),
         content: Text(message),
         actions: [

@@ -82,11 +82,13 @@ class Default_Theme {
         radius: const Radius.circular(10),
         thickness: WidgetStateProperty.all(5),
       ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: Color(0xFF0A040C),
-        foregroundColor: Color(0xFFDAEAF7),
-        surfaceTintColor: Color(0xFF0A040C),
-        iconTheme: IconThemeData(color: Color(0xFFDAEAF7)),
+      appBarTheme: AppBarTheme(
+        backgroundColor: Colors.transparent,
+        foregroundColor: darkScheme.onSurface,
+        surfaceTintColor: Colors.transparent,
+        iconTheme: IconThemeData(color: darkScheme.onSurface),
+        elevation: 0,
+        scrolledUnderElevation: 0,
       ),
       progressIndicatorTheme:
           const ProgressIndicatorThemeData(color: Color(0xFFFE385E)),
@@ -118,23 +120,29 @@ class Default_Theme {
                 : primaryColor2.withValues(alpha: 0.0)),
       ),
       searchBarTheme: SearchBarThemeData(
-        backgroundColor: WidgetStatePropertyAll(themeColor),
+        backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+        elevation: const WidgetStatePropertyAll(0),
+        textStyle: WidgetStatePropertyAll(TextStyle(color: darkScheme.onSurface)),
+        hintStyle:
+            WidgetStatePropertyAll(TextStyle(color: darkScheme.onSurface.withValues(alpha: 0.6))),
       ),
 
       // 🔹 Fix for white popup menus / dropdowns
       popupMenuTheme: PopupMenuThemeData(
-        color: const Color.fromARGB(255, 23, 18, 25),
-        textStyle: TextStyle(color: primaryColor1),
+        color: darkScheme.surfaceContainerHighest,
+        textStyle: TextStyle(color: darkScheme.onSurface),
       ),
       dropdownMenuTheme: DropdownMenuThemeData(
         menuStyle: MenuStyle(
-          backgroundColor: WidgetStatePropertyAll(themeColor),
+          backgroundColor:
+              WidgetStatePropertyAll(darkScheme.surfaceContainerHighest),
         ),
-        textStyle: TextStyle(color: primaryColor1),
+        textStyle: TextStyle(color: darkScheme.onSurface),
       ),
       menuTheme: MenuThemeData(
         style: MenuStyle(
-          backgroundColor: WidgetStatePropertyAll(themeColor),
+          backgroundColor:
+              WidgetStatePropertyAll(darkScheme.surfaceContainerHighest),
         ),
       ),
 
@@ -185,6 +193,18 @@ class Default_Theme {
       primaryColor: lightAccentColor,
       colorScheme: lightScheme,
       iconTheme: const IconThemeData(color: lightTextColor),
+      primaryTextTheme: const TextTheme(
+        bodyLarge: TextStyle(color: lightTextColor, fontFamily: "Gilroy"),
+        bodyMedium: TextStyle(color: lightTextColor, fontFamily: "Gilroy"),
+        bodySmall:
+            TextStyle(color: lightSecondaryTextColor, fontFamily: "Gilroy"),
+        titleLarge: TextStyle(
+            color: lightTextColor, fontFamily: "Fjalla", fontSize: 22),
+        titleMedium: TextStyle(
+            color: lightTextColor,
+            fontFamily: "Gilroy",
+            fontWeight: FontWeight.w600),
+      ),
       // Text Theme
       textTheme: const TextTheme(
         bodyLarge: TextStyle(color: lightTextColor, fontFamily: "Gilroy"),

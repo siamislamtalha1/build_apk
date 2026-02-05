@@ -29,6 +29,7 @@ import '../../blocs/mini_player/mini_player_bloc.dart';
 import 'player_views/fullscreen_lyrics_view.dart';
 import 'player_views/lyrics_widget.dart';
 import 'package:Bloomee/screens/widgets/audio_settings_bottom_sheet.dart';
+import 'package:Bloomee/screens/widgets/glass_widgets.dart';
 
 class AudioPlayerView extends StatefulWidget {
   const AudioPlayerView({super.key});
@@ -76,54 +77,75 @@ class _AudioPlayerViewState extends State<AudioPlayerView>
     return Scaffold(
       backgroundColor: scheme.surface,
       resizeToAvoidBottomInset: false,
-      extendBodyBehindAppBar: true,
+      extendBodyBehindAppBar: false,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         foregroundColor: scheme.onSurface,
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 32),
-          onPressed: () {
-            // If upnext panel is expanded, collapse it first
-            // Otherwise hide the player
-            if (!_upNextPanelController.collapse()) {
-              context.read<PlayerOverlayCubit>().hidePlayer();
-            }
-          },
+        leadingWidth: 72,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 8),
+          child: FooterGlassIconPill(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+            children: [
+              IconButton(
+                icon: Icon(Icons.keyboard_arrow_down_rounded,
+                    size: 32, color: scheme.onSurface),
+                onPressed: () {
+                  if (!_upNextPanelController.collapse()) {
+                    context.read<PlayerOverlayCubit>().hidePlayer();
+                  }
+                },
+              ),
+            ],
+          ),
         ),
         actions: [
-          IconButton(
-              onPressed: () =>
-                  showMoreBottomSheet(context, musicPlayer.currentMedia),
-              icon: Icon(MingCute.more_2_fill,
-                  size: 25, color: scheme.onSurface))
-        ],
-        title: Column(
-          children: [
-            Text(
-              'Enjoying From',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                      color: scheme.onSurface,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold)
-                  .merge(Default_Theme.secondoryTextStyle),
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: FooterGlassIconPill(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+              children: [
+                IconButton(
+                  onPressed: () =>
+                      showMoreBottomSheet(context, musicPlayer.currentMedia),
+                  icon:
+                      Icon(MingCute.more_2_fill, size: 25, color: scheme.onSurface),
+                ),
+              ],
             ),
-            StreamBuilder<String>(
-                stream: bloomeePlayerCubit.bloomeePlayer.queueTitle,
-                builder: (context, snapshot) {
-                  return Text(
-                    snapshot.data ?? "Unknown",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: scheme.onSurfaceVariant,
-                      fontSize: 12,
-                    ).merge(Default_Theme.secondoryTextStyle),
-                  );
-                }),
-          ],
+          ),
+        ],
+        title: FooterGlassPill(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Enjoying From',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                        color: scheme.onSurface,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold)
+                    .merge(Default_Theme.secondoryTextStyle),
+              ),
+              StreamBuilder<String>(
+                  stream: bloomeePlayerCubit.bloomeePlayer.queueTitle,
+                  builder: (context, snapshot) {
+                    return Text(
+                      snapshot.data ?? "Unknown",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: scheme.onSurfaceVariant,
+                        fontSize: 12,
+                      ).merge(Default_Theme.secondoryTextStyle),
+                    );
+                  }),
+            ],
+          ),
         ),
       ),
       body: AnimatedSwitcher(
@@ -887,6 +909,9 @@ class _AmbientImgShadowWidgetState extends State<AmbientImgShadowWidget> {
     return StreamBuilder<MediaItem?>(
         stream: bloomeePlayerCubit.bloomeePlayer.mediaItem,
         builder: (context, snapshot) {
+          if (!snapshot.hasData || snapshot.data == null) {
+            return const SizedBox.shrink();
+          }
           final artUri = snapshot.data?.artUri?.toString();
           if (artUri != lastArtUri) {
             lastArtUri = artUri;
@@ -894,10 +919,9 @@ class _AmbientImgShadowWidgetState extends State<AmbientImgShadowWidget> {
           }
 
           final base = cachedColor ?? const Color.fromARGB(255, 163, 44, 115);
-          final glow = _soften(base, isDark)
-              .withValues(alpha: isDark ? 0.22 : 0.10);
-          final glowMid = _soften(base, isDark)
-              .withValues(alpha: isDark ? 0.10 : 0.05);
+          final glow = _soften(base, isDark).withValues(alpha: isDark ? 0.22 : 0.10);
+          final glowMid =
+              _soften(base, isDark).withValues(alpha: isDark ? 0.10 : 0.05);
 
           return ClipRect(
             child: RepaintBoundary(

@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:Bloomee/theme_data/default.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:Bloomee/screens/widgets/glass_widgets.dart';
 
 class OfflineScreen extends StatefulWidget {
   const OfflineScreen({super.key});
@@ -155,8 +156,11 @@ class _OfflineScreenState extends State<OfflineScreen> {
         child: _isSearch ? _buildSearchField() : _buildTitle(),
       ),
       actions: [
-        !_isSearch
-            ? Tooltip(
+        FooterGlassIconPill(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          children: [
+            if (!_isSearch)
+              Tooltip(
                 message: "Refresh Downloads",
                 child: IconButton(
                   icon: const Icon(MingCute.refresh_2_line),
@@ -164,18 +168,20 @@ class _OfflineScreenState extends State<OfflineScreen> {
                     context.read<DownloaderCubit>().refreshDownloadedSongs();
                   },
                 ),
-              )
-            : const SizedBox.shrink(),
-        Tooltip(
-          message: _isSearch ? "Close Search" : "Search",
-          child: IconButton(
-            icon: Icon(
-              _isSearch ? Icons.close : Icons.search,
-              color: scheme.onSurface,
+              ),
+            Tooltip(
+              message: _isSearch ? "Close Search" : "Search",
+              child: IconButton(
+                icon: Icon(
+                  _isSearch ? Icons.close : Icons.search,
+                  color: scheme.onSurface,
+                ),
+                onPressed: _toggleSearch,
+              ),
             ),
-            onPressed: _toggleSearch,
-          ),
+          ],
         ),
+        const SizedBox(width: 8),
       ],
     );
   }
@@ -183,16 +189,14 @@ class _OfflineScreenState extends State<OfflineScreen> {
   Widget _buildTitle() {
     final scheme = Theme.of(context).colorScheme;
     // Using a ValueKey tells the AnimatedSwitcher that this is a distinct widget.
-    return Container(
+    return FooterGlassPill(
       key: const ValueKey('title'),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text("Offline",
-              style: Default_Theme.primaryTextStyle.merge(
-                  TextStyle(fontSize: 34, color: scheme.onSurface))),
-          const Spacer(),
-        ],
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Text(
+        "Offline",
+        style: Default_Theme.primaryTextStyle.merge(
+          TextStyle(fontSize: 34, color: scheme.onSurface),
+        ),
       ),
     );
   }
@@ -200,22 +204,26 @@ class _OfflineScreenState extends State<OfflineScreen> {
   Widget _buildSearchField() {
     final scheme = Theme.of(context).colorScheme;
     // Using a ValueKey tells the AnimatedSwitcher that this is a new, distinct widget.
-    return Container(
+    return FooterGlassPill(
       key: const ValueKey('search'),
-      child: TextField(
-        controller: _searchController,
-        autofocus: true,
-        cursorColor: scheme.onSurface,
-        decoration: InputDecoration(
-          hintText: "Search your songs...",
-          border: InputBorder.none,
-          hintStyle: TextStyle(
-              color: scheme.onSurface.withValues(alpha: 0.7)),
-        ),
-        style: Default_Theme.secondoryTextStyle.merge(
-          TextStyle(
-            color: scheme.onSurface,
-            fontSize: 15.0,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+      child: SizedBox(
+        width: double.infinity,
+        child: TextField(
+          controller: _searchController,
+          autofocus: true,
+          cursorColor: scheme.onSurface,
+          decoration: InputDecoration(
+            hintText: "Search your songs...",
+            border: InputBorder.none,
+            hintStyle: TextStyle(
+                color: scheme.onSurface.withValues(alpha: 0.7)),
+          ),
+          style: Default_Theme.secondoryTextStyle.merge(
+            TextStyle(
+              color: scheme.onSurface,
+              fontSize: 15.0,
+            ),
           ),
         ),
       ),

@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:Bloomee/blocs/search/fetch_search_results.dart';
 import 'package:Bloomee/theme_data/default.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:Bloomee/screens/widgets/glass_widgets.dart';
 
 class SearchPageDelegate extends SearchDelegate {
   List<String> searchList = [];
@@ -22,25 +23,25 @@ class SearchPageDelegate extends SearchDelegate {
   @override
   ThemeData appBarTheme(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Theme.of(context).copyWith(
       appBarTheme: AppBarTheme(
         shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(20))),
         backgroundColor: scheme.surface,
         surfaceTintColor: Colors.transparent,
-        iconTheme: IconThemeData(color: Default_Theme.primaryColor1),
+        iconTheme: IconThemeData(color: scheme.onSurface),
       ),
       textTheme: TextTheme(
         titleLarge: TextStyle(
-          color: Default_Theme.primaryColor1,
+          color: scheme.onSurface,
         ).merge(Default_Theme.secondoryTextStyleMedium),
       ),
       inputDecorationTheme: InputDecorationTheme(
         hintStyle: TextStyle(
-          color: (isDark ? Default_Theme.primaryColor2 : scheme.onSurface)
-              .withValues(alpha: 0.3),
+          color: scheme.onSurface.withValues(alpha: 0.45),
         ).merge(Default_Theme.secondoryTextStyle),
+        fillColor: scheme.surface.withValues(alpha: 0.10),
+        filled: true,
       ),
     );
   }
@@ -81,20 +82,23 @@ class SearchPageDelegate extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final List<String> searchResults = searchList
         .where((item) => item.toLowerCase().contains(query.toLowerCase()))
         .toList();
-    return ListView.builder(
-      itemCount: searchResults.length,
-      itemBuilder: (context, index) {
-        return ListTile(
-          title: Text(searchResults[index]),
-          onTap: () {
-            // Handle the selected search result.
-            close(context, searchResults[index]);
-          },
-        );
-      },
+    return Container(
+      color: scheme.surface,
+      child: ListView.builder(
+        itemCount: searchResults.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text(searchResults[index]),
+            onTap: () {
+              close(context, searchResults[index]);
+            },
+          );
+        },
+      ),
     );
   }
 
@@ -103,14 +107,18 @@ class SearchPageDelegate extends SearchDelegate {
     // final List<String> suggestionList = [];
     context.read<SearchSuggestionBloc>().add(SearchSuggestionFetch(query));
 
+    final scheme = Theme.of(context).colorScheme;
+
     return BlocBuilder<SearchSuggestionBloc, SearchSuggestionState>(
       builder: (context, state) {
-        return SingleChildScrollView(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height,
-            ),
-            child: switch (state) {
+        return Container(
+          color: scheme.surface,
+          child: SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: MediaQuery.of(context).size.height,
+              ),
+              child: switch (state) {
               SearchSuggestionLoading() => Center(
                   child: CircularProgressIndicator(
                     color: Default_Theme.accentColor2,
@@ -133,38 +141,51 @@ class SearchPageDelegate extends SearchDelegate {
                               const NeverScrollableScrollPhysics(), // Disable inner scrolling
                           children: state.dbSuggestionList
                               .map(
-                                (e) => ListTile(
-                                  title: Text(
-                                    e.values.first,
-                                    style: TextStyle(
-                                      color: Default_Theme.primaryColor1,
-                                    ).merge(Default_Theme.secondoryTextStyle),
-                                  ),
-                                  contentPadding:
-                                      const EdgeInsets.only(left: 16, right: 8),
-                                  leading: Icon(
-                                    MingCute.history_line,
-                                    size: 22,
-                                    color: Default_Theme.primaryColor1
-                                        .withValues(alpha: 0.5),
-                                  ),
-                                  trailing: IconButton(
-                                    onPressed: () {
-                                      context.read<SearchSuggestionBloc>().add(
-                                          SearchSuggestionClear(
-                                              e.values.first));
-                                    },
-                                    icon: Icon(
-                                      MingCute.close_fill,
-                                      color: Default_Theme.primaryColor1
-                                          .withValues(alpha: 0.5),
-                                      size: 22,
+                                (e) => Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 6),
+                                  child: GlassSurface(
+                                    borderRadius: BorderRadius.circular(18),
+                                    sigmaX: 24,
+                                    sigmaY: 24,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 4, vertical: 2),
+                                    child: ListTile(
+                                      title: Text(
+                                        e.values.first,
+                                        style: TextStyle(
+                                          color: scheme.onSurface,
+                                        ).merge(
+                                            Default_Theme.secondoryTextStyle),
+                                      ),
+                                      contentPadding: const EdgeInsets.only(
+                                          left: 16, right: 8),
+                                      leading: Icon(
+                                        MingCute.history_line,
+                                        size: 22,
+                                        color: scheme.onSurface
+                                            .withValues(alpha: 0.5),
+                                      ),
+                                      trailing: IconButton(
+                                        onPressed: () {
+                                          context
+                                              .read<SearchSuggestionBloc>()
+                                              .add(SearchSuggestionClear(
+                                                  e.values.first));
+                                        },
+                                        icon: Icon(
+                                          MingCute.close_fill,
+                                          color: scheme.onSurface
+                                              .withValues(alpha: 0.5),
+                                          size: 22,
+                                        ),
+                                      ),
+                                      onTap: () {
+                                        query = e.values.first;
+                                        showResults(context);
+                                      },
                                     ),
                                   ),
-                                  onTap: () {
-                                    query = e.values.first;
-                                    showResults(context);
-                                  },
                                 ),
                               )
                               .toList(),
@@ -174,37 +195,47 @@ class SearchPageDelegate extends SearchDelegate {
                           physics:
                               const NeverScrollableScrollPhysics(), // Disable inner scrolling
                           itemBuilder: (BuildContext context, int index) {
-                            return ListTile(
-                              title: Text(
-                                state.suggestionList[index],
-                                style: TextStyle(
-                                  color: Default_Theme.primaryColor1,
-                                ).merge(Default_Theme.secondoryTextStyle),
-                              ),
-                              contentPadding:
-                                  const EdgeInsets.only(left: 16, right: 8),
-                              leading: Icon(
-                                MingCute.search_line,
-                                size: 22,
-                                color: Default_Theme.primaryColor1
-                                    .withValues(alpha: 0.5),
-                              ),
-                              trailing: IconButton(
-                                onPressed: () {
-                                  query = state.suggestionList[index];
-                                  // only update the query and not show the results
-                                },
-                                icon: Icon(
-                                  MingCute.arrow_left_up_line,
-                                  color: Default_Theme.primaryColor1
-                                      .withValues(alpha: 0.5),
-                                  size: 22,
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 6),
+                              child: GlassSurface(
+                                borderRadius: BorderRadius.circular(18),
+                                sigmaX: 24,
+                                sigmaY: 24,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 4, vertical: 2),
+                                child: ListTile(
+                                  title: Text(
+                                    state.suggestionList[index],
+                                    style: TextStyle(
+                                      color: scheme.onSurface,
+                                    ).merge(Default_Theme.secondoryTextStyle),
+                                  ),
+                                  contentPadding:
+                                      const EdgeInsets.only(left: 16, right: 8),
+                                  leading: Icon(
+                                    MingCute.search_line,
+                                    size: 22,
+                                    color:
+                                        scheme.onSurface.withValues(alpha: 0.5),
+                                  ),
+                                  trailing: IconButton(
+                                    onPressed: () {
+                                      query = state.suggestionList[index];
+                                    },
+                                    icon: Icon(
+                                      MingCute.arrow_left_up_line,
+                                      color: scheme.onSurface
+                                          .withValues(alpha: 0.5),
+                                      size: 22,
+                                    ),
+                                  ),
+                                  onTap: () {
+                                    query = state.suggestionList[index];
+                                    showResults(context);
+                                  },
                                 ),
                               ),
-                              onTap: () {
-                                query = state.suggestionList[index];
-                                showResults(context);
-                              },
                             );
                           },
                           itemCount: state.suggestionList.length,
@@ -218,6 +249,7 @@ class SearchPageDelegate extends SearchDelegate {
                   ),
                 ),
             },
+            ),
           ),
         );
       },

@@ -6,6 +6,7 @@ import 'package:Bloomee/services/firebase/firestore_service.dart';
 import 'package:Bloomee/theme_data/default.dart';
 import 'package:flutter/material.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:Bloomee/screens/widgets/glass_widgets.dart';
 
 Future<List<String>?> _pickTargetLocalPlaylists(
   BuildContext context, {
@@ -24,8 +25,7 @@ Future<List<String>?> _pickTargetLocalPlaylists(
     context: context,
     builder: (ctx) {
       return StatefulBuilder(builder: (ctx2, setState) {
-        return AlertDialog(
-          backgroundColor: Theme.of(ctx).colorScheme.surface,
+        return GlassDialog(
           title: Text(title),
           content: SizedBox(
             width: 420,
@@ -163,8 +163,7 @@ Future<void> _showRemotePlaylistDialog(
           final newName = await showDialog<String>(
             context: ctx,
             builder: (dctx) {
-              return AlertDialog(
-                backgroundColor: Theme.of(dctx).colorScheme.surface,
+              return GlassDialog(
                 title: const Text('Import playlist as'),
                 content: TextField(
                   controller: nameController,
@@ -212,8 +211,7 @@ Future<void> _showRemotePlaylistDialog(
           }
         }
 
-        return AlertDialog(
-          backgroundColor: Theme.of(ctx).colorScheme.surface,
+        return GlassDialog(
           title: Text(playlistName),
           content: SizedBox(
             width: 520,
@@ -398,8 +396,7 @@ Future<void> showCloudPlaylistImportDialog(BuildContext context) async {
         final newName = await showDialog<String>(
           context: ctx,
           builder: (dctx) {
-            return AlertDialog(
-              backgroundColor: Theme.of(dctx).colorScheme.surface,
+            return GlassDialog(
               title: const Text('Import playlist as'),
               content: TextField(
                 controller: nameController,
@@ -451,8 +448,7 @@ Future<void> showCloudPlaylistImportDialog(BuildContext context) async {
       }
 
       return StatefulBuilder(builder: (ctx2, setState) {
-        return AlertDialog(
-          backgroundColor: Theme.of(ctx).colorScheme.surface,
+        return GlassDialog(
           title: const Text('Import playlist'),
           content: SizedBox(
             width: 420,

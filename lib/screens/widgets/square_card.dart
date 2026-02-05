@@ -25,6 +25,7 @@ class SquareImgCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: SizedBox(
@@ -72,7 +73,7 @@ class SquareImgCard extends StatelessWidget {
                                   child: Icon(
                                     MingCute.playlist_2_line,
                                     size: 18,
-                                    color: Default_Theme.primaryColor2,
+                                    color: scheme.onPrimary,
                                   ),
                                 ),
                                 Text(
@@ -80,7 +81,7 @@ class SquareImgCard extends StatelessWidget {
                                   style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.bold,
-                                          color: Default_Theme.primaryColor2)
+                                          color: scheme.onPrimary)
                                       .merge(Default_Theme.secondoryTextStyle),
                                 ),
                               ],
@@ -94,7 +95,7 @@ class SquareImgCard extends StatelessWidget {
                                   child: Icon(
                                     MingCute.eye_2_line,
                                     size: 18,
-                                    color: Default_Theme.primaryColor2,
+                                    color: scheme.onPrimary,
                                   ),
                                 ),
                                 Text(
@@ -102,7 +103,7 @@ class SquareImgCard extends StatelessWidget {
                                   style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.bold,
-                                          color: Default_Theme.primaryColor2)
+                                          color: scheme.onPrimary)
                                       .merge(Default_Theme.secondoryTextStyle),
                                 ),
                               ],
@@ -120,7 +121,7 @@ class SquareImgCard extends StatelessWidget {
               style: Default_Theme.secondoryTextStyle.merge(TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
-                  color: Default_Theme.primaryColor1,
+                  color: scheme.onSurface,
                   height: 1.0)),
             ),
             Text(
@@ -131,7 +132,7 @@ class SquareImgCard extends StatelessWidget {
               style: Default_Theme.secondoryTextStyle.merge(TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
-                  color: Default_Theme.primaryColor2.withValues(alpha: 0.8),
+                  color: scheme.onSurfaceVariant.withValues(alpha: 0.8),
                   height: 1.0)),
             ),
           ],

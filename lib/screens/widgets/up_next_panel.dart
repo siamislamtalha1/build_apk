@@ -15,6 +15,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'song_tile.dart';
 import 'more_bottom_sheet.dart';
+import 'package:Bloomee/screens/widgets/glass_widgets.dart';
 
 // Cached styles to avoid repeated merges
 class _UpNextStyles {
@@ -539,8 +540,7 @@ class _QueueInfoRow extends StatelessWidget {
               final String? queueName = await showDialog<String>(
                 context: context,
                 builder: (dialogContext) {
-                  return AlertDialog(
-                    backgroundColor: Default_Theme.themeColor,
+                  return GlassDialog(
                     title: const Text('Save Queue',
                         style: Default_Theme.secondoryTextStyleMedium),
                     content: Form(
@@ -815,8 +815,7 @@ class _QueueInfoRow extends StatelessWidget {
     final String? playlistName = await showDialog<String>(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          backgroundColor: Default_Theme.themeColor,
+        return GlassDialog(
           title: const Text('Save Queue as Playlist',
               style: Default_Theme.secondoryTextStyleMedium),
           content: Form(

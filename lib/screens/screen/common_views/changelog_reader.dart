@@ -231,7 +231,6 @@ class ChangelogScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final changelog = parseChangelog(changelogText);
     final scheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     // We need to possibly consult the installed package info when showOlderVersions is false.
     return Scaffold(
@@ -412,10 +411,10 @@ class VersionCard extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _VersionCardState createState() => _VersionCardState();
+  VersionCardState createState() => VersionCardState();
 }
 
-class _VersionCardState extends State<VersionCard> {
+class VersionCardState extends State<VersionCard> {
   bool _isExpanded = false;
 
   @override

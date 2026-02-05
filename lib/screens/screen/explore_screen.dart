@@ -1,5 +1,4 @@
 import 'dart:developer';
-import 'dart:ui';
 import 'package:Bloomee/blocs/explore/cubit/explore_cubits.dart';
 import 'package:Bloomee/blocs/internet_connectivity/cubit/connectivity_cubit.dart';
 import 'package:Bloomee/blocs/lastdotfm/lastdotfm_cubit.dart';
@@ -9,6 +8,7 @@ import 'package:Bloomee/blocs/settings_cubit/cubit/settings_cubit.dart';
 import 'package:Bloomee/model/MediaPlaylistModel.dart';
 import 'package:Bloomee/screens/screen/home_views/recents_view.dart';
 import 'package:Bloomee/screens/screen/home_views/setting_views/about.dart';
+import 'package:Bloomee/screens/widgets/glass_widgets.dart';
 import 'package:Bloomee/screens/widgets/more_bottom_sheet.dart';
 import 'package:Bloomee/screens/widgets/sign_board_widget.dart';
 import 'package:Bloomee/screens/widgets/song_tile.dart';
@@ -275,47 +275,9 @@ class _DiscoverTitlePill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    final glassTint = (isDark ? Colors.white : Colors.black)
-        .withValues(alpha: isDark ? 0.05 : 0.025);
-
-    return ShaderMask(
-      shaderCallback: (Rect bounds) {
-        return const RadialGradient(
-          center: Alignment.center,
-          radius: 0.95,
-          colors: [
-            Colors.black,
-            Colors.black,
-            Colors.transparent,
-          ],
-          stops: [0.0, 0.78, 1.0],
-        ).createShader(bounds);
-      },
-      blendMode: BlendMode.dstIn,
-      child: RepaintBoundary(
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(999),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: glassTint,
-                borderRadius: BorderRadius.circular(999),
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(
-                        alpha: 0.10,
-                      ),
-                  width: 1.0,
-                ),
-              ),
-              child: child,
-            ),
-          ),
-        ),
-      ),
+    return FooterGlassPill(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: child,
     );
   }
 }
@@ -325,38 +287,12 @@ class _HeaderActionPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final glassTint = (isDark ? Colors.white : Colors.black)
-        .withValues(alpha: isDark ? 0.06 : 0.03);
-
-    return RepaintBoundary(
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(999),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
-          child: Container(
-            decoration: BoxDecoration(
-              color: glassTint,
-              borderRadius: BorderRadius.circular(999),
-              border: Border.all(
-                color: Theme.of(context).colorScheme.onSurface.withValues(
-                      alpha: 0.12,
-                    ),
-                width: 1.0,
-              ),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                NotificationIcon(),
-                SizedBox(width: 6),
-                TimerIcon(),
-              ],
-            ),
-          ),
-        ),
-      ),
+    return const FooterGlassIconPill(
+      children: [
+        NotificationIcon(),
+        SizedBox(width: 6),
+        TimerIcon(),
+      ],
     );
   }
 }

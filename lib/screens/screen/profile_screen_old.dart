@@ -3,6 +3,7 @@ import 'package:Bloomee/services/sync/sync_service.dart';
 import 'package:Bloomee/theme_data/default.dart';
 import 'package:Bloomee/utils/load_Image.dart';
 import 'package:flutter/material.dart';
+import 'package:Bloomee/screens/widgets/glass_widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:go_router/go_router.dart';
@@ -600,8 +601,7 @@ class ProfileScreen extends StatelessWidget {
         onPressed: () {
           showDialog(
             context: context,
-            builder: (context) => AlertDialog(
-              backgroundColor: Default_Theme.themeColor,
+            builder: (context) => GlassDialog(
               title: Text(
                 'Sign Out',
                 style: Default_Theme.primaryTextStyle.merge(
