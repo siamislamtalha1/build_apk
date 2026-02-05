@@ -60,6 +60,7 @@ class _PlaylistEditViewState extends State<PlaylistEditView> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       body: BlocBuilder<CurrentPlaylistCubit, CurrentPlaylistState>(
         builder: (context, state) {
@@ -75,14 +76,14 @@ class _PlaylistEditViewState extends State<PlaylistEditView> {
                 SliverAppBar(
                   floating: true,
                   centerTitle: true,
-                  surfaceTintColor: Default_Theme.themeColor,
-                  foregroundColor: Default_Theme.primaryColor1,
-                  backgroundColor: Default_Theme.themeColor,
+                  surfaceTintColor: scheme.surface,
+                  foregroundColor: scheme.onSurface,
+                  backgroundColor: scheme.surface,
                   title: Text("Edit Playlist",
                       style: Default_Theme.secondoryTextStyleMedium.merge(
                           TextStyle(
                               fontSize: 16,
-                              color: Default_Theme.primaryColor1))),
+                              color: scheme.onSurface))),
                   actions: [
                     Padding(
                       padding: const EdgeInsets.only(right: 8),

@@ -277,8 +277,8 @@ class _DiscoverTitlePill extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final tint = (isDark ? Colors.white : Colors.black)
-        .withValues(alpha: isDark ? 0.10 : 0.06);
+    final glassTint = (isDark ? Colors.white : Colors.black)
+        .withValues(alpha: isDark ? 0.05 : 0.025);
 
     return ShaderMask(
       shaderCallback: (Rect bounds) {
@@ -290,7 +290,7 @@ class _DiscoverTitlePill extends StatelessWidget {
             Colors.black,
             Colors.transparent,
           ],
-          stops: [0.0, 0.62, 1.0],
+          stops: [0.0, 0.78, 1.0],
         ).createShader(bounds);
       },
       blendMode: BlendMode.dstIn,
@@ -298,19 +298,17 @@ class _DiscoverTitlePill extends StatelessWidget {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(999),
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+            filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  center: Alignment.center,
-                  radius: 0.95,
-                  colors: [
-                    tint,
-                    tint.withValues(alpha: tint.a * 0.85),
-                    Colors.transparent,
-                  ],
-                  stops: const [0.0, 0.62, 1.0],
+                color: glassTint,
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.onSurface.withValues(
+                        alpha: 0.10,
+                      ),
+                  width: 1.0,
                 ),
               ),
               child: child,

@@ -20,7 +20,8 @@ class AudioSettingsBottomSheet extends StatelessWidget {
         filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
         child: Container(
           decoration: BoxDecoration(
-            color: Default_Theme.themeColor.withValues(alpha: 0.85),
+            color: (isDark ? scheme.surfaceContainerHighest : scheme.surface)
+                .withValues(alpha: isDark ? 0.88 : 0.92),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
             border: Border(
               top: BorderSide(

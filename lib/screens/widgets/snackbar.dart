@@ -23,6 +23,17 @@ class SnackbarService {
     }
 
     messengerKey.currentState!.removeCurrentSnackBar();
+
+    final context = messengerKey.currentContext;
+    final scheme = context != null ? Theme.of(context).colorScheme : null;
+    final brightness = context != null ? Theme.of(context).brightness : null;
+    final bgColor = scheme == null
+        ? const Color.fromARGB(255, 16, 15, 15)
+        : (brightness == Brightness.dark
+            ? scheme.surfaceContainerHighest
+            : scheme.surface);
+    final fgColor = scheme == null ? Default_Theme.primaryColor1 : scheme.onSurface;
+
     messengerKey.currentState!.showSnackBar(
       SnackBar(
         content: loading
@@ -32,7 +43,7 @@ class SnackbarService {
                 children: [
                   Text(message,
                       style: TextStyle(
-                          color: Default_Theme.primaryColor1, fontSize: 16)),
+                          color: fgColor, fontSize: 16)),
                   Padding(
                     padding: const EdgeInsets.only(left: 10),
                     child: SizedBox(
@@ -40,7 +51,7 @@ class SnackbarService {
                       width: 20,
                       child: CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(
-                            Default_Theme.primaryColor1),
+                            fgColor),
                       ),
                     ),
                   ),
@@ -48,16 +59,16 @@ class SnackbarService {
               )
             : Text(message,
                 style: TextStyle(
-                    color: Default_Theme.primaryColor1, fontSize: 16)),
+                    color: fgColor, fontSize: 16)),
         duration: loading ? const Duration(minutes: 1) : duration,
         showCloseIcon: false,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(5),
         ),
-        closeIconColor: Default_Theme.primaryColor1,
+        closeIconColor: fgColor,
         elevation: 0,
         action: action,
-        backgroundColor: const Color.fromARGB(255, 16, 15, 15),
+        backgroundColor: bgColor,
       ),
     );
   }

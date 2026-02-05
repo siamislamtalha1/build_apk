@@ -896,6 +896,8 @@ class _AmbientImgShadowWidgetState extends State<AmbientImgShadowWidget> {
           final base = cachedColor ?? const Color.fromARGB(255, 163, 44, 115);
           final glow = _soften(base, isDark)
               .withValues(alpha: isDark ? 0.22 : 0.10);
+          final glowMid = _soften(base, isDark)
+              .withValues(alpha: isDark ? 0.10 : 0.05);
 
           return ClipRect(
             child: RepaintBoundary(
@@ -910,10 +912,12 @@ class _AmbientImgShadowWidgetState extends State<AmbientImgShadowWidget> {
                     gradient: RadialGradient(
                       colors: [
                         glow,
+                        glowMid,
                         Colors.transparent,
                       ],
+                      stops: const [0.0, 0.55, 1.0],
                       center: Alignment.center,
-                      radius: 0.95,
+                      radius: 1.15,
                     ),
                   ),
                   child: const SizedBox.expand(),

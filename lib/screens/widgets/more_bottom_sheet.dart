@@ -44,27 +44,21 @@ void showMoreBottomSheet(
         final isDark = Theme.of(sheetContext).brightness == Brightness.dark;
         return Container(
           decoration: BoxDecoration(
-            gradient: isDark
-                ? const LinearGradient(
-                    colors: [
-                      Color.fromARGB(255, 7, 17, 50),
-                      Color.fromARGB(255, 5, 0, 24),
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    stops: [0.0, 0.5],
-                  )
-                : LinearGradient(
-                    colors: [
-                      scheme.surface,
-                      scheme.surface,
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    stops: const [0.0, 1.0],
-                  ),
+            gradient: LinearGradient(
+              colors: [
+                isDark ? scheme.surfaceContainerHighest : scheme.surface,
+                scheme.surface,
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              stops: const [0.0, 1.0],
+            ),
             borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+            border: Border.all(
+              color: scheme.onSurface.withValues(alpha: 0.10),
+              width: 1,
+            ),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,

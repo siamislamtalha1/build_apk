@@ -46,7 +46,7 @@ Future<List<String>?> _pickTargetLocalPlaylists(
     builder: (ctx) {
       return StatefulBuilder(builder: (ctx2, setState) {
         return AlertDialog(
-          backgroundColor: Default_Theme.themeColor,
+          backgroundColor: Theme.of(ctx).colorScheme.surface,
           title: Text(title),
           content: SizedBox(
             width: 420,
@@ -185,7 +185,7 @@ Future<void> _showRemotePlaylistDialog(
             context: ctx,
             builder: (dctx) {
               return AlertDialog(
-                backgroundColor: Default_Theme.themeColor,
+                backgroundColor: Theme.of(dctx).colorScheme.surface,
                 title: const Text('Import playlist as'),
                 content: TextField(
                   controller: nameController,
@@ -234,7 +234,7 @@ Future<void> _showRemotePlaylistDialog(
         }
 
         return AlertDialog(
-          backgroundColor: Default_Theme.themeColor,
+          backgroundColor: Theme.of(ctx).colorScheme.surface,
           title: Text(playlistName),
           content: SizedBox(
             width: 520,
@@ -421,7 +421,7 @@ Future<void> _showCloudImportDialog(BuildContext context) async {
           context: ctx,
           builder: (dctx) {
             return AlertDialog(
-              backgroundColor: Default_Theme.themeColor,
+              backgroundColor: Theme.of(dctx).colorScheme.surface,
               title: const Text('Import playlist as'),
               content: TextField(
                 controller: nameController,
@@ -475,7 +475,7 @@ Future<void> _showCloudImportDialog(BuildContext context) async {
 
       return StatefulBuilder(builder: (ctx2, setState) {
         return AlertDialog(
-          backgroundColor: Default_Theme.themeColor,
+          backgroundColor: Theme.of(ctx).colorScheme.surface,
           title: const Text('Import playlist'),
           content: SizedBox(
             width: 420,
@@ -653,8 +653,9 @@ class PlaylistView extends StatelessWidget {
                               context.pop();
                             },
                           ),
-                          backgroundColor: Default_Theme.themeColor,
-                          surfaceTintColor: Default_Theme.themeColor,
+                          backgroundColor: Theme.of(context).colorScheme.surface,
+                          surfaceTintColor:
+                              Theme.of(context).colorScheme.surface,
                           expandedHeight: maxExtent,
                           floating: false,
                           pinned: true,
@@ -740,9 +741,15 @@ class PlaylistView extends StatelessWidget {
                                             getFBColor(context)[1]
                                                 .withValues(alpha: 0.0),
                                             getFBColor(context)[1]
-                                                .withValues(alpha: 1),
+                                                .withValues(alpha: 0.35),
+                                            getFBColor(context)[1]
+                                                .withValues(alpha: 0.80),
+                                            Theme.of(context)
+                                                .colorScheme
+                                                .surface
+                                                .withValues(alpha: 1.0),
                                           ],
-                                          stops: const [0.5, 1],
+                                          stops: const [0.0, 0.55, 0.78, 1.0],
                                         ),
                                       ),
                                     )),
@@ -1083,7 +1090,9 @@ class PlaylistView extends StatelessWidget {
                                             context: context,
                                             builder: (context) => AlertDialog(
                                               backgroundColor:
-                                                  Default_Theme.themeColor,
+                                                  Theme.of(context)
+                                                      .colorScheme
+                                                      .surface,
                                               title: const Text(
                                                   'Download playlist'),
                                               content: Text(
@@ -1420,7 +1429,7 @@ class PlaylistView extends StatelessWidget {
               items.isEmpty ? 0 : (completed / items.length).clamp(0.0, 1.0);
 
           return AlertDialog(
-            backgroundColor: Default_Theme.themeColor,
+            backgroundColor: Theme.of(sbCtx).colorScheme.surface,
             contentPadding: const EdgeInsets.fromLTRB(18, 16, 18, 12),
             content: SizedBox(
               width: 320,

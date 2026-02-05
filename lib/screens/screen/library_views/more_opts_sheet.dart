@@ -33,27 +33,21 @@ void showPlaylistOptsInrSheet(
         children: [
           Container(
             decoration: BoxDecoration(
-              gradient: isDark
-                  ? const LinearGradient(
-                      colors: [
-                        Color.fromARGB(255, 7, 17, 50),
-                        Color.fromARGB(255, 5, 0, 24),
-                      ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      stops: [0.0, 0.5],
-                    )
-                  : LinearGradient(
-                      colors: [
-                        scheme.surface,
-                        scheme.surface,
-                      ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      stops: const [0.0, 1.0],
-                    ),
+              gradient: LinearGradient(
+                colors: [
+                  isDark ? scheme.surfaceContainerHighest : scheme.surface,
+                  scheme.surface,
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                stops: const [0.0, 1.0],
+              ),
               borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+              border: Border.all(
+                color: scheme.onSurface.withValues(alpha: 0.10),
+                width: 1,
+              ),
             ),
             child: Padding(
               padding: const EdgeInsets.all(8),
@@ -133,7 +127,7 @@ void showPlaylistOptsInrSheet(
                         context: context,
                         builder: (ctx) {
                           return AlertDialog(
-                            backgroundColor: Default_Theme.themeColor,
+                            backgroundColor: Theme.of(ctx).colorScheme.surface,
                             title: const Text('Rename playlist'),
                             content: TextField(
                               controller: controller,
@@ -188,7 +182,7 @@ void showPlaylistOptsInrSheet(
                         context: context,
                         builder: (ctx) {
                           return AlertDialog(
-                            backgroundColor: Default_Theme.themeColor,
+                            backgroundColor: Theme.of(ctx).colorScheme.surface,
                             title: const Text('Duplicate playlist'),
                             content: TextField(
                               controller: controller,
@@ -311,27 +305,21 @@ void showPlaylistOptsExtSheet(BuildContext context, String playlistName) {
         children: [
           Container(
             decoration: BoxDecoration(
-              gradient: isDark
-                  ? const LinearGradient(
-                      colors: [
-                        Color.fromARGB(255, 7, 17, 50),
-                        Color.fromARGB(255, 5, 0, 24),
-                      ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      stops: [0.0, 0.5],
-                    )
-                  : LinearGradient(
-                      colors: [
-                        scheme.surface,
-                        scheme.surface,
-                      ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      stops: const [0.0, 1.0],
-                    ),
+              gradient: LinearGradient(
+                colors: [
+                  isDark ? scheme.surfaceContainerHighest : scheme.surface,
+                  scheme.surface,
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                stops: const [0.0, 1.0],
+              ),
               borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+              border: Border.all(
+                color: scheme.onSurface.withValues(alpha: 0.10),
+                width: 1,
+              ),
             ),
             child: Padding(
               padding: const EdgeInsets.all(8.0),

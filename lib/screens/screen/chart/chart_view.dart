@@ -33,6 +33,7 @@ class _ChartScreenState extends State<ChartScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return SafeArea(
       child: Scaffold(
         body: FutureBuilder(
@@ -84,16 +85,17 @@ class _ChartScreenState extends State<ChartScreen> {
             }
           },
         ),
-        backgroundColor: Default_Theme.themeColor,
+        backgroundColor: scheme.surface,
       ),
     );
   }
 
   SliverAppBar customDiscoverBar(BuildContext context, ChartModel state) {
+    final scheme = Theme.of(context).colorScheme;
     return SliverAppBar(
       floating: true,
-      surfaceTintColor: Default_Theme.themeColor,
-      backgroundColor: Default_Theme.themeColor,
+      surfaceTintColor: scheme.surface,
+      backgroundColor: scheme.surface,
       expandedHeight: 200,
       actions: [
         Padding(
@@ -137,10 +139,10 @@ class _ChartScreenState extends State<ChartScreen> {
                             begin: Alignment.bottomCenter,
                             end: Alignment.topCenter,
                             colors: [
-                  Default_Theme.themeColor.withValues(alpha: 0.8),
-                  Default_Theme.themeColor.withValues(alpha: 0.4),
-                  Default_Theme.themeColor.withValues(alpha: 0.1),
-                  Default_Theme.themeColor.withValues(alpha: 0),
+                  scheme.surface.withValues(alpha: 0.92),
+                  scheme.surface.withValues(alpha: 0.55),
+                  scheme.surface.withValues(alpha: 0.22),
+                  scheme.surface.withValues(alpha: 0.0),
                 ]))))
           ],
         ),

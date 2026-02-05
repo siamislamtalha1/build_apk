@@ -38,6 +38,7 @@ class SongInfoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     final source = song.extras?["source"];
@@ -55,7 +56,7 @@ class SongInfoScreen extends StatelessWidget {
     final double maxContentWidth = isDesktop ? 600 : double.infinity;
 
     return Scaffold(
-      backgroundColor: Default_Theme.themeColor,
+      backgroundColor: scheme.surface,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -63,13 +64,13 @@ class SongInfoScreen extends StatelessWidget {
           SliverAppBar(
             expandedHeight: headerHeight,
             pinned: true,
-            backgroundColor: Default_Theme.themeColor,
-            surfaceTintColor: Default_Theme.themeColor,
+            backgroundColor: scheme.surface,
+            surfaceTintColor: scheme.surface,
             leading: IconButton(
               icon: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Default_Theme.themeColor.withValues(alpha: 0.7),
+                  color: scheme.surface.withValues(alpha: 0.7),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -281,7 +282,7 @@ class _HeaderBackground extends StatelessWidget {
         BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
           child: Container(
-            color: Default_Theme.themeColor.withValues(alpha: 0.5),
+            color: scheme.surface.withValues(alpha: 0.55),
           ),
         ),
         // Centered album art - handles both 1:1 and 16:9 thumbnails
@@ -330,9 +331,11 @@ class _HeaderBackground extends StatelessWidget {
                 end: Alignment.bottomCenter,
                 colors: [
                   Colors.transparent,
-                  Default_Theme.themeColor.withValues(alpha: 0.8),
-                  Default_Theme.themeColor,
+                  scheme.surface.withValues(alpha: 0.55),
+                  scheme.surface.withValues(alpha: 0.85),
+                  scheme.surface,
                 ],
+                stops: const [0.0, 0.45, 0.75, 1.0],
               ),
             ),
           ),

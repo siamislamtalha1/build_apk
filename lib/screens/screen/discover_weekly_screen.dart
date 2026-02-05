@@ -57,14 +57,14 @@ class _DiscoverWeeklyScreenState extends State<DiscoverWeeklyScreen> {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: Default_Theme.themeColor,
+      backgroundColor: scheme.surface,
       body: CustomScrollView(
         slivers: [
           // App Bar
           SliverAppBar(
             expandedHeight: 250,
             pinned: true,
-            backgroundColor: Default_Theme.themeColor,
+            backgroundColor: scheme.surface,
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 decoration: BoxDecoration(
@@ -73,7 +73,7 @@ class _DiscoverWeeklyScreenState extends State<DiscoverWeeklyScreen> {
                     end: Alignment.bottomRight,
                     colors: [
                       Default_Theme.accentColor2.withValues(alpha: 0.4),
-                      Default_Theme.themeColor,
+                      scheme.surface,
                     ],
                   ),
                 ),

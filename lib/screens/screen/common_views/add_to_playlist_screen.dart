@@ -118,15 +118,16 @@ class _AddToPlaylistScreenState extends State<AddToPlaylistScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: Default_Theme.themeColor,
+      backgroundColor: scheme.surface,
       appBar: AppBar(
-        backgroundColor: Default_Theme.themeColor,
-        surfaceTintColor: Default_Theme.themeColor,
+        backgroundColor: scheme.surface,
+        surfaceTintColor: scheme.surface,
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_rounded,
-            color: Default_Theme.primaryColor1,
+            color: scheme.onSurface,
           ),
           onPressed: () => context.pop(),
         ),
@@ -134,7 +135,7 @@ class _AddToPlaylistScreenState extends State<AddToPlaylistScreen> {
           'Add to Playlist',
           style: Default_Theme.secondoryTextStyleMedium.merge(
             TextStyle(
-              color: Default_Theme.primaryColor1,
+              color: scheme.onSurface,
               fontSize: 18,
             ),
           ),

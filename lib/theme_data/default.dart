@@ -43,8 +43,8 @@ class Default_Theme {
 
   ThemeData get defaultThemeData {
     const darkScheme = ColorScheme.dark(
-      primary: Color(0xFFFE385E),
-      secondary: Color(0xFF0EA5E0),
+      primary: Color(0xFF0EA5E0),
+      secondary: Color(0xFFFE385E),
       surface: Color(0xFF0A040C),
       surfaceContainerHighest: Color(0xFF1A111B),
       onPrimary: Color(0xFFDAEAF7),
@@ -72,7 +72,7 @@ class Default_Theme {
         },
       ),
       colorScheme: darkScheme.copyWith(
-        primary: accentColor2,
+        primary: accentColor1,
         secondary: accentColor2,
       ),
       iconTheme: IconThemeData(color: primaryColor1),
@@ -90,6 +90,16 @@ class Default_Theme {
       ),
       progressIndicatorTheme:
           const ProgressIndicatorThemeData(color: Color(0xFFFE385E)),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: darkScheme.surfaceContainerHighest,
+        contentTextStyle: TextStyle(color: darkScheme.onSurface),
+        actionTextColor: darkScheme.primary,
+        elevation: 0,
+        behavior: SnackBarBehavior.floating,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+        ),
+      ),
       textSelectionTheme: const TextSelectionThemeData(
         cursorColor: Color(0xFFFE385E),
         selectionColor: Color(0xFFFE385E),
@@ -130,10 +140,23 @@ class Default_Theme {
 
       // 🔹 Fix for cards and surfaces
       cardTheme: CardThemeData(
-        color: themeColor,
+        color: const Color(0xFF1A111B),
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        shape: RoundedRectangleBorder(
+          borderRadius: const BorderRadius.all(Radius.circular(16)),
+          side: BorderSide(
+            color: primaryColor1.withValues(alpha: 0.08),
+            width: 1,
+          ),
+        ),
+      ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: Color(0xFF1A111B),
         surfaceTintColor: Colors.transparent,
       ),
-      dialogTheme: DialogThemeData(backgroundColor: themeColor),
+      dialogTheme: const DialogThemeData(backgroundColor: Color(0xFF1A111B)),
     );
   }
 
@@ -190,6 +213,16 @@ class Default_Theme {
       ),
       progressIndicatorTheme:
           const ProgressIndicatorThemeData(color: lightAccentColor),
+      snackBarTheme: const SnackBarThemeData(
+        backgroundColor: lightSurfaceColor,
+        contentTextStyle: TextStyle(color: lightTextColor),
+        actionTextColor: lightAccentColor,
+        elevation: 0,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+        ),
+      ),
       textSelectionTheme: const TextSelectionThemeData(
         cursorColor: lightAccentColor,
         selectionColor: Color(0x4D007AFF), // lightAccentColor with alpha
@@ -231,8 +264,15 @@ class Default_Theme {
       cardTheme: const CardThemeData(
         color: lightSurfaceColor,
         surfaceTintColor: Colors.transparent,
-        elevation: 0, // Flat style
+        elevation: 0,
         margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+          side: BorderSide(
+            color: Color(0x1A000000),
+            width: 1,
+          ),
+        ),
       ),
       dialogTheme: const DialogThemeData(
         backgroundColor: lightSurfaceColor,

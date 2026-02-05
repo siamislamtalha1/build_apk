@@ -25,7 +25,7 @@ Future<List<String>?> _pickTargetLocalPlaylists(
     builder: (ctx) {
       return StatefulBuilder(builder: (ctx2, setState) {
         return AlertDialog(
-          backgroundColor: Default_Theme.themeColor,
+          backgroundColor: Theme.of(ctx).colorScheme.surface,
           title: Text(title),
           content: SizedBox(
             width: 420,
@@ -164,7 +164,7 @@ Future<void> _showRemotePlaylistDialog(
             context: ctx,
             builder: (dctx) {
               return AlertDialog(
-                backgroundColor: Default_Theme.themeColor,
+                backgroundColor: Theme.of(dctx).colorScheme.surface,
                 title: const Text('Import playlist as'),
                 content: TextField(
                   controller: nameController,
@@ -213,7 +213,7 @@ Future<void> _showRemotePlaylistDialog(
         }
 
         return AlertDialog(
-          backgroundColor: Default_Theme.themeColor,
+          backgroundColor: Theme.of(ctx).colorScheme.surface,
           title: Text(playlistName),
           content: SizedBox(
             width: 520,
@@ -399,7 +399,7 @@ Future<void> showCloudPlaylistImportDialog(BuildContext context) async {
           context: ctx,
           builder: (dctx) {
             return AlertDialog(
-              backgroundColor: Default_Theme.themeColor,
+              backgroundColor: Theme.of(dctx).colorScheme.surface,
               title: const Text('Import playlist as'),
               content: TextField(
                 controller: nameController,
@@ -452,7 +452,7 @@ Future<void> showCloudPlaylistImportDialog(BuildContext context) async {
 
       return StatefulBuilder(builder: (ctx2, setState) {
         return AlertDialog(
-          backgroundColor: Default_Theme.themeColor,
+          backgroundColor: Theme.of(ctx).colorScheme.surface,
           title: const Text('Import playlist'),
           content: SizedBox(
             width: 420,
