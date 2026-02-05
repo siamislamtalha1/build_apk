@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:async';
 import 'package:Bloomee/repository/Youtube/youtube_api.dart';
 import 'package:Bloomee/services/db/bloomee_db_service.dart';
 import 'package:bloc/bloc.dart';
@@ -8,12 +9,33 @@ part 'search_suggestion_state.dart';
 
 class SearchSuggestionBloc
     extends Bloc<SearchSuggestionEvent, SearchSuggestionState> {
+  Timer? _debounce;
+  String _latestQuery = '';
+
   SearchSuggestionBloc() : super(const SearchSuggestionLoading()) {
     on<SearchSuggestionFetch>((event, emit) async {
-      final res1 = await getPastSearches(event.query);
-      emit(SearchSuggestionLoaded(state.suggestionList, res1));
-      final res2 = await getOnlineSearchSuggestions(event.query);
-      emit(SearchSuggestionLoaded(res2, res1));
+      final q = event.query;
+      _latestQuery = q;
+
+      _debounce?.cancel();
+      _debounce = Timer(const Duration(milliseconds: 220), () async {
+        if (_latestQuery != q) return;
+
+        try {
+          final dbFuture = getPastSearches(q);
+          final onlineFuture = getOnlineSearchSuggestions(q);
+
+          final res1 = await dbFuture;
+          if (_latestQuery != q) return;
+          emit(SearchSuggestionLoaded(state.suggestionList, res1));
+
+          final res2 = await onlineFuture;
+          if (_latestQuery != q) return;
+          emit(SearchSuggestionLoaded(res2, res1));
+        } catch (e) {
+          // Keep previous state on suggestion errors
+        }
+      });
     });
 
     on<SearchSuggestionClear>((event, emit) async {
@@ -35,6 +57,12 @@ class SearchSuggestionBloc
         log("Error Clearing Search History: $e", name: "SearchSuggestionBloc");
       }
     });
+  }
+
+  @override
+  Future<void> close() {
+    _debounce?.cancel();
+    return super.close();
   }
 
   Future<List<String>> getOnlineSearchSuggestions(String query) async {

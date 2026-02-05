@@ -1,6 +1,5 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:Bloomee/theme_data/default.dart';
 import 'package:icons_plus/icons_plus.dart';
 
 // ignore: must_be_immutable
@@ -42,9 +41,10 @@ class _LikeBtnWidgetState extends State<LikeBtnWidget>
   }
 
   void _setupAnimation() {
+    final accent = Theme.of(context).colorScheme.primary;
     _colorAnimation = ColorTween(
-      begin: Default_Theme.accentColor2, // Pink (paused)
-      end: Default_Theme.accentColor1, // Sky Blue (playing)
+      begin: accent,
+      end: accent,
     ).animate(CurvedAnimation(
       parent: _colorController,
       curve: Curves.easeOutCubic,

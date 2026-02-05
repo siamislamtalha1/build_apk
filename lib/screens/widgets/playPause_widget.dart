@@ -43,17 +43,19 @@ class _PlayPauseButtonState extends State<PlayPauseButton>
   }
 
   void _setupAnimations() {
+    final accent = Theme.of(context).colorScheme.primary;
+
     _colorAnimation = ColorTween(
-      begin: Default_Theme.accentColor2, // Pink (paused)
-      end: Default_Theme.accentColor1, // Sky Blue (playing)
+      begin: accent,
+      end: accent,
     ).animate(CurvedAnimation(
       parent: _colorController,
       curve: Curves.easeOutCubic,
     ));
 
     _glowAnimation = ColorTween(
-      begin: Default_Theme.accentColor2.withOpacity(0.6),
-      end: Default_Theme.accentColor1.withOpacity(0.6),
+      begin: accent.withValues(alpha: 0.6),
+      end: accent.withValues(alpha: 0.6),
     ).animate(CurvedAnimation(
       parent: _colorController,
       curve: Curves.easeOutCubic,

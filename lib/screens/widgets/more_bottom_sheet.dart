@@ -40,30 +40,38 @@ void showMoreBottomSheet(
       context: context,
       isScrollControlled: true,
       enableDrag: true,
+      useSafeArea: true,
       builder: (sheetContext) {
         final scheme = Theme.of(sheetContext).colorScheme;
         final isDark = Theme.of(sheetContext).brightness == Brightness.dark;
-        return Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                isDark ? scheme.surfaceContainerHighest : scheme.surface,
-                scheme.surface,
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              stops: const [0.0, 1.0],
+        return SafeArea(
+          top: false,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  isDark ? scheme.surfaceContainerHighest : scheme.surface,
+                  scheme.surface,
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                stops: const [0.0, 1.0],
+              ),
+              borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+              border: Border.all(
+                color: scheme.onSurface.withValues(alpha: 0.10),
+                width: 1,
+              ),
             ),
-            borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(20), topRight: Radius.circular(20)),
-            border: Border.all(
-              color: scheme.onSurface.withValues(alpha: 0.10),
-              width: 1,
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
+            child: Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(sheetContext).padding.bottom,
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
               Padding(
                 padding: const EdgeInsets.only(
                     top: 12, bottom: 8, left: 5, right: 4),
@@ -408,7 +416,10 @@ void showMoreBottomSheet(
                   },
                 ),
               ),
-            ],
+                  ],
+                ),
+              ),
+            ),
           ),
         );
       });

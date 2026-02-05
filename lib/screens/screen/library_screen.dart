@@ -431,79 +431,81 @@ class _LibraryScreenViewState extends State<_LibraryScreenView> {
       shadowColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
-      title: Row(
-        children: [
-          FooterGlassPill(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Text(
-              "Library",
-              style: Default_Theme.primaryTextStyle.merge(
-                TextStyle(
-                  fontSize: 34,
-                  color: scheme.onSurface,
-                  fontWeight: FontWeight.w700,
+      toolbarHeight: kToolbarHeight + headerPillTopSpacing(context),
+      title: Padding(
+        padding: EdgeInsets.only(top: headerPillTopSpacing(context)),
+        child: Row(
+          children: [
+            HeaderGlassPill(
+              child: Text(
+                "Library",
+                style: Default_Theme.primaryTextStyle.merge(
+                  TextStyle(
+                    fontSize: 34,
+                    color: scheme.onSurface,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ),
-          ),
-          const Spacer(),
-          FooterGlassIconPill(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            children: [
-              IconButton(
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-                onPressed: () {
-                  if (_isSearching) {
-                    _closeSearch();
-                  } else {
-                    _openSearch();
-                  }
-                },
-                icon: Icon(
-                  _isSearching ? MingCute.close_fill : MingCute.search_line,
-                  size: 24,
-                  color:
-                      _isSearching ? scheme.primary : scheme.onSurface,
+            const Spacer(),
+            HeaderGlassIconPill(
+              children: [
+                IconButton(
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+                  onPressed: () {
+                    if (_isSearching) {
+                      _closeSearch();
+                    } else {
+                      _openSearch();
+                    }
+                  },
+                  icon: Icon(
+                    _isSearching ? MingCute.close_fill : MingCute.search_line,
+                    size: 24,
+                    color:
+                        _isSearching ? scheme.primary : scheme.onSurface,
+                  ),
                 ),
-              ),
-              IconButton(
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-                tooltip: 'Import playlist',
-                onPressed: () async {
-                  await showCloudPlaylistImportDialog(context);
-                },
-                icon: Icon(
-                  MingCute.download_2_line,
-                  size: 24,
-                  color: scheme.onSurface,
+                IconButton(
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+                  tooltip: 'Import playlist',
+                  onPressed: () async {
+                    await showCloudPlaylistImportDialog(context);
+                  },
+                  icon: Icon(
+                    MingCute.download_2_line,
+                    size: 24,
+                    color: scheme.onSurface,
+                  ),
                 ),
-              ),
-              IconButton(
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-                onPressed: () => createPlaylistBottomSheet(context),
-                icon: Icon(
-                  MingCute.add_fill,
-                  size: 25,
-                  color: scheme.onSurface,
+                IconButton(
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+                  onPressed: () => createPlaylistBottomSheet(context),
+                  icon: Icon(
+                    MingCute.add_fill,
+                    size: 25,
+                    color: scheme.onSurface,
+                  ),
                 ),
-              ),
-              IconButton(
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-                onPressed: () => context
-                    .pushNamed(GlobalStrConsts.ImportMediaFromPlatforms),
-                icon: Icon(
-                  FontAwesome.file_import_solid,
-                  size: 22,
-                  color: scheme.onSurface,
+                IconButton(
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+                  onPressed: () => context
+                      .pushNamed(GlobalStrConsts.ImportMediaFromPlatforms),
+                  icon: Icon(
+                    FontAwesome.file_import_solid,
+                    size: 24,
+                    color: scheme.onSurface,
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

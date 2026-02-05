@@ -112,6 +112,11 @@ class MainActivity : AudioServiceActivity() {
                         val title = call.argument<String>("title") ?: ""
                         val artist = call.argument<String>("artist") ?: ""
                         val isPlaying = call.argument<Boolean>("isPlaying") ?: false
+                        val artUrl = call.argument<String>("artUrl") ?: ""
+                        val source = call.argument<String>("source") ?: ""
+                        val positionMs = call.argument<Long>("positionMs") ?: 0L
+                        val durationMs = call.argument<Long>("durationMs") ?: 0L
+                        val isLiked = call.argument<Boolean>("isLiked") ?: false
 
                         try {
                             val prefs = getSharedPreferences("playback_widget", MODE_PRIVATE)
@@ -119,6 +124,13 @@ class MainActivity : AudioServiceActivity() {
                                 .putString("title", title)
                                 .putString("artist", artist)
                                 .putBoolean("isPlaying", isPlaying)
+                                .putString("artUrl", artUrl)
+                                .putString("source", source)
+                                .putLong("positionMs", positionMs)
+                                .putLong("positionAtUpdateMs", positionMs)
+                                .putLong("durationMs", durationMs)
+                                .putBoolean("isLiked", isLiked)
+                                .putLong("lastUpdatedAtMs", System.currentTimeMillis())
                                 .apply()
 
                             val mgr = AppWidgetManager.getInstance(this)
@@ -128,6 +140,9 @@ class MainActivity : AudioServiceActivity() {
                             if (ids.isNotEmpty()) {
                                 PlaybackWidgetProvider.updateAllWidgets(this)
                             }
+
+                            // Refresh widget progress periodically while playing
+                            PlaybackWidgetProvider.setAutoRefresh(this, isPlaying)
                             result.success(true)
                         } catch (e: Exception) {
                             result.success(false)

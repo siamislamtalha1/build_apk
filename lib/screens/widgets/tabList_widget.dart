@@ -16,6 +16,7 @@ class CategoryLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accent = Theme.of(context).colorScheme.primary;
     return SizedBox(
       width: 40,
       child: Padding(
@@ -28,7 +29,7 @@ class CategoryLabel extends StatelessWidget {
               category,
               style: Default_Theme.secondoryTextStyle.merge(
                 TextStyle(
-                  color: Default_Theme.accentColor2,
+                  color: accent,
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
                 ),

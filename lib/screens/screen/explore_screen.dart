@@ -246,38 +246,28 @@ class CustomDiscoverBar extends StatelessWidget {
       shadowColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          _DiscoverTitlePill(
-            child: Text(
-              "Discover",
-              style: Default_Theme.primaryTextStyle.merge(
-                TextStyle(
-                  fontSize: 34,
-                  color: scheme.onSurface,
+      toolbarHeight: kToolbarHeight + headerPillTopSpacing(context),
+      title: Padding(
+        padding: EdgeInsets.only(top: headerPillTopSpacing(context)),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            HeaderGlassPill(
+              child: Text(
+                "Discover",
+                style: Default_Theme.primaryTextStyle.merge(
+                  TextStyle(
+                    fontSize: 34,
+                    color: scheme.onSurface,
+                  ),
                 ),
               ),
             ),
-          ),
-          const Spacer(),
-          const _HeaderActionPill(),
-        ],
+            const Spacer(),
+            const _HeaderActionPill(),
+          ],
+        ),
       ),
-    );
-  }
-}
-
-class _DiscoverTitlePill extends StatelessWidget {
-  const _DiscoverTitlePill({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return FooterGlassPill(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: child,
     );
   }
 }
@@ -287,7 +277,7 @@ class _HeaderActionPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const FooterGlassIconPill(
+    return const HeaderGlassIconPill(
       children: [
         NotificationIcon(),
         SizedBox(width: 6),

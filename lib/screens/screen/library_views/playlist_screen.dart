@@ -94,8 +94,11 @@ class PlaylistView extends StatelessWidget {
                         SliverAppBar(
                           leadingWidth: 68,
                           leading: Padding(
-                            padding: const EdgeInsets.only(left: 8),
-                            child: FooterGlassIconPill(
+                            padding: EdgeInsets.only(
+                              left: 8,
+                              top: headerPillTopSpacing(context),
+                            ),
+                            child: HeaderGlassIconPill(
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 6, vertical: 6),
                               children: [
@@ -157,7 +160,7 @@ class PlaylistView extends StatelessWidget {
                               titlePadding: EdgeInsets.only(
                                   left: horizontalPadding,
                                   bottom: isCollapsed ? 16 : 10),
-                              title: FooterGlassPill(
+                              title: HeaderGlassPill(
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 14, vertical: 8),
                                 child: Text(
@@ -291,7 +294,7 @@ class PlaylistView extends StatelessWidget {
                                     Positioned(
                                       right: 8,
                                       top: headerPillTopPadding(context),
-                                      child: FooterGlassIconPill(
+                                      child: HeaderGlassIconPill(
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 10, vertical: 8),
                                         children: [

@@ -32,6 +32,7 @@ class _SearchFilterBottomSheetState extends State<SearchFilterBottomSheet> {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final accent = scheme.primary;
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
       child: BackdropFilter(
@@ -83,7 +84,7 @@ class _SearchFilterBottomSheetState extends State<SearchFilterBottomSheet> {
                   TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Default_Theme.accentColor2,
+                    color: accent,
                   ),
                 ),
               ),
@@ -131,7 +132,7 @@ class _SearchFilterBottomSheetState extends State<SearchFilterBottomSheet> {
                   TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Default_Theme.accentColor2,
+                    color: accent,
                   ),
                 ),
               ),
@@ -154,17 +155,17 @@ class _SearchFilterBottomSheetState extends State<SearchFilterBottomSheet> {
                     backgroundColor:
                         Default_Theme.primaryColor2.withValues(alpha: 0.1),
                     selectedColor:
-                        Default_Theme.accentColor2.withValues(alpha: 0.3),
+                        accent.withValues(alpha: 0.3),
                     labelStyle: TextStyle(
                       color: isSelected
-                          ? Default_Theme.accentColor2
+                          ? accent
                           : Default_Theme.primaryColor1,
                       fontWeight:
                           isSelected ? FontWeight.bold : FontWeight.normal,
                     ),
                     side: BorderSide(
                       color: isSelected
-                          ? Default_Theme.accentColor2
+                          ? accent
                           : scheme.onSurface.withValues(alpha: isDark ? 0.10 : 0.08),
                     ),
                   );
@@ -185,13 +186,13 @@ class _SearchFilterBottomSheetState extends State<SearchFilterBottomSheet> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: const Text('Please select at least one source'),
-                          backgroundColor: Default_Theme.accentColor2,
+                          backgroundColor: accent,
                         ),
                       );
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Default_Theme.accentColor2,
+                    backgroundColor: accent,
                     foregroundColor: Default_Theme.primaryColor1,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
@@ -232,15 +233,14 @@ class _SearchFilterBottomSheetState extends State<SearchFilterBottomSheet> {
             Icon(
               icon,
               color: Default_Theme.primaryColor1,
-              size: 20,
             ),
             const SizedBox(width: 12),
             Text(
               title,
-              style: Default_Theme.primaryTextStyle.merge(
+              style: Default_Theme.secondoryTextStyle.merge(
                 TextStyle(
-                  fontSize: 15,
                   color: Default_Theme.primaryColor1,
+                  fontSize: 15,
                 ),
               ),
             ),
@@ -248,8 +248,9 @@ class _SearchFilterBottomSheetState extends State<SearchFilterBottomSheet> {
         ),
         value: value,
         onChanged: onChanged,
-        activeThumbColor: Default_Theme.accentColor2,
-        activeTrackColor: Default_Theme.accentColor2.withValues(alpha: 0.3),
+        activeThumbColor: Theme.of(context).colorScheme.primary,
+        activeTrackColor:
+            Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
       ),
     );
   }

@@ -9,6 +9,12 @@ double headerPillTopPadding(BuildContext context, {double? spacing}) {
   return mq.padding.top + (spacing ?? dynamicSpacing);
 }
 
+double headerPillTopSpacing(BuildContext context) {
+  final mq = MediaQuery.of(context);
+  final shortestSide = mq.size.shortestSide;
+  return (shortestSide * 0.02).clamp(6.0, 14.0);
+}
+
 class GlassSurface extends StatelessWidget {
   final Widget child;
   final BorderRadius borderRadius;
@@ -56,6 +62,58 @@ class GlassSurface extends StatelessWidget {
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: sigmaX, sigmaY: sigmaY),
         child: content,
+      ),
+    );
+  }
+}
+
+class HeaderGlassPill extends StatelessWidget {
+  final Widget child;
+  final EdgeInsetsGeometry padding;
+  final double minHeight;
+
+  const HeaderGlassPill({
+    super.key,
+    required this.child,
+    this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    this.minHeight = 44,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return FooterGlassPill(
+      padding: EdgeInsets.zero,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(minHeight: minHeight),
+        child: Padding(
+          padding: padding,
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
+class HeaderGlassIconPill extends StatelessWidget {
+  final List<Widget> children;
+  final EdgeInsetsGeometry padding;
+  final double minHeight;
+
+  const HeaderGlassIconPill({
+    super.key,
+    required this.children,
+    this.padding = const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+    this.minHeight = 44,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return HeaderGlassPill(
+      minHeight: minHeight,
+      padding: padding,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: children,
       ),
     );
   }

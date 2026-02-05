@@ -521,6 +521,7 @@ class _QueueInfoRow extends StatelessWidget {
       isScrollControlled: true,
       enableDrag: true,
       backgroundColor: Colors.transparent,
+      useSafeArea: true,
       builder: (sheetContext) {
         return StatefulBuilder(
           builder: (context, setState) {
@@ -540,6 +541,7 @@ class _QueueInfoRow extends StatelessWidget {
               final String? queueName = await showDialog<String>(
                 context: context,
                 builder: (dialogContext) {
+                  final accent = Theme.of(dialogContext).colorScheme.primary;
                   return GlassDialog(
                     title: const Text('Save Queue',
                         style: Default_Theme.secondoryTextStyleMedium),
@@ -554,10 +556,10 @@ class _QueueInfoRow extends StatelessWidget {
                           hintStyle: const TextStyle(color: Colors.grey),
                           enabledBorder: UnderlineInputBorder(
                               borderSide:
-                                  BorderSide(color: Default_Theme.accentColor2)),
+                                  BorderSide(color: accent)),
                           focusedBorder: UnderlineInputBorder(
                               borderSide:
-                                  BorderSide(color: Default_Theme.accentColor1)),
+                                  BorderSide(color: accent)),
                         ),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
@@ -574,7 +576,7 @@ class _QueueInfoRow extends StatelessWidget {
                       ),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Default_Theme.accentColor1,
+                          backgroundColor: accent,
                           foregroundColor: Default_Theme.primaryColor2,
                         ),
                         onPressed: () {
@@ -601,53 +603,57 @@ class _QueueInfoRow extends StatelessWidget {
               SnackbarService.showMessage('Queue cleared');
             }
 
-            return ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
-                child: Container(
-                  
-                  
-                  decoration: BoxDecoration(
-                    color: (Theme.of(context).brightness == Brightness.dark
-                            ? Colors.black
-                            : Theme.of(context).colorScheme.surface)
-                        .withValues(
-                            alpha: Theme.of(context).brightness == Brightness.dark
-                                ? 0.75
-                                : 0.90),
-                    borderRadius:
-                        const BorderRadius.vertical(top: Radius.circular(20)),
-                    border: Border(
-                      top: BorderSide(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withValues(alpha: 0.08),
-                        width: 0.5,
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(sheetContext).padding.bottom,
+              ),
+              child: ClipRRect(
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(20)),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: (Theme.of(context).brightness == Brightness.dark
+                              ? Colors.black
+                              : Theme.of(context).colorScheme.surface)
+                          .withValues(
+                              alpha:
+                                  Theme.of(context).brightness == Brightness.dark
+                                      ? 0.75
+                                      : 0.90),
+                      borderRadius:
+                          const BorderRadius.vertical(top: Radius.circular(20)),
+                      border: Border(
+                        top: BorderSide(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.08),
+                          width: 0.5,
+                        ),
                       ),
                     ),
-                  ),
-                  child: SafeArea(
-                    top: false,
-                    child: DraggableScrollableSheet(
-                      expand: false,
-                      initialChildSize: 0.7,
-                      minChildSize: 0.4,
-                      maxChildSize: 0.95,
-                      builder: (context, scrollController) {
-                        return Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 12),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      'Saved Queues',
-                                      style:
-                                          _UpNextStyles.legacyHeaderStyle(context),
+                    child: SafeArea(
+                      top: false,
+                      child: DraggableScrollableSheet(
+                        expand: false,
+                        initialChildSize: 0.7,
+                        minChildSize: 0.4,
+                        maxChildSize: 0.95,
+                        builder: (context, scrollController) {
+                          return Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 12),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        'Saved Queues',
+                                        style:
+                                            _UpNextStyles.legacyHeaderStyle(context),
                                     ),
                                   ),
                                   IconButton(
@@ -800,6 +806,7 @@ class _QueueInfoRow extends StatelessWidget {
                   ),
                 ),
               ),
+              ),
             );
           },
         );
@@ -814,9 +821,10 @@ class _QueueInfoRow extends StatelessWidget {
 
     final String? playlistName = await showDialog<String>(
       context: context,
-      builder: (context) {
+      builder: (dialogContext) {
+        final accent = Theme.of(dialogContext).colorScheme.primary;
         return GlassDialog(
-          title: const Text('Save Queue as Playlist',
+          title: const Text('Save as Playlist',
               style: Default_Theme.secondoryTextStyleMedium),
           content: Form(
             key: formKey,
@@ -828,9 +836,9 @@ class _QueueInfoRow extends StatelessWidget {
                 hintText: 'Playlist Name',
                 hintStyle: const TextStyle(color: Colors.grey),
                 enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Default_Theme.accentColor2)),
+                    borderSide: BorderSide(color: accent)),
                 focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Default_Theme.accentColor1)),
+                    borderSide: BorderSide(color: accent)),
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
@@ -842,17 +850,17 @@ class _QueueInfoRow extends StatelessWidget {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(dialogContext),
               child: const Text('Cancel'),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Default_Theme.accentColor1,
+                backgroundColor: accent,
                 foregroundColor: Default_Theme.primaryColor2,
               ),
               onPressed: () {
                 if (formKey.currentState!.validate()) {
-                  Navigator.pop(context, controller.text.trim());
+                  Navigator.pop(dialogContext, controller.text.trim());
                 }
               },
               child: const Text('Save'),

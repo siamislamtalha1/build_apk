@@ -7,7 +7,6 @@ import 'package:Bloomee/screens/screen/library_views/playlist_edit_view.dart';
 import 'package:Bloomee/screens/widgets/snackbar.dart';
 import 'package:Bloomee/services/db/GlobalDB.dart';
 import 'package:Bloomee/services/db/bloomee_db_service.dart';
-import 'package:Bloomee/screens/screen/library_views/cubit/current_playlist_cubit.dart';
 import 'package:Bloomee/blocs/auth/auth_cubit.dart';
 import 'package:Bloomee/theme_data/default.dart';
 import 'package:Bloomee/services/import_export_service.dart';
@@ -29,265 +28,219 @@ void showPlaylistOptsInrSheet(
     builder: (context) {
       final scheme = Theme.of(context).colorScheme;
       final isDark = Theme.of(context).brightness == Brightness.dark;
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  isDark ? scheme.surfaceContainerHighest : scheme.surface,
-                  scheme.surface,
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                stops: const [0.0, 1.0],
-              ),
-              borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(20), topRight: Radius.circular(20)),
-              border: Border.all(
-                color: scheme.onSurface.withValues(alpha: 0.10),
-                width: 1,
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  PltOptBtn(
-                    title: "Toggle Public/Private",
-                    icon: MingCute.lock_line,
-                    onPressed: () async {
-                      Navigator.pop(context);
-                      final auth = context.read<AuthCubit>();
-                      final user = auth.currentUser;
-                      if (user == null || user.isAnonymous) {
-                        SnackbarService.showMessage(
-                            'Login required to change visibility');
-                        return;
-                      }
-                      final fs = FirestoreService();
-                      try {
-                        final header = await fs.getPlaylistHeaderFromCloud(
-                            user.uid, mediaPlaylist.playlistName);
-                        final cur = header?['isPublic'] == true;
-                        await fs.setPlaylistVisibility(
-                          userId: user.uid,
-                          playlistName: mediaPlaylist.playlistName,
-                          isPublic: !cur,
-                        );
-                        SnackbarService.showMessage(!cur
-                            ? 'Playlist is now Public'
-                            : 'Playlist is now Private');
-                      } catch (e) {
-                        SnackbarService.showMessage('Failed: $e');
-                      }
-                    },
-                  ),
-                  PltOptBtn(
-                    title: "Share Link",
-                    icon: MingCute.link_2_line,
-                    onPressed: () async {
-                      Navigator.pop(context);
-                      final auth = context.read<AuthCubit>();
-                      final user = auth.currentUser;
-                      if (user == null || user.isAnonymous) {
-                        SnackbarService.showMessage(
-                            'Login required to create share link');
-                        return;
-                      }
-                      final fs = FirestoreService();
-                      try {
-                        await fs.setPlaylistVisibility(
-                          userId: user.uid,
-                          playlistName: mediaPlaylist.playlistName,
-                          isPublic: true,
-                        );
-                        final shareId = await fs.ensurePlaylistShareId(
-                          userId: user.uid,
-                          playlistName: mediaPlaylist.playlistName,
-                        );
-                        final url = fs.buildPlaylistShareUrl(shareId);
-                        await Clipboard.setData(ClipboardData(text: url));
-                        SnackbarService.showMessage('Link copied to clipboard');
-                      } catch (e) {
-                        SnackbarService.showMessage('Failed: $e');
-                      }
-                    },
-                  ),
-                  PltOptBtn(
-                    title: "Rename Playlist",
-                    icon: MingCute.edit_line,
-                    onPressed: () async {
-                      Navigator.pop(context);
-                      final controller = TextEditingController(
-                          text: mediaPlaylist.playlistName);
-                      final newName = await showDialog<String>(
-                        context: context,
-                        builder: (ctx) {
-                          return GlassDialog(
-                            title: const Text('Rename playlist'),
-                            content: TextField(
-                              controller: controller,
-                              autofocus: true,
-                              decoration: const InputDecoration(
-                                hintText: 'New playlist name',
-                              ),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(ctx),
-                                child: const Text('Cancel'),
-                              ),
-                              ElevatedButton(
-                                onPressed: () =>
-                                    Navigator.pop(ctx, controller.text),
-                                child: const Text('Rename'),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-
-                      final next = newName?.trim() ?? '';
-                      if (next.isEmpty || next.length < 3) {
-                        SnackbarService.showMessage(
-                            'Playlist name must be at least 3 characters');
-                        return;
-                      }
-
-                      final ok = await context
-                          .read<CurrentPlaylistCubit>()
-                          .renamePlaylist(next);
-                      if (ok) {
-                        SnackbarService.showMessage('Playlist renamed');
-                      } else {
-                        SnackbarService.showMessage(
-                            'Rename failed (name may already exist)');
-                      }
-                    },
-                  ),
-                  PltOptBtn(
-                    title: "Duplicate Playlist",
-                    icon: MingCute.copy_2_line,
-                    onPressed: () async {
-                      Navigator.pop(context);
-                      final suggested =
-                          await BloomeeDBService.generateUniquePlaylistName(
-                              '${mediaPlaylist.playlistName} Copy');
-                      final controller = TextEditingController(text: suggested);
-                      final name = await showDialog<String>(
-                        context: context,
-                        builder: (ctx) {
-                          return GlassDialog(
-                            title: const Text('Duplicate playlist'),
-                            content: TextField(
-                              controller: controller,
-                              autofocus: true,
-                              decoration: const InputDecoration(
-                                hintText: 'New playlist name',
-                              ),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(ctx),
-                                child: const Text('Cancel'),
-                              ),
-                              ElevatedButton(
-                                onPressed: () =>
-                                    Navigator.pop(ctx, controller.text),
-                                child: const Text('Duplicate'),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                      final next = name?.trim() ?? '';
-                      if (next.isEmpty || next.length < 3) {
-                        SnackbarService.showMessage(
-                            'Playlist name must be at least 3 characters');
-                        return;
-                      }
-                      final res = await BloomeeDBService.duplicatePlaylist(
-                        mediaPlaylist.playlistName,
-                        newPlaylistName: next,
-                      );
-                      if (res != null) {
-                        SnackbarService.showMessage('Playlist duplicated');
-                      } else {
-                        SnackbarService.showMessage(
-                            'Duplicate failed (name may already exist)');
-                      }
-                    },
-                  ),
-                  PltOptBtn(
-                    title: "Edit Playlist",
-                    icon: MingCute.edit_2_line,
-                    onPressed: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const PlaylistEditView()));
-                      // context.go(GlobalStrConsts.editPlaylistScreen,
-                      //     params: {'playlistName': mediaPlaylist.playlistName});
-                    },
-                  ),
-                  // PltOptBtn(
-                  //   title: "Sync Playlist",
-                  //   icon: MingCute.refresh_1_line,
-                  //   onPressed: () {
-                  //     Navigator.pop(context);
-                  //     SnackbarService.showMessage(
-                  //         "Syncing ${mediaPlaylist.playlistName}");
-                  //     // context.go(GlobalStrConsts.syncPlaylistScreen,
-                  //     //     params: {'playlistName': mediaPlaylist.playlistName});
-                  //   },
-                  // ),
-                  PltOptBtn(
-                    icon: MingCute.share_2_line,
-                    title: "Share file",
-                    onPressed: () async {
-                      Navigator.pop(context);
-                      SnackbarService.showMessage(
-                          "Preparing ${mediaPlaylist.playlistName} for share");
-                      final tmpPath = await ImportExportService.exportPlaylist(
-                          mediaPlaylist.playlistName);
-                      tmpPath != null
-                          ? SharePlus.instance
-                              .share(ShareParams(files: [XFile(tmpPath)]))
-                          : null;
-                    },
-                  ),
-                  if (!Platform.isAndroid)
-                    PltOptBtn(
-                      icon: MingCute.file_export_line,
-                      title: "Export File",
-                      onPressed: () async {
-                        Navigator.pop(context);
-                        String? path =
-                            await FilePicker.platform.getDirectoryPath();
-                        if (path == null || path == "/") {
-                          path =
-                              (await getDownloadsDirectory())?.path.toString();
-                        }
-                        SnackbarService.showMessage(
-                            "Preparing ${mediaPlaylist.playlistName} for export.");
-                        final tmpPath =
-                            await ImportExportService.exportPlaylist(
-                          mediaPlaylist.playlistName,
-                          filePath: path,
-                        );
-                        SnackbarService.showMessage("Exported to: $tmpPath");
-                      },
+      return SafeArea(
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).padding.bottom,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        isDark
+                            ? scheme.surfaceContainerHighest
+                            : scheme.surface,
+                        scheme.surface,
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      stops: const [0.0, 1.0],
                     ),
-                ],
-              ),
+                    borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20)),
+                    border: Border.all(
+                      color: scheme.onSurface.withValues(alpha: 0.10),
+                      width: 1,
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        PltOptBtn(
+                          title: "Toggle Public/Private",
+                          icon: MingCute.lock_line,
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            final auth = context.read<AuthCubit>();
+                            final user = auth.currentUser;
+                            if (user == null || user.isAnonymous) {
+                              SnackbarService.showMessage(
+                                  'Login required to change visibility');
+                              return;
+                            }
+                            final fs = FirestoreService();
+                            try {
+                              final header = await fs.getPlaylistHeaderFromCloud(
+                                  user.uid, mediaPlaylist.playlistName);
+                              final cur = header?['isPublic'] == true;
+                              await fs.setPlaylistVisibility(
+                                userId: user.uid,
+                                playlistName: mediaPlaylist.playlistName,
+                                isPublic: !cur,
+                              );
+                              SnackbarService.showMessage(!cur
+                                  ? 'Playlist is now Public'
+                                  : 'Playlist is now Private');
+                            } catch (e) {
+                              SnackbarService.showMessage('Failed: $e');
+                            }
+                          },
+                        ),
+                        PltOptBtn(
+                          title: "Share Link",
+                          icon: MingCute.link_2_line,
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            final auth = context.read<AuthCubit>();
+                            final user = auth.currentUser;
+                            if (user == null || user.isAnonymous) {
+                              SnackbarService.showMessage(
+                                  'Login required to create share link');
+                              return;
+                            }
+                            final fs = FirestoreService();
+                            try {
+                              await fs.setPlaylistVisibility(
+                                userId: user.uid,
+                                playlistName: mediaPlaylist.playlistName,
+                                isPublic: true,
+                              );
+                              final shareId = await fs.ensurePlaylistShareId(
+                                userId: user.uid,
+                                playlistName: mediaPlaylist.playlistName,
+                              );
+                              final url = fs.buildPlaylistShareUrl(shareId);
+                              await Clipboard.setData(ClipboardData(text: url));
+                              SnackbarService.showMessage(
+                                  'Link copied to clipboard');
+                            } catch (e) {
+                              SnackbarService.showMessage('Failed: $e');
+                            }
+                          },
+                        ),
+                        PltOptBtn(
+                          title: "Duplicate Playlist",
+                          icon: MingCute.copy_2_line,
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            final suggested =
+                                await BloomeeDBService.generateUniquePlaylistName(
+                                    '${mediaPlaylist.playlistName} Copy');
+                            final controller =
+                                TextEditingController(text: suggested);
+                            final name = await showDialog<String>(
+                              context: context,
+                              builder: (ctx) {
+                                return GlassDialog(
+                                  title: const Text('Duplicate playlist'),
+                                  content: TextField(
+                                    controller: controller,
+                                    autofocus: true,
+                                    decoration: const InputDecoration(
+                                      hintText: 'New playlist name',
+                                    ),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(ctx),
+                                      child: const Text('Cancel'),
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () =>
+                                          Navigator.pop(ctx, controller.text),
+                                      child: const Text('Duplicate'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+
+                            final next = name?.trim() ?? '';
+                            if (next.isEmpty || next.length < 3) {
+                              SnackbarService.showMessage(
+                                  'Playlist name must be at least 3 characters');
+                              return;
+                            }
+                            final res = await BloomeeDBService.duplicatePlaylist(
+                              mediaPlaylist.playlistName,
+                              newPlaylistName: next,
+                            );
+                            if (res != null) {
+                              SnackbarService.showMessage('Playlist duplicated');
+                            } else {
+                              SnackbarService.showMessage(
+                                  'Duplicate failed (name may already exist)');
+                            }
+                          },
+                        ),
+                        PltOptBtn(
+                          title: "Edit Playlist",
+                          icon: MingCute.edit_2_line,
+                          onPressed: () {
+                            Navigator.pop(context);
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const PlaylistEditView()));
+                          },
+                        ),
+                        PltOptBtn(
+                          icon: MingCute.share_2_line,
+                          title: "Share file",
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            SnackbarService.showMessage(
+                                "Preparing ${mediaPlaylist.playlistName} for share");
+                            final tmpPath =
+                                await ImportExportService.exportPlaylist(
+                                    mediaPlaylist.playlistName);
+                            tmpPath != null
+                                ? SharePlus.instance
+                                    .share(ShareParams(files: [XFile(tmpPath)]))
+                                : null;
+                          },
+                        ),
+                        if (!Platform.isAndroid)
+                          PltOptBtn(
+                            icon: MingCute.file_export_line,
+                            title: "Export File",
+                            onPressed: () async {
+                              Navigator.pop(context);
+                              String? path =
+                                  await FilePicker.platform.getDirectoryPath();
+                              if (path == null || path == "/") {
+                                path = (await getDownloadsDirectory())
+                                    ?.path
+                                    .toString();
+                              }
+                              SnackbarService.showMessage(
+                                  "Preparing ${mediaPlaylist.playlistName} for export.");
+                              final tmpPath =
+                                  await ImportExportService.exportPlaylist(
+                                mediaPlaylist.playlistName,
+                                filePath: path,
+                              );
+                              SnackbarService.showMessage("Exported to: $tmpPath");
+                            },
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-          )
-        ],
+          ),
+        ),
       );
     },
   );
@@ -299,33 +252,43 @@ void showPlaylistOptsExtSheet(BuildContext context, String playlistName) {
     builder: (context) {
       final scheme = Theme.of(context).colorScheme;
       final isDark = Theme.of(context).brightness == Brightness.dark;
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  isDark ? scheme.surfaceContainerHighest : scheme.surface,
-                  scheme.surface,
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                stops: const [0.0, 1.0],
-              ),
-              borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(20), topRight: Radius.circular(20)),
-              border: Border.all(
-                color: scheme.onSurface.withValues(alpha: 0.10),
-                width: 1,
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
+      return SafeArea(
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).padding.bottom,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        isDark
+                            ? scheme.surfaceContainerHighest
+                            : scheme.surface,
+                        scheme.surface,
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      stops: const [0.0, 1.0],
+                    ),
+                    borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20)),
+                    border: Border.all(
+                      color: scheme.onSurface.withValues(alpha: 0.10),
+                      width: 1,
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
                   PltOptBtn(
                     icon: MingCute.play_circle_fill,
                     title: "Play",
@@ -411,11 +374,14 @@ void showPlaylistOptsExtSheet(BuildContext context, String playlistName) {
                           MediaPlaylistDB(playlistName: playlistName));
                     },
                   ),
-                ],
-              ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
+        ),
       );
     },
   );

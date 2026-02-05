@@ -143,6 +143,11 @@ class FetchSearchResultsCubit extends Cubit<FetchSearchResultsState> {
     YTMusic();
   }
 
+  int _activeSearchToken = 0;
+
+  final Map<String, Map<String, List<dynamic>>> _unifiedCache =
+      <String, Map<String, List<dynamic>>>{};
+
   LastSearch last_YTM_search =
       LastSearch(query: "", sourceEngine: SourceEngine.eng_YTM);
   LastSearch last_YTV_search =
@@ -417,6 +422,26 @@ class FetchSearchResultsCubit extends Cubit<FetchSearchResultsState> {
   }) async {
     if (query.isEmpty) return;
 
+    final cacheKey =
+        '${query.toLowerCase()}|${resultType.name}|${(filter?.includeJioSaavn ?? true) ? 1 : 0}${(filter?.includeYTMusic ?? true) ? 1 : 0}${(filter?.includeYTVideo ?? true) ? 1 : 0}';
+    final cached = _unifiedCache[cacheKey];
+    if (cached != null) {
+      emit(state.copyWith(
+        loadingState: LoadingState.loaded,
+        hasReachedMax: true,
+        resultType: resultType,
+        sourceEngine: null,
+        mediaItems: (cached['songs'] as List?)?.cast<MediaItemModel>() ?? const [],
+        albumItems: (cached['albums'] as List?)?.cast<AlbumModel>() ?? const [],
+        playlistItems:
+            (cached['playlists'] as List?)?.cast<PlaylistOnlModel>() ?? const [],
+        artistItems: (cached['artists'] as List?)?.cast<ArtistModel>() ?? const [],
+      ));
+      return;
+    }
+
+    final token = ++_activeSearchToken;
+
     log("Unified Search across all sources with filter: ${filter?.includeJioSaavn}, ${filter?.includeYTMusic}, ${filter?.includeYTVideo}",
         name: "FetchSearchRes");
     emit(FetchSearchResultsLoading(resultType: resultType));
@@ -429,90 +454,120 @@ class FetchSearchResultsCubit extends Cubit<FetchSearchResultsState> {
         'artists': <ArtistModel>[],
       };
 
-      // Search all sources concurrently based on filter
-      final results = await Future.wait([
-        (filter?.includeJioSaavn ?? true)
-            ? _searchJISWithFallback(query, resultType)
-            : Future.value(emptyResults),
-        (filter?.includeYTMusic ?? true)
-            ? _searchYTMWithFallback(query, resultType)
-            : Future.value(emptyResults),
-        (filter?.includeYTVideo ?? true)
-            ? _searchYTVWithFallback(query, resultType)
-            : Future.value(emptyResults),
-      ]);
+      final jisFuture = (filter?.includeJioSaavn ?? true)
+          ? _searchJISWithFallback(query, resultType)
+          : Future.value(emptyResults);
+      final ytmFuture = (filter?.includeYTMusic ?? true)
+          ? _searchYTMWithFallback(query, resultType)
+          : Future.value(emptyResults);
+      final ytvFuture = (filter?.includeYTVideo ?? true)
+          ? _searchYTVWithFallback(query, resultType)
+          : Future.value(emptyResults);
 
-      final jisResults = results[0];
-      final ytmResults = results[1];
-      final ytvResults = results[2];
+      Map<String, List<dynamic>> jisResults =
+          emptyResults.map((k, v) => MapEntry(k, List<dynamic>.from(v)));
+      Map<String, List<dynamic>> ytmResults =
+          emptyResults.map((k, v) => MapEntry(k, List<dynamic>.from(v)));
+      Map<String, List<dynamic>> ytvResults =
+          emptyResults.map((k, v) => MapEntry(k, List<dynamic>.from(v)));
 
-      switch (resultType) {
-        case ResultTypes.songs:
-          // Apply intelligent interleaving for better diversity
-          final allSongs = _intelligentInterleave(
-            jisResults['songs'] as List<MediaItemModel>,
-            ytmResults['songs'] as List<MediaItemModel>,
-            ytvResults['songs'] as List<MediaItemModel>,
-          );
-
-          emit(state.copyWith(
-            mediaItems: allSongs,
-            loadingState: LoadingState.loaded,
-            hasReachedMax: true,
-            resultType: ResultTypes.songs,
-            sourceEngine: null, // No specific source for unified search
-          ));
-
-          log("Unified search complete: ${allSongs.length} songs (intelligently interleaved)",
-              name: "FetchSearchRes");
-          break;
-
-        case ResultTypes.albums:
-          final allAlbums = <AlbumModel>[
-            ...jisResults['albums'] as List<AlbumModel>,
-            ...ytmResults['albums'] as List<AlbumModel>,
-          ];
-
-          emit(state.copyWith(
-            albumItems: allAlbums,
-            loadingState: LoadingState.loaded,
-            hasReachedMax: true,
-            resultType: ResultTypes.albums,
-            sourceEngine: null,
-          ));
-          break;
-
-        case ResultTypes.playlists:
-          final allPlaylists = <PlaylistOnlModel>[
-            ...jisResults['playlists'] as List<PlaylistOnlModel>,
-            ...ytmResults['playlists'] as List<PlaylistOnlModel>,
-            ...ytvResults['playlists'] as List<PlaylistOnlModel>,
-          ];
-
-          emit(state.copyWith(
-            playlistItems: allPlaylists,
-            loadingState: LoadingState.loaded,
-            hasReachedMax: true,
-            resultType: ResultTypes.playlists,
-            sourceEngine: null,
-          ));
-          break;
-
-        case ResultTypes.artists:
-          final allArtists = <ArtistModel>[
-            ...jisResults['artists'] as List<ArtistModel>,
-            ...ytmResults['artists'] as List<ArtistModel>,
-          ];
-
-          emit(state.copyWith(
-            artistItems: allArtists,
-            loadingState: LoadingState.loaded,
-            hasReachedMax: true,
-            resultType: ResultTypes.artists,
-            sourceEngine: null,
-          ));
-          break;
+      void emitProgress() {
+        if (_activeSearchToken != token) return;
+        switch (resultType) {
+          case ResultTypes.songs:
+            final allSongs = _intelligentInterleave(
+              jisResults['songs']!.cast<MediaItemModel>(),
+              ytmResults['songs']!.cast<MediaItemModel>(),
+              ytvResults['songs']!.cast<MediaItemModel>(),
+            );
+            emit(state.copyWith(
+              mediaItems: allSongs,
+              loadingState: LoadingState.loaded,
+              hasReachedMax: true,
+              resultType: ResultTypes.songs,
+              sourceEngine: null,
+            ));
+            break;
+          case ResultTypes.albums:
+            emit(state.copyWith(
+              albumItems: <AlbumModel>[
+                ...jisResults['albums']!.cast<AlbumModel>(),
+                ...ytmResults['albums']!.cast<AlbumModel>(),
+              ],
+              loadingState: LoadingState.loaded,
+              hasReachedMax: true,
+              resultType: ResultTypes.albums,
+              sourceEngine: null,
+            ));
+            break;
+          case ResultTypes.playlists:
+            emit(state.copyWith(
+              playlistItems: <PlaylistOnlModel>[
+                ...jisResults['playlists']!.cast<PlaylistOnlModel>(),
+                ...ytmResults['playlists']!.cast<PlaylistOnlModel>(),
+                ...ytvResults['playlists']!.cast<PlaylistOnlModel>(),
+              ],
+              loadingState: LoadingState.loaded,
+              hasReachedMax: true,
+              resultType: ResultTypes.playlists,
+              sourceEngine: null,
+            ));
+            break;
+          case ResultTypes.artists:
+            emit(state.copyWith(
+              artistItems: <ArtistModel>[
+                ...jisResults['artists']!.cast<ArtistModel>(),
+                ...ytmResults['artists']!.cast<ArtistModel>(),
+              ],
+              loadingState: LoadingState.loaded,
+              hasReachedMax: true,
+              resultType: ResultTypes.artists,
+              sourceEngine: null,
+            ));
+            break;
+        }
       }
+
+      jisFuture.then((res) {
+        if (_activeSearchToken != token) return;
+        jisResults = res;
+        emitProgress();
+      });
+      ytmFuture.then((res) {
+        if (_activeSearchToken != token) return;
+        ytmResults = res;
+        emitProgress();
+      });
+      ytvFuture.then((res) {
+        if (_activeSearchToken != token) return;
+        ytvResults = res;
+        emitProgress();
+      });
+
+      await Future.wait([jisFuture, ytmFuture, ytvFuture]);
+      if (_activeSearchToken != token) return;
+
+      final cacheValue = <String, List<dynamic>>{
+        'songs': <MediaItemModel>[
+          ...jisResults['songs']!.cast<MediaItemModel>(),
+          ...ytmResults['songs']!.cast<MediaItemModel>(),
+          ...ytvResults['songs']!.cast<MediaItemModel>(),
+        ],
+        'albums': <AlbumModel>[
+          ...jisResults['albums']!.cast<AlbumModel>(),
+          ...ytmResults['albums']!.cast<AlbumModel>(),
+        ],
+        'playlists': <PlaylistOnlModel>[
+          ...jisResults['playlists']!.cast<PlaylistOnlModel>(),
+          ...ytmResults['playlists']!.cast<PlaylistOnlModel>(),
+          ...ytvResults['playlists']!.cast<PlaylistOnlModel>(),
+        ],
+        'artists': <ArtistModel>[
+          ...jisResults['artists']!.cast<ArtistModel>(),
+          ...ytmResults['artists']!.cast<ArtistModel>(),
+        ],
+      };
+      _unifiedCache[cacheKey] = cacheValue;
     } catch (e) {
       log("Unified search error: $e", name: "FetchSearchRes");
       emit(state.copyWith(

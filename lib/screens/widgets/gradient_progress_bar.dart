@@ -200,7 +200,7 @@ class GradientProgressBar extends StatefulWidget {
     this.buffered = Duration.zero,
     this.onSeek,
     this.activeGradientColors = const [Color(0xFFFF6B8B), Color(0xFFFF2E63)],
-    this.inactiveGradientColors = const [Colors.white, Color(0xFF0EA5E0)],
+    this.inactiveGradientColors = const [Colors.white, Color(0xFFBDBDBD)],
     this.isPlaying = true,
     this.trackHeight = 6.0,
     this.thumbRadius = 8.0,

@@ -13,6 +13,7 @@ class SearchPageDelegate extends SearchDelegate {
   List<String> searchList = [];
   ResultTypes resultType = ResultTypes.songs;
   SearchFilter? filter;
+  String _lastSuggestionQuery = '';
   SearchPageDelegate(
     this.resultType, {
     this.filter,
@@ -105,7 +106,10 @@ class SearchPageDelegate extends SearchDelegate {
   @override
   Widget buildSuggestions(BuildContext context) {
     // final List<String> suggestionList = [];
-    context.read<SearchSuggestionBloc>().add(SearchSuggestionFetch(query));
+    if (query != _lastSuggestionQuery) {
+      _lastSuggestionQuery = query;
+      context.read<SearchSuggestionBloc>().add(SearchSuggestionFetch(query));
+    }
 
     final scheme = Theme.of(context).colorScheme;
 

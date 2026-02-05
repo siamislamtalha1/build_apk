@@ -1,4 +1,3 @@
-import 'package:Bloomee/theme_data/default.dart';
 import 'package:flutter/material.dart';
 
 class ToggleButton extends StatefulWidget {
@@ -60,6 +59,7 @@ class ToggleButtonState extends State<ToggleButton>
 
   @override
   Widget build(BuildContext context) {
+    final accent = Theme.of(context).colorScheme.primary;
     return GestureDetector(
       onTap: () {
         updateState(!_isActive);
@@ -73,13 +73,13 @@ class ToggleButtonState extends State<ToggleButton>
             vertical: 4, horizontal: 8), // Reduced padding for responsiveness
         decoration: BoxDecoration(
           color: _isActive
-              ? Default_Theme.accentColor2
+              ? accent
               : Colors.grey[900], // Pink for active, dark grey for inactive
           borderRadius: BorderRadius.circular(
               20), // More rounded corners like in the image
           border: Border.all(
             color: _isActive
-                ? Default_Theme.accentColor2
+                ? accent
                 : Colors.grey[700]!, // Match border color in inactive state
             width: 2,
           ),

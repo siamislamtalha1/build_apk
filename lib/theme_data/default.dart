@@ -26,8 +26,8 @@ class Default_Theme {
       themeColor = const Color(0xFF0A040C);
       primaryColor1 = const Color(0xFFDAEAF7);
       primaryColor2 = const Color.fromARGB(255, 242, 231, 240);
-      accentColor1 = const Color(0xFF0EA5E0);
-      accentColor1light = const Color(0xFF18C9ED);
+      accentColor1 = const Color(0xFFFE385E);
+      accentColor1light = const Color(0xFFFE385E);
       accentColor2 = const Color(0xFFFE385E);
       successColor = const Color(0xFF5EFF43);
     } else {
@@ -36,14 +36,14 @@ class Default_Theme {
       primaryColor2 = const Color(0xFF3C3C43);
       accentColor1 = const Color(0xFF007AFF);
       accentColor1light = const Color(0xFF007AFF);
-      accentColor2 = const Color(0xFFFF2D55);
+      accentColor2 = const Color(0xFF007AFF);
       successColor = const Color(0xFF34C759);
     }
   }
 
   ThemeData get defaultThemeData {
     const darkScheme = ColorScheme.dark(
-      primary: Color(0xFF0EA5E0),
+      primary: Color(0xFFFE385E),
       secondary: Color(0xFFFE385E),
       surface: Color(0xFF0A040C),
       surfaceContainerHighest: Color(0xFF1A111B),
@@ -72,7 +72,7 @@ class Default_Theme {
         },
       ),
       colorScheme: darkScheme.copyWith(
-        primary: accentColor1,
+        primary: accentColor2,
         secondary: accentColor2,
       ),
       iconTheme: IconThemeData(color: primaryColor1),
@@ -95,7 +95,7 @@ class Default_Theme {
       snackBarTheme: SnackBarThemeData(
         backgroundColor: darkScheme.surfaceContainerHighest,
         contentTextStyle: TextStyle(color: darkScheme.onSurface),
-        actionTextColor: darkScheme.primary,
+        actionTextColor: accentColor2,
         elevation: 0,
         behavior: SnackBarBehavior.floating,
         shape: const RoundedRectangleBorder(
@@ -112,11 +112,11 @@ class Default_Theme {
         thumbColor: WidgetStatePropertyAll(primaryColor1),
         trackOutlineColor: WidgetStateProperty.resolveWith((states) =>
             states.contains(WidgetState.selected)
-                ? accentColor1
+                ? accentColor2
                 : accentColor2),
         trackColor: WidgetStateProperty.resolveWith((states) =>
             states.contains(WidgetState.selected)
-                ? accentColor1
+                ? accentColor2
                 : primaryColor2.withValues(alpha: 0.0)),
       ),
       searchBarTheme: SearchBarThemeData(
@@ -175,7 +175,7 @@ class Default_Theme {
     const lightTextColor = Color(0xFF000000);
     const lightSecondaryTextColor = Color(0xFF3C3C43); // iOS Label Secondary
     const lightAccentColor = Color(0xFF007AFF); // iOS Blue
-    const lightSecondaryColor = Color(0xFFFF2D55); // iOS Pink
+    const lightSecondaryColor = Color(0xFF007AFF); // iOS Blue
 
     const lightScheme = ColorScheme.light(
       primary: lightAccentColor,

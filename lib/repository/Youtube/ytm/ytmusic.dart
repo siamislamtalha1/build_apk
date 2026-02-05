@@ -301,7 +301,6 @@ class YTMusic extends YTMusicServices
             "perma_url": "https://music.youtube.com/watch?v=${item["videoId"]}",
             "subtitle": item["subtitle"],
           });
-          log(songs[0]["duration"].toString());
         } catch (e) {
           log(e.toString(), name: "YTMusic");
         }

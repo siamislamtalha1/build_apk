@@ -47,13 +47,12 @@ class SquareImgCard extends StatelessWidget {
                 Visibility(
                   visible: tag != null,
                   child: Positioned(
-                    top: 0,
-                    right: 0,
+                    bottom: 0,
+                    left: 0,
                     child: Container(
                       padding: const EdgeInsets.all(5),
                       decoration: BoxDecoration(
-                        color:
-                            Default_Theme.accentColor2.withValues(alpha: 0.95),
+                        color: scheme.primary.withValues(alpha: 0.95),
                         borderRadius: const BorderRadius.only(
                           bottomLeft: Radius.circular(15),
                         ),
@@ -113,6 +112,7 @@ class SquareImgCard extends StatelessWidget {
                 ),
               ]),
             ),
+            const SizedBox(height: 6),
             Text(
               title,
               textAlign: TextAlign.center,
@@ -124,6 +124,7 @@ class SquareImgCard extends StatelessWidget {
                   color: scheme.onSurface,
                   height: 1.0)),
             ),
+            const SizedBox(height: 2),
             Text(
               subtitle,
               maxLines: 1,

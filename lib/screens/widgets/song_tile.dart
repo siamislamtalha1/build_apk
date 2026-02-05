@@ -79,7 +79,7 @@ class SongCardWidget extends StatelessWidget {
       height: 70,
       child: InkWell(
         borderRadius: _SongCardStyles.borderRadius,
-        splashColor: Default_Theme.accentColor1.withValues(alpha: 0.2),
+        splashColor: scheme.primary.withValues(alpha: 0.2),
         hoverColor: Default_Theme.primaryColor2.withValues(alpha: 0.1),
         highlightColor: Default_Theme.primaryColor2.withValues(alpha: 0.1),
         onTap: onTap,
@@ -200,6 +200,7 @@ class _PlayingIndicatorState extends State<_PlayingIndicator>
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return StreamBuilder<MediaItem?>(
       stream: widget.mediaItemStream,
       builder: (context, snapshot) {
@@ -218,7 +219,7 @@ class _PlayingIndicatorState extends State<_PlayingIndicator>
                 width: _indicatorWidth,
                 child: Icon(
                   FontAwesome.caret_right_solid,
-                  color: Default_Theme.accentColor1,
+                  color: scheme.primary,
                   size: 25,
                 ),
               ),
@@ -322,7 +323,7 @@ class _SongInfo extends StatelessWidget {
               maxLines: 1,
               style: Default_Theme.tertiaryTextStyle.merge(
                 TextStyle(
-                  color: Default_Theme.accentColor2.withValues(alpha: 0.8),
+                  color: scheme.primary.withValues(alpha: 0.8),
                   fontSize: 11,
                   fontStyle: FontStyle.italic,
                 ),

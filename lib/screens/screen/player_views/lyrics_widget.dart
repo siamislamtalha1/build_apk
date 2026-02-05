@@ -49,7 +49,7 @@ class LyricsWidget extends StatelessWidget {
                 right: 0,
                 top: MediaQuery.of(context).padding.top,
                 child: LinearProgressIndicator(
-                  color: Default_Theme.accentColor2,
+                  color: Theme.of(context).colorScheme.primary,
                   backgroundColor: Colors.transparent,
                   minHeight: 2,
                 ),
@@ -57,7 +57,7 @@ class LyricsWidget extends StatelessWidget {
             Positioned(
               right: 3,
               bottom: 0,
-              child: FooterGlassIconPill(
+              child: HeaderGlassIconPill(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                 children: [

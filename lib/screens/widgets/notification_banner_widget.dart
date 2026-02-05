@@ -150,7 +150,7 @@ class _NotificationBannerWidgetState extends State<NotificationBannerWidget> {
       case 'update':
         return Default_Theme.accentColor2;
       case 'info':
-        return Colors.blue;
+        return Default_Theme.accentColor1;
       case 'warning':
         return Colors.orange;
       case 'success':

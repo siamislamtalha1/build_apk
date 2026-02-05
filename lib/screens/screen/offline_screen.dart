@@ -135,51 +135,57 @@ class _OfflineScreenState extends State<OfflineScreen> {
       shadowColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
-      title: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 350),
-        transitionBuilder: (Widget child, Animation<double> animation) {
-          final slideAnimation = Tween<Offset>(
-            begin: const Offset(1.0, 0.0),
-            end: Offset.zero,
-          ).animate(CurvedAnimation(
-            parent: animation,
-            curve: Curves.easeInOut,
-          ));
-          return FadeTransition(
-            opacity: animation,
-            child: SlideTransition(
-              position: slideAnimation,
-              child: child,
-            ),
-          );
-        },
-        child: _isSearch ? _buildSearchField() : _buildTitle(),
+      toolbarHeight: kToolbarHeight + headerPillTopSpacing(context),
+      title: Padding(
+        padding: EdgeInsets.only(top: headerPillTopSpacing(context)),
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 350),
+          transitionBuilder: (Widget child, Animation<double> animation) {
+            final slideAnimation = Tween<Offset>(
+              begin: const Offset(1.0, 0.0),
+              end: Offset.zero,
+            ).animate(CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeInOut,
+            ));
+            return FadeTransition(
+              opacity: animation,
+              child: SlideTransition(
+                position: slideAnimation,
+                child: child,
+              ),
+            );
+          },
+          child: _isSearch ? _buildSearchField() : _buildTitle(),
+        ),
       ),
       actions: [
-        FooterGlassIconPill(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-          children: [
-            if (!_isSearch)
+        Padding(
+          padding: EdgeInsets.only(top: headerPillTopSpacing(context)),
+          child: HeaderGlassIconPill(
+            children: [
+              if (!_isSearch)
+                Tooltip(
+                  message: "Refresh Downloads",
+                  child: IconButton(
+                    icon: const Icon(MingCute.refresh_2_line),
+                    onPressed: () {
+                      context.read<DownloaderCubit>().refreshDownloadedSongs();
+                    },
+                  ),
+                ),
               Tooltip(
-                message: "Refresh Downloads",
+                message: _isSearch ? "Close Search" : "Search",
                 child: IconButton(
-                  icon: const Icon(MingCute.refresh_2_line),
-                  onPressed: () {
-                    context.read<DownloaderCubit>().refreshDownloadedSongs();
-                  },
+                  icon: Icon(
+                    _isSearch ? Icons.close : Icons.search,
+                    color: scheme.onSurface,
+                  ),
+                  onPressed: _toggleSearch,
                 ),
               ),
-            Tooltip(
-              message: _isSearch ? "Close Search" : "Search",
-              child: IconButton(
-                icon: Icon(
-                  _isSearch ? Icons.close : Icons.search,
-                  color: scheme.onSurface,
-                ),
-                onPressed: _toggleSearch,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
         const SizedBox(width: 8),
       ],
@@ -189,9 +195,8 @@ class _OfflineScreenState extends State<OfflineScreen> {
   Widget _buildTitle() {
     final scheme = Theme.of(context).colorScheme;
     // Using a ValueKey tells the AnimatedSwitcher that this is a distinct widget.
-    return FooterGlassPill(
+    return HeaderGlassPill(
       key: const ValueKey('title'),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Text(
         "Offline",
         style: Default_Theme.primaryTextStyle.merge(
@@ -204,9 +209,8 @@ class _OfflineScreenState extends State<OfflineScreen> {
   Widget _buildSearchField() {
     final scheme = Theme.of(context).colorScheme;
     // Using a ValueKey tells the AnimatedSwitcher that this is a new, distinct widget.
-    return FooterGlassPill(
+    return HeaderGlassPill(
       key: const ValueKey('search'),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       child: SizedBox(
         width: double.infinity,
         child: TextField(

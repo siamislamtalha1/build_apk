@@ -85,11 +85,12 @@ class _SearchScreenState extends State<SearchScreen> {
             shadowColor: Colors.transparent,
             elevation: 0,
             scrolledUnderElevation: 0,
-            title: Row(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 10),
+            toolbarHeight: kToolbarHeight + headerPillTopSpacing(context),
+            title: Padding(
+              padding: EdgeInsets.only(top: headerPillTopSpacing(context)),
+              child: Row(
+                children: [
+                  Expanded(
                     child: InkWell(
                       borderRadius: BorderRadius.circular(999),
                       onTap: () {
@@ -106,7 +107,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           }
                         });
                       },
-                      child: FooterGlassPill(
+                      child: HeaderGlassPill(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 14, vertical: 10),
                         child: Row(
@@ -135,43 +136,44 @@ class _SearchScreenState extends State<SearchScreen> {
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                FooterGlassIconPill(
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        showModalBottomSheet(
-                          context: context,
-                          backgroundColor: Colors.transparent,
-                          isScrollControlled: true,
-                          builder: (context) => SearchFilterBottomSheet(
-                            currentFilter: _searchFilter,
-                            onFilterChanged: (newFilter) {
-                              setState(() {
-                                _searchFilter = newFilter;
-                              });
-                              if (_textEditingController.text.isNotEmpty) {
-                                context
-                                    .read<FetchSearchResultsCubit>()
-                                    .searchAllSources(
-                                      _textEditingController.text,
-                                      resultType: resultType.value,
-                                      filter: newFilter,
-                                    );
-                              }
-                            },
-                          ),
-                        );
-                      },
-                      icon: Icon(
-                        MingCute.filter_2_fill,
-                        color: scheme.onSurface,
+                  const SizedBox(width: 8),
+                  HeaderGlassIconPill(
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          showModalBottomSheet(
+                            context: context,
+                            backgroundColor: Colors.transparent,
+                            isScrollControlled: true,
+                            useSafeArea: true,
+                            builder: (context) => SearchFilterBottomSheet(
+                              currentFilter: _searchFilter,
+                              onFilterChanged: (newFilter) {
+                                setState(() {
+                                  _searchFilter = newFilter;
+                                });
+                                if (_textEditingController.text.isNotEmpty) {
+                                  context
+                                      .read<FetchSearchResultsCubit>()
+                                      .searchAllSources(
+                                        _textEditingController.text,
+                                        resultType: resultType.value,
+                                        filter: newFilter,
+                                      );
+                                }
+                              },
+                            ),
+                          );
+                        },
+                        icon: Icon(
+                          MingCute.filter_2_fill,
+                          color: scheme.onSurface,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
           body: NestedScrollView(
@@ -180,7 +182,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 child: Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  child: FooterGlassPill(
+                  child: HeaderGlassPill(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     child: SizedBox(
@@ -259,7 +261,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               if (state is FetchSearchResultsLoading) {
                                 return Center(
                                   child: CircularProgressIndicator(
-                                    color: Default_Theme.accentColor2,
+                                    color: scheme.primary,
                                   ),
                                 );
                               } else if (state.loadingState ==
@@ -280,7 +282,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                             height: 30,
                                             width: 30,
                                             child: CircularProgressIndicator(
-                                              color: Default_Theme.accentColor2,
+                                              color: scheme.primary,
                                             ),
                                           ),
                                         );

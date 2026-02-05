@@ -13,8 +13,16 @@ analyzer:
   exclude:
     - "Just For Refarance/**"
     - "old_snapshot/**"
+    - "temporary/**"
     - "third_party/**"
     - "build/**"
+  errors:
+    constant_identifier_names: ignore
+    prefer_const_constructors: ignore
+    use_build_context_synchronously: ignore
+    deprecated_member_use: ignore
+    overridden_fields: ignore
+    unnecessary_cast: ignore
 
 
 linter:
@@ -34,6 +42,10 @@ linter:
     package_names: false
     camel_case_types: false
     non_constant_identifier_names: false
+
+    use_build_context_synchronously: false
+    constant_identifier_names: false
+    prefer_const_constructors: false
 
 
 # Additional information about this file can be found at

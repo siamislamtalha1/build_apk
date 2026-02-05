@@ -177,7 +177,7 @@ class MiniPlayerCard extends StatelessWidget {
                                 child: SizedBox.square(
                                     dimension: 20,
                                     child: CircularProgressIndicator(
-                                      color: Default_Theme.accentColor2,
+                                      color: scheme.primary,
                                       strokeWidth: 2.5,
                                     )),
                               )
@@ -277,7 +277,7 @@ class MiniPlayerCard extends StatelessWidget {
                                 backgroundColor: scheme.onSurface.withValues(
                                     alpha: isDark ? 0.10 : 0.08),
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                  Default_Theme.accentColor2,
+                                  scheme.primary,
                                 ),
                                 minHeight: 3,
                               ),

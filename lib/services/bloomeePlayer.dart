@@ -74,6 +74,21 @@ class BloomeeMusicPlayer extends BaseAudioHandler
     );
   }
 
+  @override
+  Future<void> setRating(Rating rating, [Map<String, dynamic>? extras]) async {
+    if (!Platform.isAndroid) return;
+
+    final current = mediaItem.valueOrNull;
+    if (current == null) return;
+
+    try {
+      final dbItem = MediaItem2MediaItemDB(current);
+      final isCurrentlyLiked = await BloomeeDBService.isMediaLiked(dbItem);
+      await BloomeeDBService.likeMediaItem(dbItem, isLiked: !isCurrentlyLiked);
+      _updateAndroidWidgetThrottled();
+    } catch (_) {}
+  }
+
   void _updateAndroidWidgetThrottled() {
     if (!Platform.isAndroid) return;
     EasyThrottle.throttle(
@@ -84,6 +99,19 @@ class BloomeeMusicPlayer extends BaseAudioHandler
         final title = item?.title ?? '';
         final artist = item?.artist ?? '';
         final isPlaying = audioPlayer.playing;
+        final artUrl = item?.artUri?.toString() ?? '';
+        final source = (item?.extras?['source'] ?? '').toString();
+
+        final durationMs = (audioPlayer.duration?.inMilliseconds ?? 0);
+        final positionMs = audioPlayer.position.inMilliseconds;
+
+        bool isLiked = false;
+        try {
+          isLiked = await BloomeeDBService.isMediaLiked(
+              MediaItem2MediaItemDB(item ?? const MediaItem(id: '', title: '')));
+        } catch (_) {
+          isLiked = false;
+        }
         try {
           await _audioEffectsChannel.invokeMethod<bool>(
             'updateWidget',
@@ -91,6 +119,11 @@ class BloomeeMusicPlayer extends BaseAudioHandler
               'title': title,
               'artist': artist,
               'isPlaying': isPlaying,
+              'artUrl': artUrl,
+              'source': source,
+              'positionMs': positionMs,
+              'durationMs': durationMs,
+              'isLiked': isLiked,
             },
           );
         } catch (_) {}

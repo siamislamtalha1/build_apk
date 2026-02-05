@@ -86,8 +86,8 @@ class _AudioPlayerViewState extends State<AudioPlayerView>
         centerTitle: true,
         leadingWidth: 72,
         leading: Padding(
-          padding: const EdgeInsets.only(left: 8),
-          child: FooterGlassIconPill(
+          padding: EdgeInsets.only(left: 8, top: headerPillTopSpacing(context)),
+          child: HeaderGlassIconPill(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
             children: [
               IconButton(
@@ -104,8 +104,8 @@ class _AudioPlayerViewState extends State<AudioPlayerView>
         ),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: FooterGlassIconPill(
+            padding: EdgeInsets.only(right: 8, top: headerPillTopSpacing(context)),
+            child: HeaderGlassIconPill(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
               children: [
                 IconButton(
@@ -118,21 +118,24 @@ class _AudioPlayerViewState extends State<AudioPlayerView>
             ),
           ),
         ],
-        title: FooterGlassPill(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Enjoying From',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                        color: scheme.onSurface,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold)
-                    .merge(Default_Theme.secondoryTextStyle),
-              ),
-              StreamBuilder<String>(
+        toolbarHeight: kToolbarHeight + headerPillTopSpacing(context),
+        title: Padding(
+          padding: EdgeInsets.only(top: headerPillTopSpacing(context)),
+          child: HeaderGlassPill(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Enjoying From',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                          color: scheme.onSurface,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold)
+                      .merge(Default_Theme.secondoryTextStyle),
+                ),
+                StreamBuilder<String>(
                   stream: bloomeePlayerCubit.bloomeePlayer.queueTitle,
                   builder: (context, snapshot) {
                     return Text(
@@ -143,8 +146,10 @@ class _AudioPlayerViewState extends State<AudioPlayerView>
                         fontSize: 12,
                       ).merge(Default_Theme.secondoryTextStyle),
                     );
-                  }),
-            ],
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -874,6 +879,8 @@ class _AudioSettingsControl extends StatelessWidget {
           showModalBottomSheet(
             context: context,
             backgroundColor: Colors.transparent,
+            isScrollControlled: true,
+            useSafeArea: true,
             builder: (context) => const AudioSettingsBottomSheet(),
           );
         },
