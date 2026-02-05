@@ -5,9 +5,9 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.view.KeyEvent
-import androidx.media.session.MediaControllerCompat
-import androidx.media.MediaBrowserCompat
-import androidx.media.RatingCompat
+import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.RatingCompat
+import android.support.v4.media.session.MediaControllerCompat
 
 class PlaybackWidgetActionReceiver : BroadcastReceiver() {
 
