@@ -58,7 +58,14 @@ class _LoginScreenState extends State<LoginScreen> {
             );
           } else if (state is Authenticated) {
             if (_didSubmit) {
-              context.go('/Explore');
+              _didSubmit = false;
+              final from = GoRouterState.of(context).uri.queryParameters['from'];
+              final target = from == 'profile' ? '/Profile' : '/Explore';
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (context.mounted) {
+                  context.go(target);
+                }
+              });
             }
           }
         },
@@ -292,7 +299,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           onPressed: isLoading
                               ? null
                               : () {
-                                  context.push('/Signup');
+                                  final from = GoRouterState.of(context)
+                                      .uri
+                                      .queryParameters['from'];
+                                  context.push(
+                                    from == null
+                                        ? '/Signup'
+                                        : '/Signup?from=$from',
+                                  );
                                 },
                           child: Text(
                             'Sign Up',

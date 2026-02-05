@@ -50,11 +50,23 @@ class AuthCubit extends Cubit<AuthState> {
   }) async {
     try {
       emit(AuthLoading());
-      final cred = await _authService.signUpWithEmail(
-        email: email,
-        password: password,
-        displayName: displayName,
-      );
+      final current = _authService.currentUser;
+      final cred = (current != null && current.isAnonymous)
+          ? await _authService.linkAnonymousWithEmail(
+              email: email,
+              password: password,
+            )
+          : await _authService.signUpWithEmail(
+              email: email,
+              password: password,
+              displayName: displayName,
+            );
+
+      if (displayName != null && displayName.trim().isNotEmpty) {
+        try {
+          await cred?.user?.updateDisplayName(displayName.trim());
+        } catch (_) {}
+      }
       final user = cred?.user;
       if (user != null && !user.isAnonymous) {
         await _firestoreService.saveUserProfile(

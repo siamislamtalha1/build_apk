@@ -726,7 +726,7 @@ class ProfileScreen extends StatelessWidget {
           child: Material(
             color: Colors.transparent,
             child: InkWell(
-              onTap: () => context.push('/Login'),
+              onTap: () => context.push('/Login?from=profile'),
               borderRadius: BorderRadius.circular(16),
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16),

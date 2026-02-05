@@ -70,7 +70,14 @@ class _SignupScreenState extends State<SignupScreen> {
             );
           } else if (state is Authenticated) {
             if (_didSubmit) {
-              context.go('/Explore');
+              _didSubmit = false;
+              final from = GoRouterState.of(context).uri.queryParameters['from'];
+              final target = from == 'profile' ? '/Profile' : '/Explore';
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (context.mounted) {
+                  context.go(target);
+                }
+              });
             }
           }
         },

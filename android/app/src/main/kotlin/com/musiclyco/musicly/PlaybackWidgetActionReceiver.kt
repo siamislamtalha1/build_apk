@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.view.KeyEvent
 import android.support.v4.media.MediaBrowserCompat
-import android.support.v4.media.RatingCompat
 import android.support.v4.media.session.MediaControllerCompat
 
 class PlaybackWidgetActionReceiver : BroadcastReceiver() {
@@ -22,18 +21,22 @@ class PlaybackWidgetActionReceiver : BroadcastReceiver() {
         if (action == ACTION_LIKE) {
             // Use MediaControllerCompat to send a rating event to audio_service.
             // This is handled in Dart by overriding BaseAudioHandler.setRating.
+            val browserRef = arrayOfNulls<MediaBrowserCompat>(1)
             val browser = MediaBrowserCompat(
                 context,
                 ComponentName(context, com.ryanheise.audioservice.AudioService::class.java),
                 object : MediaBrowserCompat.ConnectionCallback() {
                     override fun onConnected() {
                         try {
-                            val controller = MediaControllerCompat(context, browser.sessionToken)
-                            controller.transportControls.setRating(RatingCompat.newHeartRating(true))
+                            val b = browserRef[0] ?: return
+                            val controller = MediaControllerCompat(context, b.sessionToken)
+                            controller.dispatchMediaButtonEvent(
+                                KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_FAVORITE)
+                            )
                         } catch (_: Exception) {
                         } finally {
                             try {
-                                browser.disconnect()
+                                browserRef[0]?.disconnect()
                             } catch (_: Exception) {
                             }
                         }
@@ -41,12 +44,13 @@ class PlaybackWidgetActionReceiver : BroadcastReceiver() {
 
                     override fun onConnectionFailed() {
                         try {
-                            browser.disconnect()
+                            browserRef[0]?.disconnect()
                         } catch (_: Exception) {}
                     }
                 },
                 null
             )
+            browserRef[0] = browser
             try {
                 browser.connect()
             } catch (_: Exception) {}
