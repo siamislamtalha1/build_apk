@@ -21,11 +21,14 @@ class SearchPageDelegate extends SearchDelegate {
 
   @override
   ThemeData appBarTheme(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Theme.of(context).copyWith(
       appBarTheme: AppBarTheme(
         shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(20))),
-        backgroundColor: const Color.fromARGB(255, 19, 19, 19),
+        backgroundColor: scheme.surface,
+        surfaceTintColor: Colors.transparent,
         iconTheme: IconThemeData(color: Default_Theme.primaryColor1),
       ),
       textTheme: TextTheme(
@@ -35,7 +38,8 @@ class SearchPageDelegate extends SearchDelegate {
       ),
       inputDecorationTheme: InputDecorationTheme(
         hintStyle: TextStyle(
-          color: Default_Theme.primaryColor2.withValues(alpha: 0.3),
+          color: (isDark ? Default_Theme.primaryColor2 : scheme.onSurface)
+              .withValues(alpha: 0.3),
         ).merge(Default_Theme.secondoryTextStyle),
       ),
     );

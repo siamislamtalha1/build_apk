@@ -123,23 +123,40 @@ class _SearchScreenState extends State<SearchScreen> {
                               filled: true,
                               suffixIcon: Icon(
                                 MingCute.search_2_fill,
-                                color: Default_Theme.primaryColor1
+                                color: (isDark
+                                        ? Default_Theme.primaryColor1
+                                        : Colors.grey[700])!
                                     .withValues(alpha: 0.4),
                               ),
-                              fillColor: Default_Theme.primaryColor2
-                                  .withValues(alpha: 0.07),
+                              fillColor: (isDark
+                                      ? Default_Theme.primaryColor2
+                                          .withValues(alpha: 0.07)
+                                      : scheme.surface)
+                                  .withValues(alpha: isDark ? 0.07 : 1.0),
                               contentPadding: const EdgeInsets.only(
                                   top: 20, left: 15, right: 5),
                               hintText: "Find your next song obsession...",
                               hintStyle: TextStyle(
-                                color: Default_Theme.primaryColor1
-                                    .withValues(alpha: 0.3),
+                                color: (isDark
+                                        ? Default_Theme.primaryColor1
+                                        : Colors.black)
+                                    .withValues(alpha: 0.4),
                                 fontFamily: "Unageo",
                                 fontWeight: FontWeight.normal,
                               ),
+                              enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: isDark
+                                        ? Colors.transparent
+                                        : Colors.black.withValues(alpha: 0.1),
+                                  ),
+                                  borderRadius: BorderRadius.circular(50)),
                               disabledBorder: OutlineInputBorder(
-                                  borderSide:
-                                      const BorderSide(style: BorderStyle.none),
+                                  borderSide: BorderSide(
+                                    color: isDark
+                                        ? Colors.transparent
+                                        : Colors.black.withValues(alpha: 0.1),
+                                  ),
                                   borderRadius: BorderRadius.circular(50)),
                               focusedBorder: OutlineInputBorder(
                                   borderSide: BorderSide(

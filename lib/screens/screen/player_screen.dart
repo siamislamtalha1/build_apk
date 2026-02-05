@@ -41,16 +41,18 @@ class _AudioPlayerViewState extends State<AudioPlayerView>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final UpNextPanelController _upNextPanelController = UpNextPanelController();
+  late final PlayerOverlayCubit _playerOverlayCubit;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _playerOverlayCubit = context.read<PlayerOverlayCubit>();
     // Register the collapse callback with PlayerOverlayCubit
     // This allows GlobalFooter to collapse the panel on back gesture
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        context.read<PlayerOverlayCubit>().registerUpNextPanelCollapse(
+        _playerOverlayCubit.registerUpNextPanelCollapse(
               () => _upNextPanelController.collapse(),
             );
       }
@@ -60,7 +62,7 @@ class _AudioPlayerViewState extends State<AudioPlayerView>
   @override
   void dispose() {
     // Unregister the collapse callback
-    context.read<PlayerOverlayCubit>().unregisterUpNextPanelCollapse();
+    _playerOverlayCubit.unregisterUpNextPanelCollapse();
     _tabController.dispose();
     super.dispose();
   }

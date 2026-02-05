@@ -410,6 +410,26 @@ class DownloadDB {
     required this.lastDownloaded,
     required this.mediaId,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'fileName': fileName,
+      'filePath': filePath,
+      'lastDownloaded': lastDownloaded?.millisecondsSinceEpoch,
+      'mediaId': mediaId,
+    };
+  }
+
+  factory DownloadDB.fromMap(Map<String, dynamic> map) {
+    return DownloadDB(
+      fileName: map['fileName'] ?? '',
+      filePath: map['filePath'] ?? '',
+      lastDownloaded: map['lastDownloaded'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['lastDownloaded'])
+          : null,
+      mediaId: map['mediaId'] ?? '',
+    );
+  }
 }
 
 @collection
@@ -510,6 +530,38 @@ class LyricsDB {
     this.syncedLyrics,
     this.url,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'sourceId': sourceId,
+      'mediaID': mediaID,
+      'plainLyrics': plainLyrics,
+      'title': title,
+      'artist': artist,
+      'source': source,
+      'album': album,
+      'offset': offset,
+      'duration': duration,
+      'syncedLyrics': syncedLyrics,
+      'url': url,
+    };
+  }
+
+  factory LyricsDB.fromMap(Map<String, dynamic> map) {
+    return LyricsDB(
+      sourceId: map['sourceId'] ?? '',
+      mediaID: map['mediaID'] ?? '',
+      plainLyrics: map['plainLyrics'] ?? '',
+      title: map['title'] ?? '',
+      artist: map['artist'] ?? '',
+      source: map['source'] ?? '',
+      album: map['album'],
+      offset: map['offset'],
+      duration: map['duration'],
+      syncedLyrics: map['syncedLyrics'],
+      url: map['url'],
+    );
+  }
 }
 
 @collection

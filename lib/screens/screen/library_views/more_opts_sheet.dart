@@ -26,20 +26,33 @@ void showPlaylistOptsInrSheet(
   showFloatingModalBottomSheet(
     context: context,
     builder: (context) {
+      final scheme = Theme.of(context).colorScheme;
+      final isDark = Theme.of(context).brightness == Brightness.dark;
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                  colors: [
-                    Color.fromARGB(255, 7, 17, 50),
-                    Color.fromARGB(255, 5, 0, 24),
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  stops: [0.0, 0.5]),
-              borderRadius: BorderRadius.only(
+            decoration: BoxDecoration(
+              gradient: isDark
+                  ? const LinearGradient(
+                      colors: [
+                        Color.fromARGB(255, 7, 17, 50),
+                        Color.fromARGB(255, 5, 0, 24),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      stops: [0.0, 0.5],
+                    )
+                  : LinearGradient(
+                      colors: [
+                        scheme.surface,
+                        scheme.surface,
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      stops: const [0.0, 1.0],
+                    ),
+              borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(20), topRight: Radius.circular(20)),
             ),
             child: Padding(
@@ -291,20 +304,33 @@ void showPlaylistOptsExtSheet(BuildContext context, String playlistName) {
   showFloatingModalBottomSheet(
     context: context,
     builder: (context) {
+      final scheme = Theme.of(context).colorScheme;
+      final isDark = Theme.of(context).brightness == Brightness.dark;
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                  colors: [
-                    Color.fromARGB(255, 7, 17, 50),
-                    Color.fromARGB(255, 5, 0, 24),
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  stops: [0.0, 0.5]),
-              borderRadius: BorderRadius.only(
+            decoration: BoxDecoration(
+              gradient: isDark
+                  ? const LinearGradient(
+                      colors: [
+                        Color.fromARGB(255, 7, 17, 50),
+                        Color.fromARGB(255, 5, 0, 24),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      stops: [0.0, 0.5],
+                    )
+                  : LinearGradient(
+                      colors: [
+                        scheme.surface,
+                        scheme.surface,
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      stops: const [0.0, 1.0],
+                    ),
+              borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(20), topRight: Radius.circular(20)),
             ),
             child: Padding(

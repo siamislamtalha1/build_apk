@@ -56,12 +56,12 @@ void showMoreBottomSheet(
                   )
                 : LinearGradient(
                     colors: [
-                      scheme.surfaceContainerHighest,
+                      scheme.surface,
                       scheme.surface,
                     ],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    stops: const [0.0, 0.7],
+                    stops: const [0.0, 1.0],
                   ),
             borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(20), topRight: Radius.circular(20)),

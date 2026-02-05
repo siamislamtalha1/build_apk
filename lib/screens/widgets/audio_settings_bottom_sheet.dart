@@ -114,7 +114,7 @@ class AudioSettingsBottomSheet extends StatelessWidget {
                           .setSkipSilenceEnabled(v);
                       await player.setSkipSilenceEnabled(v);
                     },
-                    activeColor: Default_Theme.accentColor1,
+                    activeThumbColor: Default_Theme.accentColor1,
                     title: Text(
                       'Skip silence',
                       style: TextStyle(
@@ -147,7 +147,7 @@ class AudioSettingsBottomSheet extends StatelessWidget {
                           .read<SettingsCubit>()
                           .setEqualizerEnabled(v);
                     },
-                    activeColor: Default_Theme.accentColor1,
+                    activeThumbColor: Default_Theme.accentColor1,
                     title: Text(
                       'Equalizer',
                       style: TextStyle(
@@ -190,7 +190,7 @@ class AudioSettingsBottomSheet extends StatelessWidget {
                             gainMb: state.normalizationGainMb,
                           );
                         },
-                        activeColor: Default_Theme.accentColor1,
+                        activeThumbColor: Default_Theme.accentColor1,
                         title: Text(
                           'Normalization',
                           style: TextStyle(

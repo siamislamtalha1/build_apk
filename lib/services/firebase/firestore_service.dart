@@ -13,6 +13,29 @@ class FirestoreService {
     return _firestore.collection('users').doc(userId);
   }
 
+  Stream<List<Map<String, dynamic>>> watchDownloads(String userId) {
+    if (FirebaseAuth.instance.currentUser?.isAnonymous ?? true) {
+      return Stream.value(<Map<String, dynamic>>[]);
+    }
+    return _userDoc(userId)
+        .collection('downloads')
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList())
+        .handleError((_) => <Map<String, dynamic>>[]);
+  }
+
+  CollectionReference<Map<String, dynamic>> _savedCollectionsRef(
+      String userId) {
+    return _userDoc(userId).collection('savedCollections');
+  }
+
+  DocumentReference<Map<String, dynamic>> _queueDoc(
+    String userId,
+    String queueName,
+  ) {
+    return _userDoc(userId).collection('queues').doc(queueName);
+  }
+
   // ==================== Search History Sync ====================
 
   Future<void> syncSearchHistoryToCloud(
@@ -54,6 +77,157 @@ class FirestoreService {
       print('❌ Failed to get search history from cloud: $e');
       return [];
     }
+  }
+
+  // ==================== Saved Collections Sync ====================
+
+  Future<void> syncSavedCollectionsToCloud(
+      String userId, List<SavedCollectionsDB> items) async {
+    if (FirebaseAuth.instance.currentUser?.isAnonymous ?? true) return;
+    try {
+      final ref = _savedCollectionsRef(userId);
+      final existing = await ref.get();
+
+      var batch = _firestore.batch();
+      var ops = 0;
+
+      for (final doc in existing.docs) {
+        batch.delete(doc.reference);
+        ops++;
+        if (ops >= 450) {
+          await batch.commit();
+          batch = _firestore.batch();
+          ops = 0;
+        }
+      }
+
+      for (final it in items) {
+        final docId = (it.sourceId).trim().isNotEmpty
+            ? it.sourceId
+            : fastHash(it.title).toString();
+        final docRef = ref.doc(docId);
+        batch.set(
+          docRef,
+          {
+            ...it.toMap(),
+            'syncedAt': FieldValue.serverTimestamp(),
+          },
+        );
+        ops++;
+        if (ops >= 450) {
+          await batch.commit();
+          batch = _firestore.batch();
+          ops = 0;
+        }
+      }
+
+      if (ops > 0) {
+        await batch.commit();
+      }
+    } catch (e) {
+      print('❌ Failed to sync saved collections: $e');
+      rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getSavedCollectionsFromCloud(
+      String userId) async {
+    try {
+      final snapshot = await _savedCollectionsRef(userId)
+          .orderBy('lastUpdated', descending: true)
+          .get();
+      return snapshot.docs.map((doc) => doc.data()).toList();
+    } catch (e) {
+      print('❌ Failed to get saved collections from cloud: $e');
+      return [];
+    }
+  }
+
+  Stream<List<Map<String, dynamic>>> watchSavedCollections(String userId) {
+    if (FirebaseAuth.instance.currentUser?.isAnonymous ?? true) {
+      return Stream.value(<Map<String, dynamic>>[]);
+    }
+    return _savedCollectionsRef(userId)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList())
+        .handleError((_) => <Map<String, dynamic>>[]);
+  }
+
+  // ==================== Queue Sync ====================
+
+  Future<void> syncQueuesToCloud(
+      String userId, List<SavedQueueDB> queues) async {
+    if (FirebaseAuth.instance.currentUser?.isAnonymous ?? true) return;
+    try {
+      final ref = _userDoc(userId).collection('queues');
+      final existing = await ref.get();
+
+      var batch = _firestore.batch();
+      var ops = 0;
+
+      for (final doc in existing.docs) {
+        batch.delete(doc.reference);
+        ops++;
+        if (ops >= 450) {
+          await batch.commit();
+          batch = _firestore.batch();
+          ops = 0;
+        }
+      }
+
+      for (final q in queues) {
+        final docRef = ref.doc(q.queueName);
+        batch.set(
+          docRef,
+          {
+            'queueName': q.queueName,
+            'savedAt': q.savedAt.millisecondsSinceEpoch,
+            'mediaItemsJson': q.mediaItemsJson,
+            'currentIndex': q.currentIndex,
+            'positionMs': q.positionMs,
+            'updatedAt': FieldValue.serverTimestamp(),
+          },
+          SetOptions(merge: true),
+        );
+        ops++;
+        if (ops >= 450) {
+          await batch.commit();
+          batch = _firestore.batch();
+          ops = 0;
+        }
+      }
+
+      if (ops > 0) {
+        await batch.commit();
+      }
+    } catch (e) {
+      print('❌ Failed to sync queues: $e');
+      rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getQueuesFromCloud(String userId) async {
+    try {
+      final snapshot = await _userDoc(userId)
+          .collection('queues')
+          .orderBy('savedAt', descending: true)
+          .get();
+      return snapshot.docs.map((doc) => doc.data()).toList();
+    } catch (e) {
+      print('❌ Failed to get queues from cloud: $e');
+      return [];
+    }
+  }
+
+  Stream<List<Map<String, dynamic>>> watchQueues(String userId) {
+    if (FirebaseAuth.instance.currentUser?.isAnonymous ?? true) {
+      return Stream.value(<Map<String, dynamic>>[]);
+    }
+    return _userDoc(userId)
+        .collection('queues')
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList())
+        .handleError((_) => <Map<String, dynamic>>[]);
   }
 
   DocumentReference _usernameDoc(String usernameLower) {
@@ -635,6 +809,120 @@ class FirestoreService {
       return Future.value();
     }
     return saveUserPreferences(userId, preferences);
+  }
+
+  // ==================== Downloads Meta Backup ====================
+
+  Future<void> syncDownloadsToCloud(
+      String userId, List<DownloadDB> items) async {
+    if (FirebaseAuth.instance.currentUser?.isAnonymous ?? true) return;
+    try {
+      final batch = _firestore.batch();
+      final ref = _userDoc(userId).collection('downloads');
+
+      final existing = await ref.get();
+      for (final doc in existing.docs) {
+        batch.delete(doc.reference);
+      }
+
+      for (final it in items) {
+        // Use ID or mediaID as doc key? mediaId is good.
+        // DownloadDB has mediaId.
+        if (it.mediaId.isEmpty) continue;
+        final docRef = ref.doc(it.mediaId);
+        batch.set(docRef, {
+          ...it.toMap(),
+          'syncedAt': FieldValue.serverTimestamp(),
+        });
+      }
+
+      await batch.commit();
+      print('✅ Synced ${items.length} download metas to cloud');
+    } catch (e) {
+      print('❌ Failed to sync downloads: $e');
+      rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getDownloadsFromCloud(
+      String userId) async {
+    try {
+      final snapshot = await _userDoc(userId)
+          .collection('downloads')
+          .orderBy('lastDownloaded', descending: true)
+          .get();
+      return snapshot.docs.map((doc) => doc.data()).toList();
+    } catch (e) {
+      print('❌ Failed to get downloads from cloud: $e');
+      return [];
+    }
+  }
+
+  // ==================== Lyrics Backup ====================
+
+  Future<void> syncLyricsToCloud(String userId, List<LyricsDB> items) async {
+    if (FirebaseAuth.instance.currentUser?.isAnonymous ?? true) return;
+    try {
+      final ref = _userDoc(userId).collection('lyrics');
+      final existing = await ref.get();
+
+      var batch = _firestore.batch();
+      var ops = 0;
+
+      for (final doc in existing.docs) {
+        batch.delete(doc.reference);
+        ops++;
+        if (ops >= 450) {
+          await batch.commit();
+          batch = _firestore.batch();
+          ops = 0;
+        }
+      }
+
+      for (final it in items) {
+        if (it.mediaID.isEmpty) continue;
+        final docRef = ref.doc(it.mediaID);
+        batch.set(docRef, {
+          ...it.toMap(),
+          'syncedAt': FieldValue.serverTimestamp(),
+        });
+        ops++;
+        if (ops >= 450) {
+          await batch.commit();
+          batch = _firestore.batch();
+          ops = 0;
+        }
+      }
+
+      if (ops > 0) {
+        await batch.commit();
+      }
+      print('✅ Synced ${items.length} lyrics to cloud');
+    } catch (e) {
+      print('❌ Failed to sync lyrics: $e');
+      rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getLyricsFromCloud(String userId) async {
+    try {
+      final snapshot = await _userDoc(userId).collection('lyrics').get();
+      return snapshot.docs.map((doc) => doc.data()).toList();
+    } catch (e) {
+      print('❌ Failed to get lyrics from cloud: $e');
+      return [];
+    }
+  }
+
+  Stream<List<Map<String, dynamic>>> watchLyrics(String userId) {
+    if (FirebaseAuth.instance.currentUser?.isAnonymous ?? true) {
+      return Stream.value(<Map<String, dynamic>>[]);
+    }
+    return _userDoc(userId)
+        .collection('lyrics')
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList())
+        .handleError((_) => <Map<String, dynamic>>[]);
   }
 
   /// Get user preferences from Firestore

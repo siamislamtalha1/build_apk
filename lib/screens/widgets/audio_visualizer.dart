@@ -13,24 +13,29 @@ class AudioVisualizer extends StatefulWidget {
 }
 
 class _AudioVisualizerState extends State<AudioVisualizer> {
+  late final BloomeePlayerCubit _playerCubit;
+
   @override
   void initState() {
     super.initState();
+    _playerCubit = context.read<BloomeePlayerCubit>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      context.read<BloomeePlayerCubit>().bloomeePlayer.setVisualizerEnabled(true);
+      _playerCubit.bloomeePlayer.setVisualizerEnabled(true);
     });
   }
 
   @override
   void dispose() {
-    context.read<BloomeePlayerCubit>().bloomeePlayer.setVisualizerEnabled(false);
+    try {
+      _playerCubit.bloomeePlayer.setVisualizerEnabled(false);
+    } catch (_) {}
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final player = context.read<BloomeePlayerCubit>().bloomeePlayer;
+    final player = _playerCubit.bloomeePlayer;
 
     return SizedBox(
       height: widget.height,
@@ -63,7 +68,9 @@ class _WaveformPainter extends CustomPainter {
       ..color = Colors.white.withValues(alpha: 0.55);
 
     final midY = size.height / 2;
-    final step = (data.length / (size.width > 0 ? size.width : 1)).clamp(1, data.length).toInt();
+    final step = (data.length / (size.width > 0 ? size.width : 1))
+        .clamp(1, data.length)
+        .toInt();
 
     final path = Path();
     bool started = false;

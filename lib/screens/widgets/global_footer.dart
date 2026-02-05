@@ -18,8 +18,8 @@ class GlobalFooter extends StatelessWidget {
     return PlayerOverlayWrapper(
       child: Stack(
         children: [
-          Positioned.fill(
-              child: const RepaintBoundary(child: GlobalBackdrop())),
+          const Positioned.fill(
+              child: RepaintBoundary(child: GlobalBackdrop())),
           PopScope(
             canPop: !context.watch<PlayerOverlayCubit>().state &&
                 navigationShell.currentIndex == 0,
@@ -99,7 +99,7 @@ class GlobalBackdropWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Positioned.fill(child: const RepaintBoundary(child: GlobalBackdrop())),
+        const Positioned.fill(child: RepaintBoundary(child: GlobalBackdrop())),
         child,
       ],
     );

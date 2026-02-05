@@ -132,9 +132,9 @@ class CrashReporter {
     // Flutter/Dart information
     buffer.writeln('=== Flutter/Dart Info ===');
     buffer.writeln('Dart Version: ${Platform.version}');
-    buffer.writeln('Debug Mode: ${kDebugMode}');
-    buffer.writeln('Profile Mode: ${kProfileMode}');
-    buffer.writeln('Release Mode: ${kReleaseMode}');
+    buffer.writeln('Debug Mode: $kDebugMode');
+    buffer.writeln('Profile Mode: $kProfileMode');
+    buffer.writeln('Release Mode: $kReleaseMode');
     buffer.writeln();
 
     // Environment variables (selective)

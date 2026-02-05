@@ -149,7 +149,7 @@ class Default_Theme {
     const lightScheme = ColorScheme.light(
       primary: lightAccentColor,
       secondary: lightSecondaryColor,
-      surface: lightBackgroundColor,
+      surface: lightSurfaceColor,
       onPrimary: Colors.white,
       onSecondary: Colors.white,
       onSurface: lightTextColor,
@@ -213,6 +213,20 @@ class Default_Theme {
         color: lightSurfaceColor,
         textStyle: TextStyle(color: lightTextColor),
         elevation: 4,
+      ),
+      dropdownMenuTheme: const DropdownMenuThemeData(
+        menuStyle: MenuStyle(
+          backgroundColor: WidgetStatePropertyAll(lightSurfaceColor),
+        ),
+      ),
+      menuTheme: const MenuThemeData(
+        style: MenuStyle(
+          backgroundColor: WidgetStatePropertyAll(lightSurfaceColor),
+        ),
+      ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: lightSurfaceColor,
+        surfaceTintColor: Colors.transparent,
       ),
       cardTheme: const CardThemeData(
         color: lightSurfaceColor,

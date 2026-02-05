@@ -214,8 +214,9 @@ class FetchChartCubit extends Cubit<FetchChartState> {
               }
 
               if ((chart.chartItems?.isNotEmpty) ?? false) {
-                db.writeTxnSync(() =>
-                    db.chartsCacheDBs.putSync(chartModelToChartCacheDB(chart)));
+                await db.writeTxn(() async {
+                  await db.chartsCacheDBs.put(chartModelToChartCacheDB(chart));
+                });
               }
               log("Chart Fetched - ${chart.chartName}", name: "Isolate");
               chartList0.add(chart);

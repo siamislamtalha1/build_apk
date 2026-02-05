@@ -185,8 +185,8 @@ class SettingsCubit extends Cubit<SettingsState> {
     BloomeeDBService.getSettingStr(GlobalStrConsts.normalizationGainMb,
             defaultValue: '0')
         .then((value) {
-      emit(state.copyWith(
-          normalizationGainMb: int.tryParse(value ?? '0') ?? 0));
+      emit(
+          state.copyWith(normalizationGainMb: int.tryParse(value ?? '0') ?? 0));
     });
     BloomeeDBService.getSettingBool(GlobalStrConsts.tabletUiEnabled)
         .then((value) {
@@ -210,9 +210,10 @@ class SettingsCubit extends Cubit<SettingsState> {
     });
 
     // Theme Mode Init
-    BloomeeDBService.getSettingStr('theme_mode').then((value) {
+    BloomeeDBService.getSettingStr('theme_mode').then((value) async {
+      final raw = (value ?? '').trim().toLowerCase();
       ThemeMode themeMode;
-      switch (value) {
+      switch (raw) {
         case 'light':
           themeMode = ThemeMode.light;
           break;
@@ -223,7 +224,9 @@ class SettingsCubit extends Cubit<SettingsState> {
           themeMode = ThemeMode.system;
           break;
         default:
+          // Persist a stable default once so subsequent launches don't vary.
           themeMode = ThemeMode.system;
+          await BloomeeDBService.putSettingStr('theme_mode', 'system');
       }
       emit(state.copyWith(themeMode: themeMode));
     });
@@ -265,7 +268,7 @@ class SettingsCubit extends Cubit<SettingsState> {
     emit(state.copyWith(autoSaveLyrics: value));
   }
 
-  void setThemeMode(ThemeMode value) {
+  Future<void> setThemeMode(ThemeMode value) async {
     String themeModeStr;
     switch (value) {
       case ThemeMode.light:
@@ -278,7 +281,7 @@ class SettingsCubit extends Cubit<SettingsState> {
         themeModeStr = 'system';
         break;
     }
-    BloomeeDBService.putSettingStr('theme_mode', themeModeStr);
+    await BloomeeDBService.putSettingStr('theme_mode', themeModeStr);
 
     final platformBrightness =
         WidgetsBinding.instance.platformDispatcher.platformBrightness;

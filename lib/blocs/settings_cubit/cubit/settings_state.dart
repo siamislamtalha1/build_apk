@@ -37,7 +37,7 @@ class SettingsState extends Equatable {
   final int maxSavedQueues;
   final bool keepAliveEnabled;
   final bool stopOnTaskClear;
-  SettingsState({
+  const SettingsState({
     required this.autoUpdateNotify,
     required this.autoSlideCharts,
     required this.downPath,

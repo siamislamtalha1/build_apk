@@ -231,7 +231,7 @@ class BloomeeDBCubit extends Cubit<MediadbState> {
 
   Future<void> putSettingBool(String key, bool value) async {
     if (key.isNotEmpty) {
-      BloomeeDBService.putSettingBool(key, value);
+      await BloomeeDBService.putSettingBool(key, value);
     }
   }
 
@@ -241,7 +241,7 @@ class BloomeeDBCubit extends Cubit<MediadbState> {
 
   Future<void> putSettingStr(String key, String value) async {
     if (key.isNotEmpty && value.isNotEmpty) {
-      BloomeeDBService.putSettingStr(key, value);
+      await BloomeeDBService.putSettingStr(key, value);
     }
   }
 
