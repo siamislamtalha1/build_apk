@@ -71,12 +71,12 @@ class _SignupScreenState extends State<SignupScreen> {
           } else if (state is Authenticated) {
             if (_didSubmit) {
               _didSubmit = false;
-              final from = GoRouterState.of(context).uri.queryParameters['from'];
+              final from =
+                  GoRouterState.of(context).uri.queryParameters['from'];
               final target = from == 'profile' ? '/Profile' : '/Explore';
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (context.mounted) {
-                  context.go(target);
-                }
+                if (!context.mounted) return;
+                context.go(target);
               });
             }
           }
@@ -163,7 +163,8 @@ class _SignupScreenState extends State<SignupScreen> {
                               if (v.isEmpty) {
                                 return null; // optional (random username will be assigned)
                               }
-                              final raw = v.startsWith('@') ? v.substring(1) : v;
+                              final raw =
+                                  v.startsWith('@') ? v.substring(1) : v;
                               final re = RegExp(r'^[a-zA-Z0-9_]{3,20}$');
                               if (!re.hasMatch(raw)) {
                                 return 'Username must be 3-20 chars (letters, numbers, _)';

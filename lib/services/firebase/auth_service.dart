@@ -293,6 +293,21 @@ class AuthService {
       debugPrint('✅ Anonymous account linked with email');
       return userCredential;
     } on FirebaseAuthException catch (e) {
+      if (e.code == 'email-already-in-use' || e.code == 'credential-already-in-use') {
+        // If the email already has an account, linking the anonymous user will fail.
+        // In that case, sign in to that account instead.
+        try {
+          final signedIn = await _auth.signInWithEmailAndPassword(
+            email: email,
+            password: password,
+          );
+          debugPrint('✅ Existing account found; signed in with email/password');
+          return signedIn;
+        } on FirebaseAuthException catch (signInError) {
+          debugPrint('❌ Sign-in after link failure failed: ${signInError.message}');
+          throw _handleAuthException(signInError);
+        }
+      }
       debugPrint('❌ Linking anonymous account failed: ${e.message}');
       throw _handleAuthException(e);
     }

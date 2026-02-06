@@ -69,22 +69,26 @@ class AuthCubit extends Cubit<AuthState> {
       }
       final user = cred?.user;
       if (user != null && !user.isAnonymous) {
-        await _firestoreService.saveUserProfile(
-          user.uid,
-          displayName: user.displayName,
-          photoURL: user.photoURL,
-          email: user.email,
-        );
-        if (desiredUsername != null && desiredUsername.trim().isNotEmpty) {
-          await _firestoreService.claimUsername(
-            userId: user.uid,
-            desiredUsername: desiredUsername,
-          );
-        } else {
-          await _firestoreService.ensureUsername(
-            userId: user.uid,
+        try {
+          await _firestoreService.saveUserProfile(
+            user.uid,
             displayName: user.displayName,
+            photoURL: user.photoURL,
+            email: user.email,
           );
+          if (desiredUsername != null && desiredUsername.trim().isNotEmpty) {
+            await _firestoreService.claimUsername(
+              userId: user.uid,
+              desiredUsername: desiredUsername,
+            );
+          } else {
+            await _firestoreService.ensureUsername(
+              userId: user.uid,
+              displayName: user.displayName,
+            );
+          }
+        } catch (_) {
+          // Ignore firestore errors during signup to prevent crash
         }
       }
       // State will be updated by authStateChanges listener

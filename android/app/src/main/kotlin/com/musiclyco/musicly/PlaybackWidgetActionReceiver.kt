@@ -31,7 +31,7 @@ class PlaybackWidgetActionReceiver : BroadcastReceiver() {
                             val b = browserRef[0] ?: return
                             val controller = MediaControllerCompat(context, b.sessionToken)
                             controller.dispatchMediaButtonEvent(
-                                KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_FAVORITE)
+                                KeyEvent(KeyEvent.ACTION_DOWN, 130)
                             )
                         } catch (_: Exception) {
                         } finally {
