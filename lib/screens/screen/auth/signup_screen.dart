@@ -35,6 +35,7 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   void _signUp() {
+    if (_didSubmit) return; // Prevent double submission
     if (_formKey.currentState!.validate()) {
       _didSubmit = true;
       context.read<AuthCubit>().signUpWithEmail(

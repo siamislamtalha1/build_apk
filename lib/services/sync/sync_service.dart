@@ -263,6 +263,10 @@ class SyncService {
 
     // 1. Initial Pull from Cloud (pessimistic strategy: cloud wins if conflict/empty)
     try {
+      // Add a small delay to allow UI to settle and prevent navigation/auth race conditions
+      await Future.delayed(const Duration(seconds: 2));
+      if (_activeUserId != userId) return; // Check if still active after delay
+
       await _performInitialSync(userId);
     } catch (e) {
       print('❌ Initial sync failed: $e');

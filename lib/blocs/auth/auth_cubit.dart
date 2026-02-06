@@ -22,12 +22,17 @@ class AuthCubit extends Cubit<AuthState> {
         if (!user.isAnonymous) {
           () async {
             try {
-              await _firestoreService.saveUserProfile(
-                user.uid,
-                displayName: user.displayName,
-                photoURL: user.photoURL,
-                email: user.email,
-              );
+              if (user.displayName != null ||
+                  user.photoURL != null ||
+                  user.email != null) {
+                await _firestoreService.saveUserProfile(
+                  user.uid,
+                  displayName: user.displayName,
+                  photoURL: user.photoURL,
+                  email: user.email,
+                );
+              }
+              // Just ensure they have a username if they don't already
               await _firestoreService.ensureUsername(
                 userId: user.uid,
                 displayName: user.displayName,
@@ -67,30 +72,8 @@ class AuthCubit extends Cubit<AuthState> {
           await cred?.user?.updateDisplayName(displayName.trim());
         } catch (_) {}
       }
-      final user = cred?.user;
-      if (user != null && !user.isAnonymous) {
-        try {
-          await _firestoreService.saveUserProfile(
-            user.uid,
-            displayName: user.displayName,
-            photoURL: user.photoURL,
-            email: user.email,
-          );
-          if (desiredUsername != null && desiredUsername.trim().isNotEmpty) {
-            await _firestoreService.claimUsername(
-              userId: user.uid,
-              desiredUsername: desiredUsername,
-            );
-          } else {
-            await _firestoreService.ensureUsername(
-              userId: user.uid,
-              displayName: user.displayName,
-            );
-          }
-        } catch (_) {
-          // Ignore firestore errors during signup to prevent crash
-        }
-      }
+      // Profile saving and username allocation is now handled by the authStateChanges listener
+      // to avoid double writes and race conditions.
       // State will be updated by authStateChanges listener
     } catch (e) {
       emit(AuthError(message: e.toString()));
@@ -104,23 +87,11 @@ class AuthCubit extends Cubit<AuthState> {
   }) async {
     try {
       emit(AuthLoading());
-      final cred = await _authService.signInWithEmail(
+      await _authService.signInWithEmail(
         email: email,
         password: password,
       );
-      final user = cred?.user;
-      if (user != null && !user.isAnonymous) {
-        await _firestoreService.saveUserProfile(
-          user.uid,
-          displayName: user.displayName,
-          photoURL: user.photoURL,
-          email: user.email,
-        );
-        await _firestoreService.ensureUsername(
-          userId: user.uid,
-          displayName: user.displayName,
-        );
-      }
+      // Profile saving and username checked in authStateChanges listener
       // State will be updated by authStateChanges listener
     } catch (e) {
       emit(AuthError(message: e.toString()));
@@ -136,19 +107,7 @@ class AuthCubit extends Cubit<AuthState> {
         // User canceled
         emit(Unauthenticated());
       }
-      final user = result?.user;
-      if (user != null && !user.isAnonymous) {
-        await _firestoreService.saveUserProfile(
-          user.uid,
-          displayName: user.displayName,
-          photoURL: user.photoURL,
-          email: user.email,
-        );
-        await _firestoreService.ensureUsername(
-          userId: user.uid,
-          displayName: user.displayName,
-        );
-      }
+      // Profile saving and username checked in authStateChanges listener
       // State will be updated by authStateChanges listener
     } catch (e) {
       emit(AuthError(message: e.toString()));

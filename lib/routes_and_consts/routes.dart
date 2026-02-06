@@ -109,13 +109,20 @@ class GlobalRoutes {
         // Or just let the Login page handle the redirection upon success.
 
         if (isAuthenticated && isLoggingIn) {
-          // Only redirect to explore if we are NOT coming from somewhere else (i.e. just started app)
-          // If we have query params, we might want to let the page handle it?
-          // The state object has the params.
+          // If we have query params (like from=profile), let the page handle it
+          // OR if we are explicitly on these pages, maybe we shouldn't redirect?
+          // BUT if we are authenticated, we usually don't want to see Login page.
+          // EXCEPTION: If I am authenticated but I want to "Switch Account" or similar?
+          // In this app context, if I am authenticated, I shouldn't be on Login unless I just logged in.
+          // If I just logged in, the Login page handles the redirection.
+
+          // CRITICAL FIX: If we are here because we just got authenticated (e.g. via listener),
+          // we might want to let the Login page's listener handle the navigation logic
+          // which knows about the 'from' parameter.
           if (state.uri.queryParameters.containsKey('from')) {
             return null;
           }
-          return '/Explore';
+          return null;
         }
 
         // 3. Guest users are allowed to stay on Login/Signup

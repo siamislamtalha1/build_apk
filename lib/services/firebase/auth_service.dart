@@ -12,13 +12,14 @@ class AuthService {
   FirebaseAuth get _auth {
     return FirebaseAuth.instance;
   }
+
   static const String _googleServerClientId =
       String.fromEnvironment('GOOGLE_OAUTH_SERVER_CLIENT_ID');
   static const String _windowsGoogleOAuthClientId =
       String.fromEnvironment('GOOGLE_OAUTH_CLIENT_ID_WINDOWS');
-  static const String _windowsGoogleOAuthRedirectUri =
-      String.fromEnvironment('GOOGLE_OAUTH_REDIRECT_URI_WINDOWS',
-          defaultValue: 'http://localhost');
+  static const String _windowsGoogleOAuthRedirectUri = String.fromEnvironment(
+      'GOOGLE_OAUTH_REDIRECT_URI_WINDOWS',
+      defaultValue: 'http://localhost');
 
   late final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: ['email', 'profile'],
@@ -281,9 +282,45 @@ class AuthService {
     try {
       final user = _auth.currentUser;
       if (user == null || !user.isAnonymous) {
-        throw Exception('No anonymous user to link');
+        // If not anonymous, just try to sign up/in normally
+        // This handles edge cases where state might be desynced
+        try {
+          return await signUpWithEmail(email: email, password: password);
+        } on FirebaseAuthException catch (e) {
+          if (e.code == 'email-already-in-use') {
+            return await signInWithEmail(email: email, password: password);
+          }
+          rethrow;
+        }
       }
 
+      // Windows/Desktop often has issues with linkWithCredential crashing the native plugin.
+      // Since our Isar DB is user-agnostic (global on device), we don't strictly *need* to link
+      // the Firebase accounts to preserve local data. The local data will simply be pushed
+      // to the new account by SyncService.
+      // So on Windows, we prefer stability: Create New Account instead of Link.
+      if (Platform.isWindows) {
+        try {
+          // Try to create new account. This will sign out the anonymous user and sign in the new one.
+          final credential = await _auth.createUserWithEmailAndPassword(
+              email: email, password: password);
+          debugPrint(
+              '✅ (Windows) Created new account instead of linking: ${credential.user?.email}');
+          return credential;
+        } on FirebaseAuthException catch (e) {
+          if (e.code == 'email-already-in-use') {
+            // If email exists, just sign in.
+            final credential = await _auth.signInWithEmailAndPassword(
+                email: email, password: password);
+            debugPrint(
+                '✅ (Windows) Signed into existing account: ${credential.user?.email}');
+            return credential;
+          }
+          rethrow;
+        }
+      }
+
+      // For Mobile/Web, proceed with standard linking
       final credential = EmailAuthProvider.credential(
         email: email,
         password: password,
@@ -293,7 +330,8 @@ class AuthService {
       debugPrint('✅ Anonymous account linked with email');
       return userCredential;
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'email-already-in-use' || e.code == 'credential-already-in-use') {
+      if (e.code == 'email-already-in-use' ||
+          e.code == 'credential-already-in-use') {
         // If the email already has an account, linking the anonymous user will fail.
         // In that case, sign in to that account instead.
         try {
@@ -304,7 +342,8 @@ class AuthService {
           debugPrint('✅ Existing account found; signed in with email/password');
           return signedIn;
         } on FirebaseAuthException catch (signInError) {
-          debugPrint('❌ Sign-in after link failure failed: ${signInError.message}');
+          debugPrint(
+              '❌ Sign-in after link failure failed: ${signInError.message}');
           throw _handleAuthException(signInError);
         }
       }
