@@ -219,10 +219,22 @@ class SyncService {
     _initialized = true;
     _authSubscription = _authService.authStateChanges.listen(
       (user) {
-        if (user != null && !user.isAnonymous) {
-          _startSync(user.uid);
-        } else {
+        try {
+          if (user != null && !user.isAnonymous) {
+            unawaited(
+              _startSync(user.uid).catchError((Object e, StackTrace st) {
+                CrashReporter.record(e, st, source: 'SyncService._startSync');
+                _stopSync();
+                _safeAddStatus(SyncStatus.error);
+              }),
+            );
+          } else {
+            _stopSync();
+          }
+        } catch (e, st) {
+          CrashReporter.record(e, st, source: 'SyncService.authStateChanges');
           _stopSync();
+          _safeAddStatus(SyncStatus.error);
         }
       },
       onError: (Object e, StackTrace st) {
@@ -242,24 +254,31 @@ class SyncService {
   }
 
   /// Start sync for a user
-  void _startSync(String userId) async {
+  Future<void> _startSync(String userId) async {
     print('🔄 Starting sync for user: $userId');
-    if (_activeUserId == userId &&
-        (_startSyncCompleter != null || _initialSyncCompleted)) {
+    try {
+      if (_activeUserId == userId &&
+          (_startSyncCompleter != null || _initialSyncCompleted)) {
+        return;
+      }
+
+      _stopSync();
+      _activeUserId = userId;
+
+      _startSyncCompleter ??= Completer<void>();
+      _safeAddStatus(SyncStatus.syncing);
+      _safeAddDetails(
+        _syncDetailsController.value.copyWith(
+          status: SyncStatus.syncing,
+          initialSyncInProgress: true,
+        ),
+      );
+    } catch (e, st) {
+      CrashReporter.record(e, st, source: 'SyncService._startSync.setup');
+      _stopSync();
+      _safeAddStatus(SyncStatus.error);
       return;
     }
-
-    _stopSync();
-    _activeUserId = userId;
-
-    _startSyncCompleter ??= Completer<void>();
-    _safeAddStatus(SyncStatus.syncing);
-    _safeAddDetails(
-      _syncDetailsController.value.copyWith(
-        status: SyncStatus.syncing,
-        initialSyncInProgress: true,
-      ),
-    );
 
     // 1. Initial Pull from Cloud (pessimistic strategy: cloud wins if conflict/empty)
     try {
@@ -347,6 +366,45 @@ class SyncService {
 
   Future<void> _performInitialSync(String userId) async {
     print('⬇️ Performing initial sync from cloud...');
+
+    // Note: User profile and username initialization is primarily handled by AuthService
+    // during login/signup (running asynchronously in background). We add a fallback check here
+    // for cases where the user was already logged in when the app started, or if the
+    // background initialization hasn't completed yet.
+    try {
+      final user = _authService.currentUser;
+      if (user != null && !user.isAnonymous) {
+        // Wait a moment for auth service profile init to complete (runs in background)
+        await Future.delayed(const Duration(milliseconds: 500));
+
+        // Check if username exists - if not, we need to initialize profile
+        final username = await _firestoreService.getUsername(user.uid);
+        if (username == null || username.isEmpty) {
+          print('⚠️ Username not found, initializing profile as fallback...');
+          // Save user profile if we have any profile data
+          if (user.displayName != null ||
+              user.photoURL != null ||
+              user.email != null) {
+            await _firestoreService.saveUserProfile(
+              user.uid,
+              displayName: user.displayName,
+              photoURL: user.photoURL,
+              email: user.email,
+            );
+          }
+          // Ensure user has a username (generates random if needed)
+          await _firestoreService.ensureUsername(
+            userId: user.uid,
+            displayName: user.displayName,
+          );
+          print('✅ Profile initialized via fallback');
+        }
+      }
+    } catch (e) {
+      print('⚠️ Error in profile initialization fallback: $e');
+      // Continue with sync even if profile init fails
+    }
+
     // 1. Sync Liked Songs
     _safeAddDetails(
       _syncDetailsController.value.copyWith(syncingLikedSongs: true),

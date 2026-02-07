@@ -52,12 +52,26 @@ class AlbumCubit extends Cubit<AlbumState> {
                 ),
               );
             } else {
-              // pass;
+              SnackbarService.showMessage('Failed to load album');
+              emit(
+                AlbumLoaded(
+                  album: album.copyWith(songs: const []),
+                  isSavedToCollections: state.isSavedToCollections,
+                ),
+              );
             }
           },
         );
+        break;
       case SourceEngine.eng_YTV:
-      // TODO: Handle this case.
+        SnackbarService.showMessage('Album source is not supported');
+        emit(
+          AlbumLoaded(
+            album: album.copyWith(songs: const []),
+            isSavedToCollections: state.isSavedToCollections,
+          ),
+        );
+        break;
     }
   }
 

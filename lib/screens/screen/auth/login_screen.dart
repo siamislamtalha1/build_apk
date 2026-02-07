@@ -225,7 +225,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: isLoading
                           ? null
                           : () {
-                              // TODO: Implement forgot password
+                              final from = GoRouterState.of(context)
+                                  .uri
+                                  .queryParameters['from'];
+                              context.push(
+                                from == null
+                                    ? '/ForgotPassword'
+                                    : '/ForgotPassword?from=$from',
+                              );
                             },
                       child: Text(
                         'Forgot Password?',

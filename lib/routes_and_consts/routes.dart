@@ -17,6 +17,7 @@ import 'package:Bloomee/screens/screen/settings_views/advanced_settings_screen.d
 import 'package:Bloomee/screens/screen/settings_views/developer_tools_screen.dart';
 import 'package:Bloomee/screens/screen/auth/login_screen.dart';
 import 'package:Bloomee/screens/screen/auth/signup_screen.dart';
+import 'package:Bloomee/screens/screen/auth/forgot_password_screen.dart';
 import 'package:Bloomee/screens/screen/profile_screen.dart';
 import 'package:Bloomee/screens/screen/ai_playlist_screen.dart';
 import 'package:Bloomee/screens/screen/home_views/setting_views/about.dart';
@@ -51,7 +52,8 @@ class GlobalRoutes {
         final bool isAuthenticated =
             firebaseUser != null && !firebaseUser.isAnonymous;
         final bool isGuest = firebaseUser != null && firebaseUser.isAnonymous;
-        final bool isLoggingIn = path == '/Login' || path == '/Signup';
+        final bool isLoggingIn =
+            path == '/Login' || path == '/Signup' || path == '/ForgotPassword';
 
         // 1. If not logged in and not on login/signup page -> Redirect to Login
         if (firebaseUser == null && !isLoggingIn) {
@@ -134,6 +136,11 @@ class GlobalRoutes {
         return null;
       },
       routes: [
+        GoRoute(
+          path: '/ForgotPassword',
+          parentNavigatorKey: globalRouterKey,
+          builder: (context, state) => const ForgotPasswordScreen(),
+        ),
         GoRoute(
           name: GlobalStrConsts.playerScreen,
           path: "/MusicPlayer",

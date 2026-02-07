@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:Bloomee/services/firebase/auth_service.dart';
 import 'package:Bloomee/services/firebase/firestore_service.dart';
+import 'package:Bloomee/services/crash_reporter.dart';
 
 part 'auth_state.dart';
 
@@ -19,27 +20,8 @@ class AuthCubit extends Cubit<AuthState> {
     _authService.authStateChanges.listen((user) {
       if (user != null) {
         emit(Authenticated(user: user));
-        if (!user.isAnonymous) {
-          () async {
-            try {
-              if (user.displayName != null ||
-                  user.photoURL != null ||
-                  user.email != null) {
-                await _firestoreService.saveUserProfile(
-                  user.uid,
-                  displayName: user.displayName,
-                  photoURL: user.photoURL,
-                  email: user.email,
-                );
-              }
-              // Just ensure they have a username if they don't already
-              await _firestoreService.ensureUsername(
-                userId: user.uid,
-                displayName: user.displayName,
-              );
-            } catch (_) {}
-          }();
-        }
+        // Profile saving and username allocation is handled by SyncService
+        // to avoid race conditions and database transaction conflicts
       } else {
         emit(Unauthenticated());
       }
@@ -54,6 +36,7 @@ class AuthCubit extends Cubit<AuthState> {
     String? desiredUsername,
   }) async {
     try {
+      if (isClosed) return;
       emit(AuthLoading());
       final current = _authService.currentUser;
       final cred = (current != null && current.isAnonymous)
@@ -70,13 +53,23 @@ class AuthCubit extends Cubit<AuthState> {
       if (displayName != null && displayName.trim().isNotEmpty) {
         try {
           await cred?.user?.updateDisplayName(displayName.trim());
-        } catch (_) {}
+        } catch (e, st) {
+          CrashReporter.record(
+            e,
+            st,
+            source: 'AuthCubit.signUpWithEmail failed to update display name',
+          );
+          if (isClosed) return;
+          emit(AuthError(message: _messageFromError(e)));
+        }
       }
       // Profile saving and username allocation is now handled by the authStateChanges listener
       // to avoid double writes and race conditions.
       // State will be updated by authStateChanges listener
-    } catch (e) {
-      emit(AuthError(message: e.toString()));
+    } catch (e, st) {
+      CrashReporter.record(e, st, source: 'AuthCubit.signUpWithEmail failed');
+      if (isClosed) return;
+      emit(AuthError(message: _messageFromError(e)));
     }
   }
 
@@ -86,21 +79,47 @@ class AuthCubit extends Cubit<AuthState> {
     required String password,
   }) async {
     try {
+      if (isClosed) return;
       emit(AuthLoading());
-      await _authService.signInWithEmail(
+      final cred = await _authService.signInWithEmail(
         email: email,
         password: password,
       );
-      // Profile saving and username checked in authStateChanges listener
+      final user = cred?.user;
+      if (user != null && !user.isAnonymous) {
+        try {
+          await _firestoreService.saveUserProfile(
+            user.uid,
+            displayName: user.displayName,
+            photoURL: user.photoURL,
+            email: user.email,
+          );
+          await _firestoreService.ensureUsername(
+            userId: user.uid,
+            displayName: user.displayName,
+          );
+        } catch (e, st) {
+          CrashReporter.record(
+            e,
+            st,
+            source: 'AuthCubit.signInWithEmail failed to save user profile',
+          );
+          if (isClosed) return;
+          emit(AuthError(message: _messageFromError(e)));
+        }
+      }
       // State will be updated by authStateChanges listener
-    } catch (e) {
-      emit(AuthError(message: e.toString()));
+    } catch (e, st) {
+      CrashReporter.record(e, st, source: 'AuthCubit.signInWithEmail failed');
+      if (isClosed) return;
+      emit(AuthError(message: _messageFromError(e)));
     }
   }
 
   /// Sign in with Google
   Future<void> signInWithGoogle() async {
     try {
+      if (isClosed) return;
       emit(AuthLoading());
       final result = await _authService.signInWithGoogle();
       if (result == null) {
@@ -109,56 +128,87 @@ class AuthCubit extends Cubit<AuthState> {
       }
       // Profile saving and username checked in authStateChanges listener
       // State will be updated by authStateChanges listener
-    } catch (e) {
-      emit(AuthError(message: e.toString()));
+    } catch (e, st) {
+      CrashReporter.record(e, st, source: 'AuthCubit.signInWithGoogle failed');
+      if (isClosed) return;
+      emit(AuthError(message: _messageFromError(e)));
     }
   }
 
   /// Sign in as guest (anonymous)
   Future<void> signInAsGuest() async {
     try {
+      if (isClosed) return;
       emit(AuthLoading());
       await _authService.signInAsGuest();
       // State will be updated by authStateChanges listener
-    } catch (e) {
-      emit(AuthError(message: e.toString()));
+    } catch (e, st) {
+      CrashReporter.record(e, st, source: 'AuthCubit.signInAsGuest failed');
+      if (isClosed) return;
+      emit(AuthError(message: _messageFromError(e)));
     }
   }
 
   /// Sign out
   Future<void> signOut() async {
     try {
+      if (isClosed) return;
       emit(AuthLoading());
       await _authService.signOut();
       // State will be updated by authStateChanges listener
-    } catch (e) {
-      emit(AuthError(message: e.toString()));
+    } catch (e, st) {
+      CrashReporter.record(e, st, source: 'AuthCubit.signOut failed');
+      if (isClosed) return;
+      emit(AuthError(message: _messageFromError(e)));
     }
   }
 
   /// Send password reset email
   Future<void> sendPasswordResetEmail(String email) async {
     try {
+      if (isClosed) return;
+      emit(AuthLoading());
       await _authService.sendPasswordResetEmail(email);
-    } catch (e) {
-      emit(AuthError(message: e.toString()));
+      if (isClosed) return;
+      emit(AuthPasswordResetEmailSent(email: email));
+    } catch (e, st) {
+      CrashReporter.record(
+        e,
+        st,
+        source: 'AuthCubit.sendPasswordResetEmail failed',
+      );
+      if (isClosed) return;
+      emit(AuthError(message: _messageFromError(e)));
     }
   }
 
   /// Delete account
   Future<void> deleteAccount() async {
     try {
+      if (isClosed) return;
       emit(AuthLoading());
       final user = _authService.currentUser;
       final uid = user?.uid;
       if (uid != null && !(user?.isAnonymous ?? true)) {
-        await _firestoreService.releaseUsername(uid);
+        try {
+          await _firestoreService.releaseUsername(uid);
+        } catch (e, st) {
+          CrashReporter.record(
+            e,
+            st,
+            source: 'AuthCubit.deleteAccount failed to release username',
+          );
+          if (isClosed) return;
+          emit(AuthError(message: _messageFromError(e)));
+        }
       }
 
       await _authService.deleteAccount();
       // State will be updated by authStateChanges listener
-    } catch (e) {
-      emit(AuthError(message: e.toString()));
+    } catch (e, st) {
+      CrashReporter.record(e, st, source: 'AuthCubit.deleteAccount failed');
+      if (isClosed) return;
+      emit(AuthError(message: _messageFromError(e)));
     }
   }
 
@@ -167,10 +217,23 @@ class AuthCubit extends Cubit<AuthState> {
     if (user == null || user.isAnonymous) {
       throw Exception('Not logged in');
     }
-    await _firestoreService.claimUsername(
-      userId: user.uid,
-      desiredUsername: desiredUsername,
-    );
+    try {
+      await _firestoreService.claimUsername(
+        userId: user.uid,
+        desiredUsername: desiredUsername,
+      );
+    } catch (e, st) {
+      CrashReporter.record(e, st, source: 'AuthCubit.updateUsername failed');
+      if (isClosed) return;
+      emit(AuthError(message: _messageFromError(e)));
+    }
+  }
+
+  String _messageFromError(Object e) {
+    if (e is Exception) {
+      return e.toString().replaceFirst('Exception: ', '');
+    }
+    return e.toString();
   }
 
   /// Get current user

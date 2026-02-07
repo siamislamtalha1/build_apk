@@ -6,6 +6,7 @@ import 'package:desktop_webview_auth/google.dart';
 import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter/services.dart';
 import 'package:Bloomee/services/firebase/firebase_service.dart';
+import 'package:Bloomee/services/firebase/firestore_service.dart';
 
 /// Authentication service handling email/password, Google Sign-In, and guest mode
 class AuthService {
@@ -55,6 +56,40 @@ class AuthService {
   /// Check if user is anonymous (guest)
   bool get isGuest => currentUser?.isAnonymous ?? false;
 
+  /// Initialize user profile and username after authentication
+  /// This must be called immediately after successful authentication to prevent
+  /// race conditions with the sync service
+  Future<void> _initializeUserProfile(User user) async {
+    if (user.isAnonymous) return; // Skip for anonymous users
+
+    try {
+      final FirestoreService firestoreService = FirestoreService();
+
+      // Save user profile if we have any profile data
+      if (user.displayName != null ||
+          user.photoURL != null ||
+          user.email != null) {
+        await firestoreService.saveUserProfile(
+          user.uid,
+          displayName: user.displayName,
+          photoURL: user.photoURL,
+          email: user.email,
+        );
+      }
+
+      // Ensure user has a username (generates random if needed)
+      await firestoreService.ensureUsername(
+        userId: user.uid,
+        displayName: user.displayName,
+      );
+
+      debugPrint('✅ User profile initialized for ${user.email ?? user.uid}');
+    } catch (e) {
+      // Log error but don't fail the auth flow
+      debugPrint('⚠️ Error initializing user profile: $e');
+    }
+  }
+
   // ==================== Email/Password Authentication ====================
 
   /// Sign up with email and password
@@ -75,6 +110,12 @@ class AuthService {
       // Update display name if provided
       if (displayName != null && displayName.isNotEmpty) {
         await credential.user?.updateDisplayName(displayName);
+      }
+
+      // Initialize user profile asynchronously (non-blocking)
+      if (credential.user != null) {
+        _initializeUserProfile(
+            credential.user!); // No await - runs in background
       }
 
       debugPrint('✅ Sign up successful: ${credential.user?.email}');
@@ -98,6 +139,13 @@ class AuthService {
         email: email,
         password: password,
       );
+
+      // Initialize user profile asynchronously (non-blocking)
+      if (credential.user != null) {
+        _initializeUserProfile(
+            credential.user!); // No await - runs in background
+      }
+
       debugPrint('✅ Sign in successful: ${credential.user?.email}');
       return credential;
     } on FirebaseAuthException catch (e) {
@@ -183,6 +231,13 @@ class AuthService {
       } else {
         userCredential = await _auth.signInWithCredential(credential);
       }
+
+      // Initialize user profile asynchronously (non-blocking)
+      if (userCredential.user != null) {
+        _initializeUserProfile(
+            userCredential.user!); // No await - runs in background
+      }
+
       debugPrint('✅ Google Sign-In successful: ${userCredential.user?.email}');
       return userCredential;
     } catch (e) {
@@ -238,6 +293,13 @@ class AuthService {
       } else {
         userCredential = await _auth.signInWithCredential(credential);
       }
+
+      // Initialize user profile asynchronously (non-blocking)
+      if (userCredential.user != null) {
+        _initializeUserProfile(
+            userCredential.user!); // No await - runs in background
+      }
+
       debugPrint(
           '✅ Google Sign-In (Windows) successful: ${userCredential.user?.email}');
       return userCredential;
@@ -304,6 +366,13 @@ class AuthService {
           // Try to create new account. This will sign out the anonymous user and sign in the new one.
           final credential = await _auth.createUserWithEmailAndPassword(
               email: email, password: password);
+
+          // Initialize user profile asynchronously (non-blocking)
+          if (credential.user != null) {
+            _initializeUserProfile(
+                credential.user!); // No await - runs in background
+          }
+
           debugPrint(
               '✅ (Windows) Created new account instead of linking: ${credential.user?.email}');
           return credential;
@@ -312,6 +381,12 @@ class AuthService {
             // If email exists, just sign in.
             final credential = await _auth.signInWithEmailAndPassword(
                 email: email, password: password);
+
+            // Initialize user profile asynchronously (non-blocking)
+            if (credential.user != null) {
+              _initializeUserProfile(
+                  credential.user!); // No await - runs in background
+            }
             debugPrint(
                 '✅ (Windows) Signed into existing account: ${credential.user?.email}');
             return credential;
@@ -327,6 +402,13 @@ class AuthService {
       );
 
       final userCredential = await user.linkWithCredential(credential);
+
+      // Initialize user profile asynchronously (non-blocking)
+      if (userCredential.user != null) {
+        _initializeUserProfile(
+            userCredential.user!); // No await - runs in background
+      }
+
       debugPrint('✅ Anonymous account linked with email');
       return userCredential;
     } on FirebaseAuthException catch (e) {
@@ -339,6 +421,13 @@ class AuthService {
             email: email,
             password: password,
           );
+
+          // Initialize user profile asynchronously (non-blocking)
+          if (signedIn.user != null) {
+            _initializeUserProfile(
+                signedIn.user!); // No await - runs in background
+          }
+
           debugPrint('✅ Existing account found; signed in with email/password');
           return signedIn;
         } on FirebaseAuthException catch (signInError) {
@@ -414,34 +503,27 @@ class AuthService {
   // ==================== Error Handling ====================
 
   /// Handle Firebase Auth exceptions and return user-friendly messages
-  String _handleAuthException(FirebaseAuthException e) {
-    switch (e.code) {
-      case 'weak-password':
-        return 'The password is too weak. Please use a stronger password.';
-      case 'email-already-in-use':
-        return 'An account already exists with this email.';
-      case 'account-exists-with-different-credential':
-        return 'An account already exists with the same email but a different sign-in method. Try signing in using the original method, then link Google from your account.';
-      case 'invalid-email':
-        return 'The email address is invalid.';
-      case 'user-not-found':
-        return 'No account found with this email.';
-      case 'wrong-password':
-        return 'Incorrect password. Please try again.';
-      case 'credential-already-in-use':
-        return 'This Google account is already linked to another user. Please sign in directly with Google.';
-      case 'invalid-credential':
-        return 'Invalid credentials. If this is Google Sign-In, check your Firebase project configuration and OAuth client IDs.';
-      case 'user-disabled':
-        return 'This account has been disabled.';
-      case 'too-many-requests':
-        return 'Too many attempts. Please try again later.';
-      case 'operation-not-allowed':
-        return 'This sign-in method is not enabled.';
-      case 'requires-recent-login':
-        return 'Please sign in again to perform this action.';
-      default:
-        return e.message ?? 'An error occurred. Please try again.';
-    }
+  Exception _handleAuthException(FirebaseAuthException e) {
+    final message = switch (e.code) {
+      'weak-password' =>
+        'The password is too weak. Please use a stronger password.',
+      'email-already-in-use' => 'An account already exists with this email.',
+      'account-exists-with-different-credential' =>
+        'An account already exists with the same email but a different sign-in method. Try signing in using the original method, then link Google from your account.',
+      'invalid-email' => 'The email address is invalid.',
+      'user-not-found' => 'No account found with this email.',
+      'wrong-password' => 'Incorrect password. Please try again.',
+      'credential-already-in-use' =>
+        'This Google account is already linked to another user. Please sign in directly with Google.',
+      'invalid-credential' =>
+        'Invalid credentials. If this is Google Sign-In, check your Firebase project configuration and OAuth client IDs.',
+      'user-disabled' => 'This account has been disabled.',
+      'too-many-requests' => 'Too many attempts. Please try again later.',
+      'operation-not-allowed' => 'This sign-in method is not enabled.',
+      'requires-recent-login' => 'Please sign in again to perform this action.',
+      _ => e.message ?? 'An error occurred. Please try again.',
+    };
+
+    return Exception(message);
   }
 }

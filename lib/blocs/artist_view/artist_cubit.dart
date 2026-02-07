@@ -73,7 +73,17 @@ class ArtistCubit extends Cubit<ArtistState> {
         });
         break;
       case SourceEngine.eng_YTV:
-      // TODO: Handle this case.
+        SnackbarService.showMessage('Artist source is not supported');
+        emit(
+          ArtistLoaded(
+            artist: artist.copyWith(
+              songs: [],
+              albums: [],
+            ),
+            isSavedCollection: state.isSavedCollection,
+          ),
+        );
+        break;
     }
   }
   Future<void> checkIsSaved() async {
