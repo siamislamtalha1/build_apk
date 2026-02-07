@@ -20,6 +20,7 @@ class BloomeeDBService {
   static late Future<Isar> db;
   static late String appSuppDir;
   static late String appDocDir;
+  static bool _dirsInitialized = false;
   static final BloomeeDBService _instance = BloomeeDBService._internal();
 
   // Standard Playlists
@@ -38,12 +39,33 @@ class BloomeeDBService {
   factory BloomeeDBService({String? appSuppPath, String? appDocPath}) {
     if (appSuppPath != null) {
       appSuppDir = appSuppPath;
+      _dirsInitialized = true;
     }
     if (appDocPath != null) {
       appDocDir = appDocPath;
+      _dirsInitialized = true;
     }
 
     return _instance;
+  }
+
+  static Future<void> _ensureDirsInitialized() async {
+    if (_dirsInitialized) return;
+    try {
+      final supp = await getApplicationSupportDirectory();
+      final docs = await getApplicationDocumentsDirectory();
+      appSuppDir = supp.path;
+      appDocDir = docs.path;
+      try {
+        await Directory(appSuppDir).create(recursive: true);
+      } catch (_) {}
+      try {
+        await Directory(appDocDir).create(recursive: true);
+      } catch (_) {}
+      _dirsInitialized = true;
+    } catch (_) {
+      rethrow;
+    }
   }
 
   BloomeeDBService._internal() {
@@ -61,10 +83,12 @@ class BloomeeDBService {
     String? backupPath;
 
     try {
+      await _ensureDirsInitialized();
       final downloadsDir = await getDownloadsDirectory();
       backupPath = downloadsDir?.path ?? appDocDir;
     } catch (e) {
-       backupPath = appDocDir;
+      await _ensureDirsInitialized();
+      backupPath = appDocDir;
     }
     backupPath = p.join(backupPath, 'bloomeeBackup', 'bloomee_backup_db.json');
     // }
@@ -92,6 +116,7 @@ class BloomeeDBService {
   }
 
   static Future<Isar> openDB() async {
+    await _ensureDirsInitialized();
     if (Isar.instanceNames.isEmpty) {
       //check if DB exists in support directory
       final File dbFile = File(p.join(appSuppDir, 'default.isar'));
@@ -106,7 +131,38 @@ class BloomeeDBService {
 
       if (!await dbFile.exists() &&
           await File(p.join(appDocDir, 'default.isar')).exists()) {
-        final db = Isar.openSync(
+        try {
+          final db = Isar.openSync(
+            [
+              MediaPlaylistDBSchema,
+              MediaItemDBSchema,
+              AppSettingsBoolDBSchema,
+              AppSettingsStrDBSchema,
+              RecentlyPlayedDBSchema,
+              ChartsCacheDBSchema,
+              YtLinkCacheDBSchema,
+              DownloadDBSchema,
+              PlaylistsInfoDBSchema,
+              SavedCollectionsDBSchema,
+              LyricsDBSchema,
+              SearchHistoryDBSchema,
+              PlayStatisticsDBSchema,
+              SavedQueueDBSchema,
+            ],
+            directory: appDocDir,
+          );
+          db.copyToFile(dbFile.path);
+          log("DB Copied to $appSuppDir", name: "BloomeeDBService");
+          db.close();
+        } catch (e) {
+          log('Failed to open/copy DB from documents directory: $e',
+              name: 'BloomeeDBService');
+        }
+      }
+
+      log(appSuppDir, name: "DB");
+      try {
+        return Isar.openSync(
           [
             MediaPlaylistDBSchema,
             MediaItemDBSchema,
@@ -123,33 +179,32 @@ class BloomeeDBService {
             PlayStatisticsDBSchema,
             SavedQueueDBSchema,
           ],
-          directory: appDocDir,
+          directory: appSuppDir,
         );
-        db.copyToFile(dbFile.path);
-        log("DB Copied to $appSuppDir", name: "BloomeeDBService");
-        db.close();
+      } catch (e) {
+        try {
+          await Directory(appSuppDir).create(recursive: true);
+        } catch (_) {}
+        return Isar.openSync(
+          [
+            MediaPlaylistDBSchema,
+            MediaItemDBSchema,
+            AppSettingsBoolDBSchema,
+            AppSettingsStrDBSchema,
+            RecentlyPlayedDBSchema,
+            ChartsCacheDBSchema,
+            YtLinkCacheDBSchema,
+            DownloadDBSchema,
+            PlaylistsInfoDBSchema,
+            SavedCollectionsDBSchema,
+            LyricsDBSchema,
+            SearchHistoryDBSchema,
+            PlayStatisticsDBSchema,
+            SavedQueueDBSchema,
+          ],
+          directory: appSuppDir,
+        );
       }
-
-      log(appSuppDir, name: "DB");
-      return Isar.openSync(
-        [
-          MediaPlaylistDBSchema,
-          MediaItemDBSchema,
-          AppSettingsBoolDBSchema,
-          AppSettingsStrDBSchema,
-          RecentlyPlayedDBSchema,
-          ChartsCacheDBSchema,
-          YtLinkCacheDBSchema,
-          DownloadDBSchema,
-          PlaylistsInfoDBSchema,
-          SavedCollectionsDBSchema,
-          LyricsDBSchema,
-          SearchHistoryDBSchema,
-          PlayStatisticsDBSchema,
-          SavedQueueDBSchema,
-        ],
-        directory: appSuppDir,
-      );
     }
     return Future.value(Isar.getInstance());
   }

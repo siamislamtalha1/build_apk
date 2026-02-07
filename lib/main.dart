@@ -564,7 +564,7 @@ class _MyAppState extends State<MyApp> {
           create: (context) => MiniPlayerBloc(playerCubit: bloomeePlayerCubit),
           lazy: true,
         ),
-        BlocProvider(create: (context) => BloomeeDBCubit(), lazy: false),
+        BlocProvider(create: (context) => BloomeeDBCubit(), lazy: true),
         BlocProvider(create: (context) => SettingsCubit(), lazy: false),
         BlocProvider(create: (context) => NotificationCubit(), lazy: false),
         BlocProvider.value(value: widget.authCubit),
