@@ -22,7 +22,9 @@ import 'package:flutter/services.dart';
 import 'package:Bloomee/screens/widgets/glass_widgets.dart';
 
 void showPlaylistOptsInrSheet(
-    BuildContext context, MediaPlaylist mediaPlaylist) {
+  BuildContext context,
+  MediaPlaylist mediaPlaylist,
+) {
   showFloatingModalBottomSheet(
     context: context,
     builder: (context) {
@@ -52,8 +54,9 @@ void showPlaylistOptsInrSheet(
                       stops: const [0.0, 1.0],
                     ),
                     borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(20),
-                        topRight: Radius.circular(20)),
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
+                    ),
                     border: Border.all(
                       color: scheme.onSurface.withValues(alpha: 0.10),
                       width: 1,
@@ -74,22 +77,28 @@ void showPlaylistOptsInrSheet(
                             final user = auth.currentUser;
                             if (user == null || user.isAnonymous) {
                               SnackbarService.showMessage(
-                                  'Login required to change visibility');
+                                'Login required to change visibility',
+                              );
                               return;
                             }
                             final fs = FirestoreService();
                             try {
-                              final header = await fs.getPlaylistHeaderFromCloud(
-                                  user.uid, mediaPlaylist.playlistName);
+                              final header = await fs
+                                  .getPlaylistHeaderFromCloud(
+                                    user.uid,
+                                    mediaPlaylist.playlistName,
+                                  );
                               final cur = header?['isPublic'] == true;
                               await fs.setPlaylistVisibility(
                                 userId: user.uid,
                                 playlistName: mediaPlaylist.playlistName,
                                 isPublic: !cur,
                               );
-                              SnackbarService.showMessage(!cur
-                                  ? 'Playlist is now Public'
-                                  : 'Playlist is now Private');
+                              SnackbarService.showMessage(
+                                !cur
+                                    ? 'Playlist is now Public'
+                                    : 'Playlist is now Private',
+                              );
                             } catch (e) {
                               SnackbarService.showMessage('Failed: $e');
                             }
@@ -104,7 +113,8 @@ void showPlaylistOptsInrSheet(
                             final user = auth.currentUser;
                             if (user == null || user.isAnonymous) {
                               SnackbarService.showMessage(
-                                  'Login required to create share link');
+                                'Login required to create share link',
+                              );
                               return;
                             }
                             final fs = FirestoreService();
@@ -121,7 +131,8 @@ void showPlaylistOptsInrSheet(
                               final url = fs.buildPlaylistShareUrl(shareId);
                               await Clipboard.setData(ClipboardData(text: url));
                               SnackbarService.showMessage(
-                                  'Link copied to clipboard');
+                                'Link copied to clipboard',
+                              );
                             } catch (e) {
                               SnackbarService.showMessage('Failed: $e');
                             }
@@ -134,9 +145,11 @@ void showPlaylistOptsInrSheet(
                             Navigator.pop(context);
                             final suggested =
                                 await BloomeeDBService.generateUniquePlaylistName(
-                                    '${mediaPlaylist.playlistName} Copy');
-                            final controller =
-                                TextEditingController(text: suggested);
+                                  '${mediaPlaylist.playlistName} Copy',
+                                );
+                            final controller = TextEditingController(
+                              text: suggested,
+                            );
                             final name = await showDialog<String>(
                               context: context,
                               builder: (ctx) {
@@ -167,18 +180,23 @@ void showPlaylistOptsInrSheet(
                             final next = name?.trim() ?? '';
                             if (next.isEmpty || next.length < 3) {
                               SnackbarService.showMessage(
-                                  'Playlist name must be at least 3 characters');
+                                'Playlist name must be at least 3 characters',
+                              );
                               return;
                             }
-                            final res = await BloomeeDBService.duplicatePlaylist(
-                              mediaPlaylist.playlistName,
-                              newPlaylistName: next,
-                            );
+                            final res =
+                                await BloomeeDBService.duplicatePlaylist(
+                                  mediaPlaylist.playlistName,
+                                  newPlaylistName: next,
+                                );
                             if (res != null) {
-                              SnackbarService.showMessage('Playlist duplicated');
+                              SnackbarService.showMessage(
+                                'Playlist duplicated',
+                              );
                             } else {
                               SnackbarService.showMessage(
-                                  'Duplicate failed (name may already exist)');
+                                'Duplicate failed (name may already exist)',
+                              );
                             }
                           },
                         ),
@@ -188,10 +206,11 @@ void showPlaylistOptsInrSheet(
                           onPressed: () {
                             Navigator.pop(context);
                             Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        const PlaylistEditView()));
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const PlaylistEditView(),
+                              ),
+                            );
                           },
                         ),
                         PltOptBtn(
@@ -200,13 +219,16 @@ void showPlaylistOptsInrSheet(
                           onPressed: () async {
                             Navigator.pop(context);
                             SnackbarService.showMessage(
-                                "Preparing ${mediaPlaylist.playlistName} for share");
+                              "Preparing ${mediaPlaylist.playlistName} for share",
+                            );
                             final tmpPath =
                                 await ImportExportService.exportPlaylist(
-                                    mediaPlaylist.playlistName);
+                                  mediaPlaylist.playlistName,
+                                );
                             tmpPath != null
-                                ? SharePlus.instance
-                                    .share(ShareParams(files: [XFile(tmpPath)]))
+                                ? SharePlus.instance.share(
+                                    ShareParams(files: [XFile(tmpPath)]),
+                                  )
                                 : null;
                           },
                         ),
@@ -216,21 +238,30 @@ void showPlaylistOptsInrSheet(
                             title: "Export File",
                             onPressed: () async {
                               Navigator.pop(context);
-                              String? path =
-                                  await FilePicker.platform.getDirectoryPath();
+                              String? path = await FilePicker.platform
+                                  .getDirectoryPath();
                               if (path == null || path == "/") {
-                                path = (await getDownloadsDirectory())
-                                    ?.path
-                                    .toString();
+                                final downloadDir =
+                                    await getDownloadsDirectory();
+                                if (downloadDir != null) {
+                                  path = downloadDir.path;
+                                } else {
+                                  path =
+                                      (await getApplicationDocumentsDirectory())
+                                          .path;
+                                }
                               }
                               SnackbarService.showMessage(
-                                  "Preparing ${mediaPlaylist.playlistName} for export.");
+                                "Preparing ${mediaPlaylist.playlistName} for export.",
+                              );
                               final tmpPath =
                                   await ImportExportService.exportPlaylist(
-                                mediaPlaylist.playlistName,
-                                filePath: path,
+                                    mediaPlaylist.playlistName,
+                                    filePath: path,
+                                  );
+                              SnackbarService.showMessage(
+                                "Exported to: $tmpPath",
                               );
-                              SnackbarService.showMessage("Exported to: $tmpPath");
                             },
                           ),
                       ],
@@ -276,8 +307,9 @@ void showPlaylistOptsExtSheet(BuildContext context, String playlistName) {
                       stops: const [0.0, 1.0],
                     ),
                     borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(20),
-                        topRight: Radius.circular(20)),
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
+                    ),
                     border: Border.all(
                       color: scheme.onSurface.withValues(alpha: 0.10),
                       width: 1,
@@ -289,91 +321,110 @@ void showPlaylistOptsExtSheet(BuildContext context, String playlistName) {
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                  PltOptBtn(
-                    icon: MingCute.play_circle_fill,
-                    title: "Play",
-                    onPressed: () async {
-                      Navigator.pop(context);
-                      final list = await context
-                          .read<LibraryItemsCubit>()
-                          .getPlaylist(playlistName);
-                      if (list != null && list.isNotEmpty) {
-                        context
-                            .read<BloomeePlayerCubit>()
-                            .bloomeePlayer
-                            .loadPlaylist(
-                                MediaPlaylist(
-                                    mediaItems: list,
-                                    playlistName: playlistName),
-                                doPlay: true);
-                        SnackbarService.showMessage("Playing $playlistName");
-                      }
-                    },
-                  ),
-                  PltOptBtn(
-                    title: 'Add Playlist to Queue',
-                    icon: MingCute.playlist_2_line,
-                    onPressed: () async {
-                      Navigator.pop(context);
-                      final list = await context
-                          .read<LibraryItemsCubit>()
-                          .getPlaylist(playlistName);
-                      if (list != null && list.isNotEmpty) {
-                        context
-                            .read<BloomeePlayerCubit>()
-                            .bloomeePlayer
-                            .addQueueItems(list);
-                        SnackbarService.showMessage(
-                            "Added $playlistName to Queue");
-                      }
-                    },
-                  ),
-                  PltOptBtn(
-                    icon: MingCute.share_2_fill,
-                    title: "Share Playlist",
-                    onPressed: () async {
-                      Navigator.pop(context);
-                      SnackbarService.showMessage(
-                          "Preparing $playlistName for share");
-                      final tmpPath = await ImportExportService.exportPlaylist(
-                          playlistName);
-                      tmpPath != null
-                          ? SharePlus.instance
-                              .share(ShareParams(files: [XFile(tmpPath)]))
-                          : null;
-                    },
-                  ),
-                  if (!Platform.isAndroid)
-                    PltOptBtn(
-                      icon: MingCute.file_export_line,
-                      title: "Export File",
-                      onPressed: () async {
-                        Navigator.pop(context);
-                        String? path =
-                            await FilePicker.platform.getDirectoryPath();
-                        if (path == null || path == "/") {
-                          path =
-                              (await getDownloadsDirectory())?.path.toString();
-                        }
-                        SnackbarService.showMessage(
-                            "Preparing $playlistName for export.");
-                        final tmpPath =
-                            await ImportExportService.exportPlaylist(
-                          playlistName,
-                          filePath: path,
-                        );
-                        SnackbarService.showMessage("Exported to: $tmpPath");
-                      },
-                    ),
-                  PltOptBtn(
-                    title: 'Delete Playlist',
-                    icon: MingCute.delete_2_fill,
-                    onPressed: () {
-                      Navigator.pop(context);
-                      context.read<LibraryItemsCubit>().removePlaylist(
-                          MediaPlaylistDB(playlistName: playlistName));
-                    },
-                  ),
+                        PltOptBtn(
+                          icon: MingCute.play_circle_fill,
+                          title: "Play",
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            final list = await context
+                                .read<LibraryItemsCubit>()
+                                .getPlaylist(playlistName);
+                            if (list != null && list.isNotEmpty) {
+                              context
+                                  .read<BloomeePlayerCubit>()
+                                  .bloomeePlayer
+                                  .loadPlaylist(
+                                    MediaPlaylist(
+                                      mediaItems: list,
+                                      playlistName: playlistName,
+                                    ),
+                                    doPlay: true,
+                                  );
+                              SnackbarService.showMessage(
+                                "Playing $playlistName",
+                              );
+                            }
+                          },
+                        ),
+                        PltOptBtn(
+                          title: 'Add Playlist to Queue',
+                          icon: MingCute.playlist_2_line,
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            final list = await context
+                                .read<LibraryItemsCubit>()
+                                .getPlaylist(playlistName);
+                            if (list != null && list.isNotEmpty) {
+                              context
+                                  .read<BloomeePlayerCubit>()
+                                  .bloomeePlayer
+                                  .addQueueItems(list);
+                              SnackbarService.showMessage(
+                                "Added $playlistName to Queue",
+                              );
+                            }
+                          },
+                        ),
+                        PltOptBtn(
+                          icon: MingCute.share_2_fill,
+                          title: "Share Playlist",
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            SnackbarService.showMessage(
+                              "Preparing $playlistName for share",
+                            );
+                            final tmpPath =
+                                await ImportExportService.exportPlaylist(
+                                  playlistName,
+                                );
+                            tmpPath != null
+                                ? SharePlus.instance.share(
+                                    ShareParams(files: [XFile(tmpPath)]),
+                                  )
+                                : null;
+                          },
+                        ),
+                        if (!Platform.isAndroid)
+                          PltOptBtn(
+                            icon: MingCute.file_export_line,
+                            title: "Export File",
+                            onPressed: () async {
+                              Navigator.pop(context);
+                              String? path = await FilePicker.platform
+                                  .getDirectoryPath();
+                              if (path == null || path == "/") {
+                                final downloadDir = await getDownloadsDirectory();
+                                if (downloadDir != null) {
+                                  path = downloadDir.path;
+                                } else {
+                                  path =
+                                      (await getApplicationDocumentsDirectory())
+                                          .path;
+                                }
+                              }
+                              SnackbarService.showMessage(
+                                "Preparing $playlistName for export.",
+                              );
+                              final tmpPath =
+                                  await ImportExportService.exportPlaylist(
+                                    playlistName,
+                                    filePath: path,
+                                  );
+                              SnackbarService.showMessage(
+                                "Exported to: $tmpPath",
+                              );
+                            },
+                          ),
+                        PltOptBtn(
+                          title: 'Delete Playlist',
+                          icon: MingCute.delete_2_fill,
+                          onPressed: () {
+                            Navigator.pop(context);
+                            context.read<LibraryItemsCubit>().removePlaylist(
+                              MediaPlaylistDB(playlistName: playlistName),
+                            );
+                          },
+                        ),
                       ],
                     ),
                   ),
@@ -403,21 +454,18 @@ class PltOptBtn extends StatelessWidget {
     return IconButton(
       icon: Row(
         children: [
-          Icon(
-            icon,
-            color: Default_Theme.primaryColor1,
-            size: 25,
-          ),
+          Icon(icon, color: Default_Theme.primaryColor1, size: 25),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.only(left: 8, right: 8),
               child: Text(
                 title,
                 style: TextStyle(
-                    color: Default_Theme.primaryColor1,
-                    fontFamily: "Unageo",
-                    fontSize: 17,
-                    fontWeight: FontWeight.w400),
+                  color: Default_Theme.primaryColor1,
+                  fontFamily: "Unageo",
+                  fontSize: 17,
+                  fontWeight: FontWeight.w400,
+                ),
               ),
             ),
           ),
@@ -435,12 +483,11 @@ Future<T> showFloatingModalBottomSheet<T>({
   Color? backgroundColor,
 }) async {
   final result = await showCustomModalBottomSheet(
-      context: context,
-      builder: builder,
-      containerWidget: (_, animation, child) => FloatingModal(
-            child: child,
-          ),
-      expand: false);
+    context: context,
+    builder: builder,
+    containerWidget: (_, animation, child) => FloatingModal(child: child),
+    expand: false,
+  );
 
   return result;
 }

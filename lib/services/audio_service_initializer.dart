@@ -15,17 +15,21 @@ class PlayerInitializer {
   static BloomeeMusicPlayer? bloomeeMusicPlayer;
 
   Future<void> _initialize() async {
-    bloomeeMusicPlayer = await AudioService.init(
-      builder: () => BloomeeMusicPlayer(),
-      config: AudioServiceConfig(
-        androidStopForegroundOnPause: false,
-        androidNotificationChannelId: 'com.BloomeePlayer.notification.status',
-        androidNotificationChannelName: 'BloomeTunes',
-        androidResumeOnClick: true,
-        androidShowNotificationBadge: true,
-        notificationColor: Default_Theme.accentColor2,
-      ),
-    );
+    if (Platform.isAndroid || Platform.isIOS) {
+      bloomeeMusicPlayer = await AudioService.init(
+        builder: () => BloomeeMusicPlayer(),
+        config: AudioServiceConfig(
+          androidStopForegroundOnPause: false,
+          androidNotificationChannelId: 'com.BloomeePlayer.notification.status',
+          androidNotificationChannelName: 'BloomeTunes',
+          androidResumeOnClick: true,
+          androidShowNotificationBadge: true,
+          notificationColor: Default_Theme.accentColor2,
+        ),
+      );
+    } else {
+      bloomeeMusicPlayer = BloomeeMusicPlayer();
+    }
 
     // Brief delay on Android for native side to stabilize
     if (Platform.isAndroid && bloomeeMusicPlayer != null) {

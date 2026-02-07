@@ -1,4 +1,5 @@
 import 'package:Bloomee/screens/widgets/global_footer.dart';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Bloomee/routes_and_consts/global_str_consts.dart';
@@ -33,7 +34,7 @@ class GlobalRoutes {
   static GoRouter getRouter(AuthCubit authCubit) {
     return GoRouter(
       debugLogDiagnostics: true,
-      initialLocation: '/Explore',
+      initialLocation: Platform.isWindows ? '/Login' : '/Explore',
       navigatorKey: globalRouterKey,
       refreshListenable: GoRouterRefreshStream(authCubit.stream),
       redirect: (context, state) {
@@ -48,7 +49,12 @@ class GlobalRoutes {
           return null;
         }
 
-        final firebaseUser = FirebaseAuth.instance.currentUser;
+        User? firebaseUser;
+        try {
+          firebaseUser = FirebaseAuth.instance.currentUser;
+        } catch (_) {
+          firebaseUser = null;
+        }
         final bool isAuthenticated =
             firebaseUser != null && !firebaseUser.isAnonymous;
         final bool isGuest = firebaseUser != null && firebaseUser.isAnonymous;

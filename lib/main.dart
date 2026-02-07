@@ -50,6 +50,7 @@ import 'package:Bloomee/blocs/auth/auth_cubit.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:Bloomee/l10n/app_localizations.dart';
 import 'package:Bloomee/services/crash_reporter.dart';
+import 'package:Bloomee/services/trace_logger.dart';
 
 void processIncomingIntent(SharedMedia sharedMedia) {
   // Check if there's text content that might be a URL
@@ -57,12 +58,11 @@ void processIncomingIntent(SharedMedia sharedMedia) {
     final urlType = getUrlType(sharedMedia.content!);
     switch (urlType) {
       case UrlType.spotifyTrack:
-        ExternalMediaImporter.sfyMediaImporter(sharedMedia.content!)
-            .then((value) async {
+        ExternalMediaImporter.sfyMediaImporter(sharedMedia.content!).then((
+          value,
+        ) async {
           if (value != null) {
-            await bloomeePlayerCubit.bloomeePlayer.addQueueItem(
-              value,
-            );
+            await bloomeePlayerCubit.bloomeePlayer.addQueueItem(value);
           }
         });
         break;
@@ -76,11 +76,13 @@ void processIncomingIntent(SharedMedia sharedMedia) {
         SnackbarService.showMessage("Import Spotify Album from library!");
         break;
       case UrlType.youtubeVideo:
-        ExternalMediaImporter.ytMediaImporter(sharedMedia.content!)
-            .then((value) async {
+        ExternalMediaImporter.ytMediaImporter(sharedMedia.content!).then((
+          value,
+        ) async {
           if (value != null) {
-            await bloomeePlayerCubit.bloomeePlayer
-                .updateQueue([value], doPlay: true);
+            await bloomeePlayerCubit.bloomeePlayer.updateQueue([
+              value,
+            ], doPlay: true);
           }
         });
         break;
@@ -208,25 +210,28 @@ Future<void> main() async {
 
   CrashReporter.markStage('main:after_platform_dispatcher_on_error');
 
-  runZonedGuarded(() async {
-    try {
-      CrashReporter.markStage('main:runZonedGuarded:entered');
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-      CrashReporter.markStage('main:after_set_ui_mode');
-      runApp(const _BootstrapApp());
-      CrashReporter.markStage('main:after_runApp');
-    } catch (e, st) {
-      debugPrint('Fatal error during app bootstrap: $e');
-      debugPrintStack(stackTrace: st);
-      CrashReporter.record(e, st, source: 'main.bootstrap');
-      runApp(CrashReportScreen(error: e.toString()));
-    }
-  }, (error, stack) {
-    debugPrint('Uncaught zoned error: $error');
-    debugPrintStack(stackTrace: stack);
-    CrashReporter.record(error, stack, source: 'runZonedGuarded');
-    runApp(CrashReportScreen(error: error.toString()));
-  });
+  runZonedGuarded(
+    () async {
+      try {
+        CrashReporter.markStage('main:runZonedGuarded:entered');
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+        CrashReporter.markStage('main:after_set_ui_mode');
+        runApp(const _BootstrapApp());
+        CrashReporter.markStage('main:after_runApp');
+      } catch (e, st) {
+        debugPrint('Fatal error during app bootstrap: $e');
+        debugPrintStack(stackTrace: st);
+        CrashReporter.record(e, st, source: 'main.bootstrap');
+        runApp(CrashReportScreen(error: e.toString()));
+      }
+    },
+    (error, stack) {
+      debugPrint('Uncaught zoned error: $error');
+      debugPrintStack(stackTrace: stack);
+      CrashReporter.record(error, stack, source: 'runZonedGuarded');
+      runApp(CrashReportScreen(error: error.toString()));
+    },
+  );
 }
 
 class _BootstrapData {
@@ -251,13 +256,10 @@ class _BootstrapAppState extends State<_BootstrapApp> {
   Future<_BootstrapData> _bootstrap() async {
     CrashReporter.markStage('_bootstrap:entered');
 
-    if (io.Platform.isLinux || io.Platform.isWindows) {
+    if (io.Platform.isLinux) {
       try {
         CrashReporter.markStage('_bootstrap:before_just_audio_media_kit');
-        JustAudioMediaKit.ensureInitialized(
-          linux: true,
-          windows: true,
-        );
+        JustAudioMediaKit.ensureInitialized(linux: true, windows: false);
         CrashReporter.markStage('_bootstrap:after_just_audio_media_kit');
       } catch (e, st) {
         debugPrint('JustAudioMediaKit init failed: $e');
@@ -266,13 +268,19 @@ class _BootstrapAppState extends State<_BootstrapApp> {
     }
 
     CrashReporter.markStage('_bootstrap:before_init_services');
-    await initServices();
+    await TraceLogger.init();
+    TraceLogger.log('Bootstrap: Init services started');
+    if (!io.Platform.isWindows) {
+      await initServices();
+    }
+    TraceLogger.log('Bootstrap: Init services completed');
     CrashReporter.markStage('_bootstrap:after_init_services');
 
     CrashReporter.markStage('_bootstrap:before_firebase_init');
     final firebaseOk = await FirebaseService.initializeSafe();
     CrashReporter.markStage(
-        '_bootstrap:after_firebase_init:${firebaseOk ? 'ok' : 'failed'}');
+      '_bootstrap:after_firebase_init:${firebaseOk ? 'ok' : 'failed'}',
+    );
 
     final authCubit = AuthCubit();
     final globalEventsCubit = GlobalEventsCubit();
@@ -282,7 +290,9 @@ class _BootstrapAppState extends State<_BootstrapApp> {
     if (firebaseOk) {
       try {
         CrashReporter.markStage('_bootstrap:before_sync_service_init');
-        SyncService().init();
+        if (!io.Platform.isWindows) {
+          SyncService().init();
+        }
         CrashReporter.markStage('_bootstrap:after_sync_service_init');
       } catch (e, st) {
         debugPrint('SyncService init failed: $e');
@@ -304,11 +314,16 @@ class _BootstrapAppState extends State<_BootstrapApp> {
     setupPlayerCubit();
     CrashReporter.markStage('_bootstrap:after_setup_player_cubit');
 
+    TraceLogger.log('Bootstrap: Before Discord init');
     CrashReporter.markStage('_bootstrap:before_discord_init');
-    DiscordService.initialize();
+    if (!io.Platform.isWindows) {
+      DiscordService.initialize();
+    }
     CrashReporter.markStage('_bootstrap:after_discord_init');
+    TraceLogger.log('Bootstrap: After Discord init');
 
     CrashReporter.markStage('_bootstrap:completed');
+    TraceLogger.log('Bootstrap: Completed');
     return _BootstrapData(
       authCubit: authCubit,
       globalEventsCubit: globalEventsCubit,
@@ -381,9 +396,7 @@ class CrashReportScreen extends StatelessWidget {
                 ],
                 const Divider(),
                 Expanded(
-                  child: SingleChildScrollView(
-                    child: SelectableText(txt),
-                  ),
+                  child: SingleChildScrollView(child: SelectableText(txt)),
                 ),
               ],
             ),
@@ -419,22 +432,25 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    TraceLogger.log('MyApp: initState started');
     _router = GlobalRoutes.getRouter(widget.authCubit);
 
     _previousPlatformBrightnessHandler =
         WidgetsBinding.instance.platformDispatcher.onPlatformBrightnessChanged;
     WidgetsBinding.instance.platformDispatcher.onPlatformBrightnessChanged =
         () {
-      _previousPlatformBrightnessHandler?.call();
-      if (!mounted) return;
-      setState(() {});
-    };
+          _previousPlatformBrightnessHandler?.call();
+          if (!mounted) return;
+          setState(() {});
+        };
 
     if (io.Platform.isAndroid) {
       initPlatformState().catchError((e, st) {
         debugPrint('initPlatformState failed: $e');
         debugPrintStack(stackTrace: st);
       });
+    } else {
+      TraceLogger.log('MyApp: initState completed (non-Android)');
     }
 
     // Check for Weekly Popup
@@ -543,62 +559,38 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider(create: (context) => bloomeePlayerCubit, lazy: false),
         BlocProvider(
-          create: (context) => bloomeePlayerCubit,
-          lazy: false,
+          create: (context) => MiniPlayerBloc(playerCubit: bloomeePlayerCubit),
+          lazy: true,
         ),
+        BlocProvider(create: (context) => BloomeeDBCubit(), lazy: false),
+        BlocProvider(create: (context) => SettingsCubit(), lazy: false),
+        BlocProvider(create: (context) => NotificationCubit(), lazy: false),
+        BlocProvider.value(value: widget.authCubit),
+        BlocProvider.value(value: widget.globalEventsCubit),
         BlocProvider(
-            create: (context) =>
-                MiniPlayerBloc(playerCubit: bloomeePlayerCubit),
-            lazy: true),
-        BlocProvider(
-          create: (context) => BloomeeDBCubit(),
-          lazy: false,
+          create: (context) => TimerBloc(
+            ticker: const Ticker(),
+            bloomeePlayer: bloomeePlayerCubit,
+          ),
         ),
-        BlocProvider(
-          create: (context) => SettingsCubit(),
-          lazy: false,
-        ),
-        BlocProvider(
-          create: (context) => NotificationCubit(),
-          lazy: false,
-        ),
-        BlocProvider.value(
-          value: widget.authCubit,
-        ),
-        BlocProvider.value(
-          value: widget.globalEventsCubit,
-        ),
-        BlocProvider(
-            create: (context) => TimerBloc(
-                ticker: const Ticker(), bloomeePlayer: bloomeePlayerCubit)),
-        BlocProvider(
-          create: (context) => ConnectivityCubit(),
-          lazy: false,
-        ),
+        BlocProvider(create: (context) => ConnectivityCubit(), lazy: false),
         BlocProvider(
           create: (context) => CurrentPlaylistCubit(
-              bloomeeDBCubit: context.read<BloomeeDBCubit>()),
+            bloomeeDBCubit: context.read<BloomeeDBCubit>(),
+          ),
           lazy: false,
         ),
         BlocProvider(
           create: (context) =>
               LibraryItemsCubit(bloomeeDBCubit: context.read<BloomeeDBCubit>()),
         ),
-        BlocProvider(
-          create: (context) => AddToPlaylistCubit(),
-          lazy: false,
-        ),
-        BlocProvider(
-          create: (context) => ImportPlaylistCubit(),
-        ),
-        BlocProvider(
-          create: (context) => FetchSearchResultsCubit(),
-        ),
+        BlocProvider(create: (context) => AddToPlaylistCubit(), lazy: false),
+        BlocProvider(create: (context) => ImportPlaylistCubit()),
+        BlocProvider(create: (context) => FetchSearchResultsCubit()),
         BlocProvider(create: (context) => SearchSuggestionBloc()),
-        BlocProvider(
-          create: (context) => LyricsCubit(bloomeePlayerCubit),
-        ),
+        BlocProvider(create: (context) => LyricsCubit(bloomeePlayerCubit)),
         BlocProvider(
           create: (context) => LastdotfmCubit(playerCubit: bloomeePlayerCubit),
           lazy: false,
@@ -610,10 +602,7 @@ class _MyAppState extends State<MyApp> {
           ),
           lazy: false,
         ),
-        BlocProvider(
-          create: (context) => PlayerOverlayCubit(),
-          lazy: false,
-        ),
+        BlocProvider(create: (context) => PlayerOverlayCubit(), lazy: false),
         BlocProvider(
           create: (context) => ShortcutIndicatorCubit(),
           lazy: false,
@@ -626,8 +615,8 @@ class _MyAppState extends State<MyApp> {
           final brightness = settingsState.themeMode == ThemeMode.system
               ? platformBrightness
               : settingsState.themeMode == ThemeMode.dark
-                  ? Brightness.dark
-                  : Brightness.light;
+              ? Brightness.dark
+              : Brightness.light;
           Default_Theme.setBrightness(brightness);
           return BlocBuilder<BloomeePlayerCubit, BloomeePlayerState>(
             builder: (context, state) {
@@ -657,26 +646,39 @@ class _MyAppState extends State<MyApp> {
                         return AnnotatedRegion<SystemUiOverlayStyle>(
                           value: SystemUiOverlayStyle(
                             statusBarColor: Default_Theme.themeColor,
-                            statusBarIconBrightness:
-                                isDark ? Brightness.light : Brightness.dark,
-                            statusBarBrightness:
-                                isDark ? Brightness.dark : Brightness.light,
+                            statusBarIconBrightness: isDark
+                                ? Brightness.light
+                                : Brightness.dark,
+                            statusBarBrightness: isDark
+                                ? Brightness.dark
+                                : Brightness.light,
                             systemNavigationBarColor: Default_Theme.themeColor,
-                            systemNavigationBarIconBrightness:
-                                isDark ? Brightness.light : Brightness.dark,
+                            systemNavigationBarIconBrightness: isDark
+                                ? Brightness.light
+                                : Brightness.dark,
                           ),
                           child: ResponsiveBreakpoints.builder(
                             breakpoints: [
                               const Breakpoint(
-                                  start: 0, end: 450, name: MOBILE),
+                                start: 0,
+                                end: 450,
+                                name: MOBILE,
+                              ),
                               const Breakpoint(
-                                  start: 451, end: 800, name: TABLET),
+                                start: 451,
+                                end: 800,
+                                name: TABLET,
+                              ),
                               const Breakpoint(
-                                  start: 801, end: 1920, name: DESKTOP),
+                                start: 801,
+                                end: 1920,
+                                name: DESKTOP,
+                              ),
                               const Breakpoint(
-                                  start: 1921,
-                                  end: double.infinity,
-                                  name: '4K'),
+                                start: 1921,
+                                end: double.infinity,
+                                name: '4K',
+                              ),
                             ],
                             child: GlobalEventListener(
                               navigatorKey: GlobalRoutes.globalRouterKey,
@@ -709,11 +711,11 @@ class CustomScrollBehavior extends MaterialScrollBehavior {
   // Override behavior methods and getters like dragDevices
   @override
   Set<PointerDeviceKind> get dragDevices => {
-        PointerDeviceKind.touch,
-        PointerDeviceKind.mouse,
-        PointerDeviceKind.trackpad,
-        PointerDeviceKind.stylus,
-        PointerDeviceKind.invertedStylus,
-        // etc.
-      };
+    PointerDeviceKind.touch,
+    PointerDeviceKind.mouse,
+    PointerDeviceKind.trackpad,
+    PointerDeviceKind.stylus,
+    PointerDeviceKind.invertedStylus,
+    // etc.
+  };
 }

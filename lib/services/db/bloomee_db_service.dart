@@ -60,9 +60,12 @@ class BloomeeDBService {
   static Future<String> getDbBackupFilePath() async {
     String? backupPath;
 
-    backupPath = await getSettingStr(GlobalStrConsts.backupPath);
-    // if (backupPath == null || backupPath.isEmpty || backupPath == appDocDir) {
-    backupPath = (await getDownloadsDirectory())?.path ?? appDocDir;
+    try {
+      final downloadsDir = await getDownloadsDirectory();
+      backupPath = downloadsDir?.path ?? appDocDir;
+    } catch (e) {
+       backupPath = appDocDir;
+    }
     backupPath = p.join(backupPath, 'bloomeeBackup', 'bloomee_backup_db.json');
     // }
     return backupPath;
