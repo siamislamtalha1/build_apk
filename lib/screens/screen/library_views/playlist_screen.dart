@@ -90,6 +90,8 @@ class PlaylistView extends StatelessWidget {
                       key: const ValueKey('1'),
                       physics: const BouncingScrollPhysics(),
                       primary: true,
+                      cacheExtent:
+                          1000.0, // Pre-render items for smooth scrolling
                       slivers: [
                         SliverAppBar(
                           leadingWidth: 68,
@@ -726,45 +728,47 @@ class PlaylistView extends StatelessWidget {
                         else
                           SliverPrototypeExtentList.builder(
                             itemBuilder: (context, index) {
-                              return SongCardWidget(
-                                key: ValueKey(
-                                    state.mediaPlaylist.mediaItems[index]),
-                                song: state.mediaPlaylist.mediaItems[index],
-                                onTap: () {
-                                  context
-                                      .read<BloomeePlayerCubit>()
-                                      .bloomeePlayer
-                                      .loadPlaylist(
-                                        MediaPlaylist(
-                                          mediaItems:
-                                              state.mediaPlaylist.mediaItems,
-                                          playlistName:
-                                              state.mediaPlaylist.playlistName,
-                                        ),
-                                        idx: index,
-                                        doPlay: true,
-                                      );
-                                },
-                                onOptionsTap: () {
-                                  showMoreBottomSheet(
-                                    context,
-                                    state.mediaPlaylist.mediaItems[index],
-                                    onDelete: () {
-                                      context
-                                          .read<BloomeeDBCubit>()
-                                          .removeMediaFromPlaylist(
-                                            state.mediaPlaylist
-                                                .mediaItems[index],
-                                            MediaPlaylistDB(
-                                                playlistName: state
-                                                    .mediaPlaylist
-                                                    .playlistName),
-                                          );
-                                    },
-                                    showDelete: true,
-                                    showSinglePlay: true,
-                                  );
-                                },
+                              return RepaintBoundary(
+                                child: SongCardWidget(
+                                  key: ValueKey(
+                                      state.mediaPlaylist.mediaItems[index]),
+                                  song: state.mediaPlaylist.mediaItems[index],
+                                  onTap: () {
+                                    context
+                                        .read<BloomeePlayerCubit>()
+                                        .bloomeePlayer
+                                        .loadPlaylist(
+                                          MediaPlaylist(
+                                            mediaItems:
+                                                state.mediaPlaylist.mediaItems,
+                                            playlistName: state
+                                                .mediaPlaylist.playlistName,
+                                          ),
+                                          idx: index,
+                                          doPlay: true,
+                                        );
+                                  },
+                                  onOptionsTap: () {
+                                    showMoreBottomSheet(
+                                      context,
+                                      state.mediaPlaylist.mediaItems[index],
+                                      onDelete: () {
+                                        context
+                                            .read<BloomeeDBCubit>()
+                                            .removeMediaFromPlaylist(
+                                              state.mediaPlaylist
+                                                  .mediaItems[index],
+                                              MediaPlaylistDB(
+                                                  playlistName: state
+                                                      .mediaPlaylist
+                                                      .playlistName),
+                                            );
+                                      },
+                                      showDelete: true,
+                                      showSinglePlay: true,
+                                    );
+                                  },
+                                ),
                               );
                             },
                             itemCount: state.mediaPlaylist.mediaItems.length,

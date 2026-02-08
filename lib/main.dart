@@ -719,4 +719,9 @@ class CustomScrollBehavior extends MaterialScrollBehavior {
         PointerDeviceKind.invertedStylus,
         // etc.
       };
+
+  @override
+  ScrollPhysics getScrollPhysics(BuildContext context) {
+    return const BouncingScrollPhysics();
+  }
 }

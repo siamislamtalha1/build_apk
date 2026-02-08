@@ -104,21 +104,17 @@ class GlobalRoutes {
           pageBuilder: (context, state) {
             return CustomTransitionPage(
               child: const AudioPlayerView(),
-              transitionDuration: const Duration(milliseconds: 100),
-              reverseTransitionDuration: const Duration(milliseconds: 100),
+              transitionDuration: const Duration(milliseconds: 300),
+              reverseTransitionDuration: const Duration(milliseconds: 300),
               transitionsBuilder:
                   (context, animation, secondaryAnimation, child) {
                 const begin = Offset(0.0, 1.0);
                 const end = Offset.zero;
-                final tween = Tween(begin: begin, end: end);
-                final curvedAnimation = CurvedAnimation(
-                  parent: animation,
-                  reverseCurve: Curves.easeIn,
-                  curve: Curves.easeInOut,
-                );
-                final offsetAnimation = curvedAnimation.drive(tween);
+                const curve = Curves.easeInOutCubic;
+                var tween = Tween(begin: begin, end: end)
+                    .chain(CurveTween(curve: curve));
                 return SlideTransition(
-                  position: offsetAnimation,
+                  position: animation.drive(tween),
                   child: child,
                 );
               },
@@ -129,7 +125,13 @@ class GlobalRoutes {
           path: '/AddToPlaylist',
           parentNavigatorKey: globalRouterKey,
           name: GlobalStrConsts.addToPlaylistScreen,
-          builder: (context, state) => const AddToPlaylistScreen(),
+          pageBuilder: (context, state) => CustomTransitionPage(
+            child: const AddToPlaylistScreen(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(opacity: animation, child: child);
+            },
+          ),
         ),
         GoRoute(
           path: '/Statistics',
@@ -147,8 +149,23 @@ class GlobalRoutes {
           path: '/AdvancedSettings',
           parentNavigatorKey: globalRouterKey,
           name: GlobalStrConsts.advancedSettingsScreen,
-          builder: (context, state) => const GlobalBackdropWrapper(
-            child: AdvancedSettingsScreen(),
+          pageBuilder: (context, state) => CustomTransitionPage(
+            child: const GlobalBackdropWrapper(
+              child: AdvancedSettingsScreen(),
+            ),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(1.0, 0.0),
+                  end: Offset.zero,
+                ).animate(CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.easeOutCubic,
+                )),
+                child: child,
+              );
+            },
           ),
         ),
         GoRoute(
@@ -177,13 +194,25 @@ class GlobalRoutes {
           path: '/Login',
           parentNavigatorKey: globalRouterKey,
           name: 'Login',
-          builder: (context, state) => const LoginScreen(),
+          pageBuilder: (context, state) => CustomTransitionPage(
+            child: const LoginScreen(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(opacity: animation, child: child);
+            },
+          ),
         ),
         GoRoute(
           path: '/Signup',
           parentNavigatorKey: globalRouterKey,
           name: 'Signup',
-          builder: (context, state) => const SignupScreen(),
+          pageBuilder: (context, state) => CustomTransitionPage(
+            child: const SignupScreen(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(opacity: animation, child: child);
+            },
+          ),
         ),
         GoRoute(
           path: '/AIPlaylist',
@@ -195,8 +224,23 @@ class GlobalRoutes {
           path: '/Settings',
           parentNavigatorKey: globalRouterKey,
           name: 'Settings',
-          builder: (context, state) => const GlobalBackdropWrapper(
-            child: SettingsView(),
+          pageBuilder: (context, state) => CustomTransitionPage(
+            child: const GlobalBackdropWrapper(
+              child: SettingsView(),
+            ),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(1.0, 0.0), // Slide from right
+                  end: Offset.zero,
+                ).animate(CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.easeOutCubic,
+                )),
+                child: child,
+              );
+            },
           ),
         ),
         GoRoute(
@@ -227,18 +271,18 @@ class GlobalRoutes {
             builder: (context, state, navigationShell) =>
                 GlobalFooter(navigationShell: navigationShell),
             branches: [
-              // StatefulShellBranch(routes: [
-              //   GoRoute(
-              //     name: GlobalStrConsts.testScreen,
-              //     path: '/Test',
-              //     builder: (context, state) => TestView(),
-              //   ),
-              // ]),
               StatefulShellBranch(routes: [
                 GoRoute(
                     name: GlobalStrConsts.exploreScreen,
                     path: '/Explore',
-                    builder: (context, state) => const ExploreScreen(),
+                    pageBuilder: (context, state) => CustomTransitionPage(
+                          child: const ExploreScreen(),
+                          transitionsBuilder:
+                              (context, animation, secondaryAnimation, child) {
+                            return FadeTransition(
+                                opacity: animation, child: child);
+                          },
+                        ),
                     routes: [
                       GoRoute(
                           name: GlobalStrConsts.ChartScreen,
@@ -252,7 +296,14 @@ class GlobalRoutes {
                 GoRoute(
                     name: GlobalStrConsts.libraryScreen,
                     path: '/Library',
-                    builder: (context, state) => const LibraryScreen(),
+                    pageBuilder: (context, state) => CustomTransitionPage(
+                          child: const LibraryScreen(),
+                          transitionsBuilder:
+                              (context, animation, secondaryAnimation, child) {
+                            return FadeTransition(
+                                opacity: animation, child: child);
+                          },
+                        ),
                     routes: [
                       GoRoute(
                         path: GlobalStrConsts.ImportMediaFromPlatforms,
@@ -273,15 +324,23 @@ class GlobalRoutes {
                 GoRoute(
                   name: GlobalStrConsts.searchScreen,
                   path: '/Search',
-                  builder: (context, state) {
+                  pageBuilder: (context, state) {
+                    Widget page;
                     if (state.uri.queryParameters['query'] != null) {
-                      return SearchScreen(
+                      page = SearchScreen(
                         searchQuery:
                             state.uri.queryParameters['query']!.toString(),
                       );
                     } else {
-                      return const SearchScreen();
+                      page = const SearchScreen();
                     }
+                    return CustomTransitionPage(
+                      child: page,
+                      transitionsBuilder:
+                          (context, animation, secondaryAnimation, child) {
+                        return FadeTransition(opacity: animation, child: child);
+                      },
+                    );
                   },
                 ),
               ]),
@@ -289,14 +348,26 @@ class GlobalRoutes {
                 GoRoute(
                   name: GlobalStrConsts.offlineScreen,
                   path: '/Offline',
-                  builder: (context, state) => const OfflineScreen(),
+                  pageBuilder: (context, state) => CustomTransitionPage(
+                    child: const OfflineScreen(),
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                      return FadeTransition(opacity: animation, child: child);
+                    },
+                  ),
                 ),
               ]),
               StatefulShellBranch(routes: [
                 GoRoute(
                   name: GlobalStrConsts.profileScreen,
                   path: '/Profile',
-                  builder: (context, state) => const ProfileScreen(),
+                  pageBuilder: (context, state) => CustomTransitionPage(
+                    child: const ProfileScreen(),
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                      return FadeTransition(opacity: animation, child: child);
+                    },
+                  ),
                 ),
               ]),
             ])

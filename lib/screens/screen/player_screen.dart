@@ -54,8 +54,8 @@ class _AudioPlayerViewState extends State<AudioPlayerView>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         _playerOverlayCubit.registerUpNextPanelCollapse(
-              () => _upNextPanelController.collapse(),
-            );
+          () => _upNextPanelController.collapse(),
+        );
       }
     });
   }
@@ -104,15 +104,16 @@ class _AudioPlayerViewState extends State<AudioPlayerView>
         ),
         actions: [
           Padding(
-            padding: EdgeInsets.only(right: 8, top: headerPillTopSpacing(context)),
+            padding:
+                EdgeInsets.only(right: 8, top: headerPillTopSpacing(context)),
             child: HeaderGlassIconPill(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
               children: [
                 IconButton(
                   onPressed: () =>
                       showMoreBottomSheet(context, musicPlayer.currentMedia),
-                  icon:
-                      Icon(MingCute.more_2_fill, size: 25, color: scheme.onSurface),
+                  icon: Icon(MingCute.more_2_fill,
+                      size: 25, color: scheme.onSurface),
                 ),
               ],
             ),
@@ -323,14 +324,19 @@ class CoverImageVolSlider extends StatelessWidget {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      LoadImageCached(
-                          imageUrl: formatImgURL(artUri, ImageQuality.high),
-                          fallbackUrl: formatImgURL(artUri, ImageQuality.medium),
-                          fit: BoxFit.fitWidth),
+                      Hero(
+                        tag: snapshot.data?.id ?? "player_cover",
+                        child: LoadImageCached(
+                            imageUrl: formatImgURL(artUri, ImageQuality.high),
+                            fallbackUrl:
+                                formatImgURL(artUri, ImageQuality.medium),
+                            fit: BoxFit.fitWidth),
+                      ),
                       const Align(
                         alignment: Alignment.bottomCenter,
                         child: Padding(
-                          padding: EdgeInsets.only(left: 12, right: 12, bottom: 12),
+                          padding:
+                              EdgeInsets.only(left: 12, right: 12, bottom: 12),
                           child: IgnorePointer(
                             child: AudioVisualizer(height: 70),
                           ),
@@ -399,13 +405,12 @@ class _SongInfoRow extends StatelessWidget {
                       child: SelectableText(
                         mediaItem?.title ?? "Unknown",
                         textAlign: TextAlign.start,
-                        style: Default_Theme.secondoryTextStyle.merge(
-                            TextStyle(
-                                fontSize: 22,
-                                fontFamily: "NotoSans",
-                                fontWeight: FontWeight.w700,
-                                overflow: TextOverflow.ellipsis,
-                                color: scheme.onSurface)),
+                        style: Default_Theme.secondoryTextStyle.merge(TextStyle(
+                            fontSize: 22,
+                            fontFamily: "NotoSans",
+                            fontWeight: FontWeight.w700,
+                            overflow: TextOverflow.ellipsis,
+                            color: scheme.onSurface)),
                       ),
                     ),
                     SingleChildScrollView(
@@ -736,9 +741,8 @@ class _ShuffleControl extends StatelessWidget {
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap),
               icon: Icon(
                 MingCute.shuffle_2_fill,
-                color: isShuffle
-                    ? Default_Theme.accentColor1
-                    : scheme.onSurface,
+                color:
+                    isShuffle ? Default_Theme.accentColor1 : scheme.onSurface,
                 size: 30,
               ),
               onPressed: () {
@@ -815,8 +819,7 @@ class _PlayPauseButton extends StatelessWidget {
         Color buttonColor = Default_Theme.accentColor2;
 
         if (state is MiniPlayerInitial || state is MiniPlayerProcessing) {
-          child = CircularProgressIndicator(
-              color: scheme.onSurface);
+          child = CircularProgressIndicator(color: scheme.onSurface);
           buttonColor = Default_Theme.accentColor2;
         } else if (state is MiniPlayerCompleted) {
           child = Icon(FontAwesome.rotate_right_solid,
@@ -824,13 +827,11 @@ class _PlayPauseButton extends StatelessWidget {
           buttonColor =
               Default_Theme.accentColor1; // Sky blue for completed/repeat
         } else if (state is MiniPlayerError) {
-          child = Icon(MingCute.warning_line,
-              color: scheme.onSurface);
+          child = Icon(MingCute.warning_line, color: scheme.onSurface);
           buttonColor = Default_Theme.accentColor2;
         } else if (state is MiniPlayerWorking) {
           if (state.isBuffering) {
-            child = CircularProgressIndicator(
-                color: scheme.onSurface);
+            child = CircularProgressIndicator(color: scheme.onSurface);
             buttonColor = state.isPlaying
                 ? Default_Theme.accentColor1
                 : Default_Theme.accentColor2;
@@ -873,8 +874,7 @@ class _AudioSettingsControl extends StatelessWidget {
         constraints: const BoxConstraints(),
         style:
             const ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-        icon: Icon(MingCute.settings_3_line,
-            color: scheme.onSurface, size: 24),
+        icon: Icon(MingCute.settings_3_line, color: scheme.onSurface, size: 24),
         onPressed: () {
           showModalBottomSheet(
             context: context,
@@ -926,7 +926,8 @@ class _AmbientImgShadowWidgetState extends State<AmbientImgShadowWidget> {
           }
 
           final base = cachedColor ?? const Color.fromARGB(255, 163, 44, 115);
-          final glow = _soften(base, isDark).withValues(alpha: isDark ? 0.22 : 0.10);
+          final glow =
+              _soften(base, isDark).withValues(alpha: isDark ? 0.22 : 0.10);
           final glowMid =
               _soften(base, isDark).withValues(alpha: isDark ? 0.10 : 0.05);
 

@@ -20,7 +20,8 @@ ImageProvider<Object> safeImageProvider(
   }
 
   final scheme = (uri?.scheme ?? '').toLowerCase();
-  if ((scheme == 'http' || scheme == 'https') && (uri?.host.isNotEmpty ?? false)) {
+  if ((scheme == 'http' || scheme == 'https') &&
+      (uri?.host.isNotEmpty ?? false)) {
     return NetworkImage(raw);
   }
 
@@ -66,14 +67,16 @@ Image loadImage(coverImageUrl,
 
 Widget loadImageCached(coverImageURL,
     {placeholderPath = "assets/icons/bloomee_new_logo_c.png",
-    fit = BoxFit.cover}) {
+    fit = BoxFit.cover,
+    int? dimension}) {
   final raw = (coverImageURL?.toString() ?? '').trim();
   if (raw.isEmpty) {
     return Image(image: AssetImage(placeholderPath), fit: fit);
   }
   final uri = Uri.tryParse(raw);
   final scheme = (uri?.scheme ?? '').toLowerCase();
-  final isValid = (scheme == 'http' || scheme == 'https') && (uri?.host.isNotEmpty ?? false);
+  final isValid = (scheme == 'http' || scheme == 'https') &&
+      (uri?.host.isNotEmpty ?? false);
   if (!isValid) {
     return Image(image: AssetImage(placeholderPath), fit: fit);
   }
@@ -81,7 +84,7 @@ Widget loadImageCached(coverImageURL,
   ImageProvider<Object> placeHolder = AssetImage(placeholderPath);
   return CachedNetworkImage(
     imageUrl: raw,
-    memCacheWidth: 500,
+    memCacheWidth: dimension ?? 500,
     // memCacheHeight: 500,
     placeholder: (context, url) => Image(
       image: const AssetImage("assets/icons/lazy_loading.png"),
@@ -91,7 +94,7 @@ Widget loadImageCached(coverImageURL,
       image: placeHolder,
       fit: fit,
     ),
-    fadeInDuration: const Duration(milliseconds: 700),
+    fadeInDuration: const Duration(milliseconds: 300),
     fit: fit,
   );
 }
@@ -101,6 +104,7 @@ class LoadImageCached extends StatefulWidget {
   final String? fallbackUrl;
   final String placeholderUrl;
   final BoxFit fit;
+  final int? dimension;
 
   const LoadImageCached({
     Key? key,
@@ -108,6 +112,7 @@ class LoadImageCached extends StatefulWidget {
     this.placeholderUrl = "assets/icons/bloomee_new_logo_c.png",
     this.fit = BoxFit.cover,
     this.fallbackUrl,
+    this.dimension,
   }) : super(key: key);
 
   @override
@@ -129,13 +134,15 @@ class _LoadImageCachedState extends State<LoadImageCached> {
 
   @override
   Widget build(BuildContext context) {
+    final memCacheWidth = widget.dimension ?? 500;
+
     // Validate primary URL
     if (!_isValidUrl(widget.imageUrl)) {
       // Try fallback URL if available
       if (widget.fallbackUrl != null && _isValidUrl(widget.fallbackUrl!)) {
         return CachedNetworkImage(
           imageUrl: widget.fallbackUrl!,
-          memCacheWidth: 500,
+          memCacheWidth: memCacheWidth,
           placeholder: (context, url) => Image(
             image: const AssetImage("assets/icons/lazy_loading.png"),
             fit: widget.fit,
@@ -157,6 +164,7 @@ class _LoadImageCachedState extends State<LoadImageCached> {
 
     return CachedNetworkImage(
       imageUrl: widget.imageUrl,
+      memCacheWidth: memCacheWidth,
       placeholder: (context, url) => Image(
         image: const AssetImage("assets/icons/lazy_loading.png"),
         fit: widget.fit,
@@ -170,7 +178,7 @@ class _LoadImageCachedState extends State<LoadImageCached> {
               ? CachedNetworkImage(
                   // now using fallback url
                   imageUrl: widget.fallbackUrl!,
-                  memCacheWidth: 500,
+                  memCacheWidth: memCacheWidth,
                   placeholder: (context, url) => Image(
                     image: const AssetImage("assets/icons/lazy_loading.png"),
                     fit: widget.fit,
@@ -198,7 +206,8 @@ Future<ImageProvider> getImageProvider(String imageUrl,
   if (raw.isEmpty) return AssetImage(placeholderUrl);
   final uri = Uri.tryParse(raw);
   final scheme = (uri?.scheme ?? '').toLowerCase();
-  final isValid = (scheme == 'http' || scheme == 'https') && (uri?.host.isNotEmpty ?? false);
+  final isValid = (scheme == 'http' || scheme == 'https') &&
+      (uri?.host.isNotEmpty ?? false);
   if (!isValid) return AssetImage(placeholderUrl);
 
   try {

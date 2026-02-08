@@ -126,6 +126,7 @@ class _LibraryScreenViewState extends State<_LibraryScreenView> {
                 itemsState.playlistsOnl.isEmpty) {
               return CustomScrollView(
                 physics: const BouncingScrollPhysics(),
+                cacheExtent: 1000.0,
                 slivers: [
                   customDiscoverBar(context),
                   const SliverFillRemaining(
@@ -170,6 +171,7 @@ class _LibraryScreenViewState extends State<_LibraryScreenView> {
 
                 return CustomScrollView(
                   physics: const BouncingScrollPhysics(),
+                  cacheExtent: 1000.0,
                   slivers: [
                     customDiscoverBar(context),
                     if (_isSearching)
@@ -297,28 +299,33 @@ class _LibraryScreenViewState extends State<_LibraryScreenView> {
           index: index,
           child: Padding(
             padding: const EdgeInsets.only(left: 4, right: 0),
-            child: SongCardWidget(
-              song: result.song,
-              showOptions: true,
-              subtitleOverride: 'in ${result.playlistName}',
-              onTap: () async {
-                _dismissKeyboard();
-                final playlistDB =
-                    await BloomeeDBService.getPlaylist(result.playlistName);
-                if (playlistDB != null && context.mounted) {
-                  final playlist = fromPlaylistDB2MediaPlaylist(playlistDB);
-                  final songIdx = playlist.mediaItems
-                      .indexWhere((s) => s.id == result.song.id);
-                  context.read<BloomeePlayerCubit>().bloomeePlayer.loadPlaylist(
-                        playlist,
-                        idx: songIdx >= 0 ? songIdx : 0,
-                        doPlay: true,
-                      );
-                }
-              },
-              onOptionsTap: () {
-                showMoreBottomSheet(context, result.song);
-              },
+            child: RepaintBoundary(
+              child: SongCardWidget(
+                song: result.song,
+                showOptions: true,
+                subtitleOverride: 'in ${result.playlistName}',
+                onTap: () async {
+                  _dismissKeyboard();
+                  final playlistDB =
+                      await BloomeeDBService.getPlaylist(result.playlistName);
+                  if (playlistDB != null && context.mounted) {
+                    final playlist = fromPlaylistDB2MediaPlaylist(playlistDB);
+                    final songIdx = playlist.mediaItems
+                        .indexWhere((s) => s.id == result.song.id);
+                    context
+                        .read<BloomeePlayerCubit>()
+                        .bloomeePlayer
+                        .loadPlaylist(
+                          playlist,
+                          idx: songIdx >= 0 ? songIdx : 0,
+                          doPlay: true,
+                        );
+                  }
+                },
+                onOptionsTap: () {
+                  showMoreBottomSheet(context, result.song);
+                },
+              ),
             ),
           ),
         );
@@ -335,20 +342,22 @@ class _LibraryScreenViewState extends State<_LibraryScreenView> {
           index: index,
           child: SizedBox(
             height: 80,
-            child: LibItemCard(
-              title: artist.name,
-              coverArt: artist.imageUrl,
-              subtitle:
-                  'Artist - ${artist.source == "ytm" ? SourceEngine.eng_YTM.value : (artist.source == 'saavn' ? SourceEngine.eng_JIS.value : SourceEngine.eng_YTV.value)}',
-              type: LibItemTypes.artist,
-              onTap: () {
-                _dismissKeyboard();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => ArtistView(artist: artist)),
-                );
-              },
+            child: RepaintBoundary(
+              child: LibItemCard(
+                title: artist.name,
+                coverArt: artist.imageUrl,
+                subtitle:
+                    'Artist - ${artist.source == "ytm" ? SourceEngine.eng_YTM.value : (artist.source == 'saavn' ? SourceEngine.eng_JIS.value : SourceEngine.eng_YTV.value)}',
+                type: LibItemTypes.artist,
+                onTap: () {
+                  _dismissKeyboard();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ArtistView(artist: artist)),
+                  );
+                },
+              ),
             ),
           ),
         );
@@ -365,20 +374,22 @@ class _LibraryScreenViewState extends State<_LibraryScreenView> {
           index: index,
           child: SizedBox(
             height: 80,
-            child: LibItemCard(
-              title: album.name,
-              coverArt: album.imageURL,
-              subtitle:
-                  'Album - ${album.source == "ytm" ? SourceEngine.eng_YTM.value : (album.source == 'saavn' ? SourceEngine.eng_JIS.value : SourceEngine.eng_YTV.value)}',
-              type: LibItemTypes.album,
-              onTap: () {
-                _dismissKeyboard();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => AlbumView(album: album)),
-                );
-              },
+            child: RepaintBoundary(
+              child: LibItemCard(
+                title: album.name,
+                coverArt: album.imageURL,
+                subtitle:
+                    'Album - ${album.source == "ytm" ? SourceEngine.eng_YTM.value : (album.source == 'saavn' ? SourceEngine.eng_JIS.value : SourceEngine.eng_YTV.value)}',
+                type: LibItemTypes.album,
+                onTap: () {
+                  _dismissKeyboard();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => AlbumView(album: album)),
+                  );
+                },
+              ),
             ),
           ),
         );
@@ -396,23 +407,25 @@ class _LibraryScreenViewState extends State<_LibraryScreenView> {
           index: index,
           child: SizedBox(
             height: 80,
-            child: LibItemCard(
-              title: playlist.name,
-              coverArt: playlist.imageURL,
-              subtitle:
-                  'Playlist - ${playlist.source == "ytm" ? SourceEngine.eng_YTM.value : (playlist.source == 'saavn' ? SourceEngine.eng_JIS.value : SourceEngine.eng_YTV.value)}',
-              type: LibItemTypes.onlPlaylist,
-              onTap: () {
-                _dismissKeyboard();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => OnlPlaylistView(
-                      playlist: playlist,
+            child: RepaintBoundary(
+              child: LibItemCard(
+                title: playlist.name,
+                coverArt: playlist.imageURL,
+                subtitle:
+                    'Playlist - ${playlist.source == "ytm" ? SourceEngine.eng_YTM.value : (playlist.source == 'saavn' ? SourceEngine.eng_JIS.value : SourceEngine.eng_YTV.value)}',
+                type: LibItemTypes.onlPlaylist,
+                onTap: () {
+                  _dismissKeyboard();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => OnlPlaylistView(
+                        playlist: playlist,
+                      ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
           ),
         );
@@ -453,7 +466,8 @@ class _LibraryScreenViewState extends State<_LibraryScreenView> {
               children: [
                 IconButton(
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+                  constraints:
+                      const BoxConstraints(minWidth: 44, minHeight: 44),
                   onPressed: () {
                     if (_isSearching) {
                       _closeSearch();
@@ -464,13 +478,13 @@ class _LibraryScreenViewState extends State<_LibraryScreenView> {
                   icon: Icon(
                     _isSearching ? MingCute.close_fill : MingCute.search_line,
                     size: 24,
-                    color:
-                        _isSearching ? scheme.primary : scheme.onSurface,
+                    color: _isSearching ? scheme.primary : scheme.onSurface,
                   ),
                 ),
                 IconButton(
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+                  constraints:
+                      const BoxConstraints(minWidth: 44, minHeight: 44),
                   tooltip: 'Import playlist',
                   onPressed: () async {
                     await showCloudPlaylistImportDialog(context);
@@ -483,7 +497,8 @@ class _LibraryScreenViewState extends State<_LibraryScreenView> {
                 ),
                 IconButton(
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+                  constraints:
+                      const BoxConstraints(minWidth: 44, minHeight: 44),
                   onPressed: () => createPlaylistBottomSheet(context),
                   icon: Icon(
                     MingCute.add_fill,
@@ -493,7 +508,8 @@ class _LibraryScreenViewState extends State<_LibraryScreenView> {
                 ),
                 IconButton(
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+                  constraints:
+                      const BoxConstraints(minWidth: 44, minHeight: 44),
                   onPressed: () => context
                       .pushNamed(GlobalStrConsts.ImportMediaFromPlatforms),
                   icon: Icon(

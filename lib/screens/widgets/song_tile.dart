@@ -96,6 +96,7 @@ class SongCardWidget extends StatelessWidget {
                 imageUrl:
                     formatImgURL(song.artUri.toString(), ImageQuality.low),
                 isWide: isWide,
+                songId: song.id, // Pass song ID
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -235,10 +236,12 @@ class _PlayingIndicatorState extends State<_PlayingIndicator>
 class _SongImage extends StatelessWidget {
   final String imageUrl;
   final bool isWide;
+  final String songId;
 
   const _SongImage({
     required this.imageUrl,
     required this.isWide,
+    required this.songId,
   });
 
   @override
@@ -246,14 +249,18 @@ class _SongImage extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: RepaintBoundary(
-        child: ClipRRect(
-          borderRadius: _SongCardStyles.imageBorderRadius,
-          child: SizedBox(
-            width: isWide ? 80 : 55,
-            height: 55,
-            child: LoadImageCached(
-              imageUrl: imageUrl,
-              fit: BoxFit.cover,
+        child: Hero(
+          tag: songId, // Use song ID as tag
+          child: ClipRRect(
+            borderRadius: _SongCardStyles.imageBorderRadius,
+            child: SizedBox(
+              width: isWide ? 80 : 55,
+              height: 55,
+              child: LoadImageCached(
+                imageUrl: imageUrl,
+                fit: BoxFit.cover,
+                dimension: 200, // Optimize for list items (smaller than 500)
+              ),
             ),
           ),
         ),
@@ -494,7 +501,8 @@ class SongCardDummyWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final skeletonColor = scheme.onSurface.withValues(alpha: isDark ? 0.15 : 0.08);
+    final skeletonColor =
+        scheme.onSurface.withValues(alpha: isDark ? 0.15 : 0.08);
     return SizedBox(
       height: 70,
       child: InkWell(
