@@ -15,6 +15,7 @@ class NotificationCubit extends Cubit<NotificationState> {
     // Legacy DB notifications removed.
     // Return empty list or fetch from new source if implemented.
     List<NotificationModel> notifications = [];
+    if (isClosed) return;
     emit(NotificationState(notifications: notifications));
   }
 

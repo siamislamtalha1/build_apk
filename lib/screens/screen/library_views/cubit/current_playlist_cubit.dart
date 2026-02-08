@@ -21,6 +21,7 @@ class CurrentPlaylistCubit extends Cubit<CurrentPlaylistState> {
   }) : super(const CurrentPlaylistInitial());
 
   Future<void> setupPlaylist(String playlistName) async {
+    if (isClosed) return;
     emit(const CurrentPlaylistLoading());
     try {
       mediaPlaylist = await bloomeeDBCubit
@@ -28,6 +29,8 @@ class CurrentPlaylistCubit extends Cubit<CurrentPlaylistState> {
     } catch (_) {
       mediaPlaylist = null;
     }
+
+    if (isClosed) return;
 
     final resolved = mediaPlaylist ??
         MediaPlaylist(mediaItems: const [], playlistName: playlistName);
@@ -38,6 +41,8 @@ class CurrentPlaylistCubit extends Cubit<CurrentPlaylistState> {
     } else {
       paletteGenerator = null;
     }
+
+    if (isClosed) return;
 
     emit(state.copyWith(
       isFetched: true,

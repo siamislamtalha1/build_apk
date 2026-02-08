@@ -8,6 +8,7 @@ class ConnectivityCubit extends Cubit<ConnectivityState> {
   StreamSubscription<List<ConnectivityResult>>? _subscription;
   ConnectivityCubit() : super(ConnectivityState.disconnected) {
     _subscription = Connectivity().onConnectivityChanged.listen((event) {
+      if (isClosed) return;
       if (event.contains(ConnectivityResult.wifi) ||
           event.contains(ConnectivityResult.mobile) ||
           event.contains(ConnectivityResult.ethernet) ||

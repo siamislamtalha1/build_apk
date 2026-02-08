@@ -40,6 +40,8 @@ class LibraryItemsCubit extends Cubit<LibraryItemsState> {
       getAndEmitSavedOnlCollections(),
     ]);
 
+    if (isClosed) return;
+
     // Setup watchers for subsequent updates
     _getDBWatchers();
   }
@@ -47,10 +49,12 @@ class LibraryItemsCubit extends Cubit<LibraryItemsState> {
   Future<void> _getDBWatchers() async {
     playlistWatcherDB =
         (await BloomeeDBService.getPlaylistsWatcher()).listen((_) {
+      if (isClosed) return;
       getAndEmitPlaylists();
     });
     savedCollecsWatcherDB =
         (await BloomeeDBService.getSavedCollecsWatcher()).listen((_) {
+      if (isClosed) return;
       getAndEmitSavedOnlCollections();
     });
   }
@@ -58,9 +62,11 @@ class LibraryItemsCubit extends Cubit<LibraryItemsState> {
   Future<void> getAndEmitPlaylists() async {
     try {
       final mediaPlaylists = await BloomeeDBService.getPlaylists4Library();
+      if (isClosed) return;
       final playlistItems = mediaPlaylistsDB2ItemProperties(mediaPlaylists);
 
       // When emitting, copy existing parts of the state to avoid losing data
+      if (isClosed) return;
       emit(state.copyWith(
         playlists: playlistItems,
       ));
@@ -73,11 +79,13 @@ class LibraryItemsCubit extends Cubit<LibraryItemsState> {
   Future<void> getAndEmitSavedOnlCollections() async {
     try {
       final collections = await BloomeeDBService.getSavedCollections();
+      if (isClosed) return;
       final artists = collections.whereType<ArtistModel>().toList();
       final albums = collections.whereType<AlbumModel>().toList();
       final onlinePlaylists =
           collections.whereType<PlaylistOnlModel>().toList();
 
+      if (isClosed) return;
       emit(state.copyWith(
         artists: artists,
         albums: albums,

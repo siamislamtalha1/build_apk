@@ -27,6 +27,7 @@ class DownloaderCubit extends Cubit<DownloaderState> {
   final List<DownloadProgress> _activeDownloads = [];
   final YoutubeExplode _yt = YoutubeExplode();
   StreamSubscription? _librarySubscription;
+  final List<StreamSubscription> _taskStatusSubscriptions = [];
   List<MediaItemModel> _downloadedSongs = [];
 
   DownloaderCubit({
@@ -62,6 +63,7 @@ class DownloaderCubit extends Cubit<DownloaderState> {
 
   void _setupLibrarySubscription() {
     _librarySubscription = libraryItemsCubit.stream.listen((event) {
+      if (isClosed) return;
       log("LibraryItemsCubit event: ${event.playlists.length}",
           name: "DownloaderCubit");
       _loadDownloadedSongs();
@@ -70,11 +72,13 @@ class DownloaderCubit extends Cubit<DownloaderState> {
 
   Future<void> _loadDownloadedSongs() async {
     final list = await BloomeeDBService.getDownloadedSongs();
+    if (isClosed) return;
     _downloadedSongs = List<MediaItemModel>.from(list);
     _emitUpdatedState();
   }
 
   void _emitUpdatedState() {
+    if (isClosed) return;
     emit(DownloaderTasksUpdated(
       List.from(_activeDownloads),
       List.from(_downloadedSongs),
@@ -96,7 +100,8 @@ class DownloaderCubit extends Cubit<DownloaderState> {
 
     _emitUpdatedState();
 
-    task.statusStream.listen((status) {
+    final sub = task.statusStream.listen((status) {
+      if (isClosed) return;
       final index = _activeDownloads
           .indexWhere((item) => item.task.originalUrl == task.originalUrl);
       if (index != -1) {
@@ -112,6 +117,7 @@ class DownloaderCubit extends Cubit<DownloaderState> {
         _emitUpdatedState();
       }
     });
+    _taskStatusSubscriptions.add(sub);
   }
 
   /// --- NEW: Handles saving metadata to the database after completion ---
@@ -343,6 +349,10 @@ class DownloaderCubit extends Cubit<DownloaderState> {
   @override
   Future<void> close() {
     _librarySubscription?.cancel();
+    for (final sub in _taskStatusSubscriptions) {
+      sub.cancel();
+    }
+    _taskStatusSubscriptions.clear();
     _yt.close();
     return super.close();
   }
