@@ -232,7 +232,7 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     if (!isGuest)
-                      Platform.isWindows
+                      (Platform.isWindows
                           ? Text(
                               'Username',
                               style: TextStyle(
@@ -283,8 +283,7 @@ class ProfileScreen extends StatelessWidget {
                                   ],
                                 );
                               },
-                            ),
-                      ),
+                            )),
                     const SizedBox(height: 8),
                     // Email or guest badge
                     if (!isGuest && user.email != null)
