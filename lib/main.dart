@@ -270,8 +270,10 @@ class _BootstrapAppState extends State<_BootstrapApp> {
     CrashReporter.markStage('_bootstrap:before_init_services');
     await TraceLogger.init();
     TraceLogger.log('Bootstrap: Init services started');
-    if (!io.Platform.isWindows) {
+    try {
       await initServices();
+    } catch (e, st) {
+      CrashReporter.record(e, st, source: 'initServices');
     }
     TraceLogger.log('Bootstrap: Init services completed');
     CrashReporter.markStage('_bootstrap:after_init_services');
@@ -439,10 +441,10 @@ class _MyAppState extends State<MyApp> {
         WidgetsBinding.instance.platformDispatcher.onPlatformBrightnessChanged;
     WidgetsBinding.instance.platformDispatcher.onPlatformBrightnessChanged =
         () {
-          _previousPlatformBrightnessHandler?.call();
-          if (!mounted) return;
-          setState(() {});
-        };
+      _previousPlatformBrightnessHandler?.call();
+      if (!mounted) return;
+      setState(() {});
+    };
 
     if (io.Platform.isAndroid) {
       initPlatformState().catchError((e, st) {
@@ -615,8 +617,8 @@ class _MyAppState extends State<MyApp> {
           final brightness = settingsState.themeMode == ThemeMode.system
               ? platformBrightness
               : settingsState.themeMode == ThemeMode.dark
-              ? Brightness.dark
-              : Brightness.light;
+                  ? Brightness.dark
+                  : Brightness.light;
           Default_Theme.setBrightness(brightness);
           return BlocBuilder<BloomeePlayerCubit, BloomeePlayerState>(
             builder: (context, state) {
@@ -645,17 +647,16 @@ class _MyAppState extends State<MyApp> {
                         Default_Theme.setBrightness(brightness);
                         return AnnotatedRegion<SystemUiOverlayStyle>(
                           value: SystemUiOverlayStyle(
-                            statusBarColor: Default_Theme.themeColor,
-                            statusBarIconBrightness: isDark
-                                ? Brightness.light
-                                : Brightness.dark,
-                            statusBarBrightness: isDark
-                                ? Brightness.dark
-                                : Brightness.light,
-                            systemNavigationBarColor: Default_Theme.themeColor,
-                            systemNavigationBarIconBrightness: isDark
-                                ? Brightness.light
-                                : Brightness.dark,
+                            statusBarColor: Colors
+                                .transparent, // Also make status bar transparent
+                            statusBarIconBrightness:
+                                isDark ? Brightness.light : Brightness.dark,
+                            statusBarBrightness:
+                                isDark ? Brightness.dark : Brightness.light,
+                            systemNavigationBarColor: Colors
+                                .transparent, // FIX: Transparent for edge-to-edge
+                            systemNavigationBarIconBrightness:
+                                isDark ? Brightness.light : Brightness.dark,
                           ),
                           child: ResponsiveBreakpoints.builder(
                             breakpoints: [
@@ -711,11 +712,11 @@ class CustomScrollBehavior extends MaterialScrollBehavior {
   // Override behavior methods and getters like dragDevices
   @override
   Set<PointerDeviceKind> get dragDevices => {
-    PointerDeviceKind.touch,
-    PointerDeviceKind.mouse,
-    PointerDeviceKind.trackpad,
-    PointerDeviceKind.stylus,
-    PointerDeviceKind.invertedStylus,
-    // etc.
-  };
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+        PointerDeviceKind.trackpad,
+        PointerDeviceKind.stylus,
+        PointerDeviceKind.invertedStylus,
+        // etc.
+      };
 }

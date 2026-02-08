@@ -2,10 +2,9 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'dev.flutter.flutter-gradle-plugin'
-    id 'com.google.gms.google-services'
 }
 android {
-    namespace 'com.musiclyco.musicly.app'
+    namespace 'dts.musiclyco.musicly'
     compileSdk flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
     packagingOptions {
@@ -14,7 +13,7 @@ android {
         }
     }
     defaultConfig {
-        applicationId 'com.musiclyco.musicly.app'
+        applicationId 'dts.musiclyco.musicly'
         minSdk flutter.minSdkVersion
         targetSdk flutter.targetSdkVersion
         versionCode flutter.versionCode
@@ -52,4 +51,10 @@ flutter {
 dependencies {
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.media:media:1.7.0'
+}
+
+// Firebase (Google Services) plugin is only needed when google-services.json is present.
+// Keep the file out of git for public repos; inject it in CI/local builds when required.
+if (file('google-services.json').exists()) {
+    apply plugin: 'com.google.gms.google-services'
 }

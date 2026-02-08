@@ -25,10 +25,10 @@ class BloomeeMusicPlayer extends BaseAudioHandler
   late AudioPlayer audioPlayer;
 
   static const MethodChannel _audioEffectsChannel =
-      MethodChannel('com.musiclyco.musicly.app/audio_effects');
+      MethodChannel('dts.musiclyco.musicly/audio_effects');
 
   static const EventChannel _visualizerChannel =
-      EventChannel('com.musiclyco.musicly.app/visualizer');
+      EventChannel('dts.musiclyco.musicly/visualizer');
 
   // Modular components
   late AudioSourceManager _audioSourceManager;

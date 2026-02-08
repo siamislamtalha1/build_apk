@@ -1,4 +1,4 @@
-package com.musiclyco.musicly.app
+package dts.musiclyco.musicly
 
 import android.content.Intent
 import android.media.audiofx.AudioEffect
@@ -14,8 +14,8 @@ import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : AudioServiceActivity() {
-    private val channelName = "com.musiclyco.musicly.app/audio_effects"
-    private val visualizerChannelName = "com.musiclyco.musicly.app/visualizer"
+    private val channelName = "dts.musiclyco.musicly/audio_effects"
+    private val visualizerChannelName = "dts.musiclyco.musicly/visualizer"
     private var loudnessEnhancer: LoudnessEnhancer? = null
     private var loudnessSessionId: Int? = null
 

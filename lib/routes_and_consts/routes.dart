@@ -1,5 +1,5 @@
 import 'package:Bloomee/screens/widgets/global_footer.dart';
-import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Bloomee/routes_and_consts/global_str_consts.dart';
@@ -23,6 +23,7 @@ import 'package:Bloomee/screens/screen/profile_screen.dart';
 import 'package:Bloomee/screens/screen/ai_playlist_screen.dart';
 import 'package:Bloomee/screens/screen/home_views/setting_views/about.dart';
 import 'package:Bloomee/screens/screen/home_views/setting_view.dart';
+import 'package:Bloomee/screens/screen/shared_playlist_screen.dart';
 
 import 'package:Bloomee/blocs/auth/auth_cubit.dart';
 import 'package:Bloomee/routes_and_consts/go_router_refresh_stream.dart';
@@ -34,7 +35,7 @@ class GlobalRoutes {
   static GoRouter getRouter(AuthCubit authCubit) {
     return GoRouter(
       debugLogDiagnostics: true,
-      initialLocation: Platform.isWindows ? '/Login' : '/Explore',
+      initialLocation: '/Explore',
       navigatorKey: globalRouterKey,
       refreshListenable: GoRouterRefreshStream(authCubit.stream),
       redirect: (context, state) {
@@ -61,84 +62,33 @@ class GlobalRoutes {
         final bool isLoggingIn =
             path == '/Login' || path == '/Signup' || path == '/ForgotPassword';
 
-        // 1. If not logged in and not on login/signup page -> Redirect to Login
+        // 1. If NOT logged in (and not a guest), enforce Login
+        //    (Allow access to Login/Signup pages)
         if (firebaseUser == null && !isLoggingIn) {
           return '/Login';
         }
 
-        // 2. If fully logged in (non-guest) and on login/signup page -> Redirect to Explore
-        // Guests must be allowed to open Login/Signup to upgrade their account.
-        // Also allow if user is deliberately navigating to Login/Signup (e.g. from Profile)
-        // actually, we should only redirect to Explore if they are already authenticated AND
-        // the App started there (not navigating there).
-        // But the previous logic was:
-        // if (isAuthenticated && isLoggingIn) { return '/Explore'; }
-        // This prevents "Sign In to Sync" working for Guest? No, Guest is !isAuthenticated in your logic?
-        // Wait: isAuthenticated = firebaseUser != null && !firebaseUser.isAnonymous;
-        // isGuest = firebaseUser != null && firebaseUser.isAnonymous;
-
-        // If I am a GUEST, isAuthenticated is FALSE. isGuest is TRUE.
-        // So step 2 doesn't apply to Guest.
-        // But maybe I was logged in as a normal user?
-        // The Issue reported is: "Some time when i not logged in, click on sign in to sync button in account page is showing explore page ui in account page."
-        // "This should never happen."
-        // This implies they are seeing the Explore page INSTEAD of the Login page.
-        // If they are "Not logged in" -> firebaseUser == null OR isGuest == true.
-        // If firebaseUser == null -> Step 1 sends them to /Login.
-        // If isGuest == true -> Step 3 returns null (allow).
-
-        // If the user says "showing explore page ui in account page", it might mean
-        // the router decided to redirect them to /Explore?
-        // If they are Guest, isLoggingIn is true.
-        // Step 1: false.
-        // Step 2: false.
-        // Step 3: true -> return null.
-
-        // However, if the user was somehow considered "Authenticated" incorrectly?
-        // Or if the initialLocation /Explore was taking over?
-
-        // Let's look at the fix proposed in Plan:
-        // "Refine the GoRouter redirect logic to prevent authenticated users (or those perceived as such) from being forcefully redirected to /Explore if they are explicitly trying to access /Login (e.g., from Profile page)."
-
-        // If I am a GUEST, I click "Sign in". Router goes to /Login.
-        // isAuthenticated is false.
-
-        // If the user meant: They click "Sign in" and suddenly they see the Explore page...
-        // Maybe `refreshListenable` triggered a state change that made them look authenticated?
-        // Or maybe `from=profile` param caused an issue?
-
-        // Wait, if I am a Guest, and I go to /Login.
-        // If I successfully Login, I become Authenticated.
-        // Then the Router sees: Authenticated = true, path = /Login.
-        // THEN Step 2 kicks in: return '/Explore'.
-        // This overrides the Login page's own logic to redirect to `target`.
-
-        // FIX: If we are on Login/Signup, DO NOT redirect to Explore if there is a 'from' parameter?
-        // Or just let the Login page handle the redirection upon success.
-
+        // 2. If Authenticated (non-guest) and try to access Login/Signup:
+        //    - If 'from' param exists (e.g. explicit navigation from Profile), ALLOW it.
+        //    - If NO 'from' param (e.g. app startup or accidental back), REDIRECT to Explore.
         if (isAuthenticated && isLoggingIn) {
-          // If we have query params (like from=profile), let the page handle it
-          // OR if we are explicitly on these pages, maybe we shouldn't redirect?
-          // BUT if we are authenticated, we usually don't want to see Login page.
-          // EXCEPTION: If I am authenticated but I want to "Switch Account" or similar?
-          // In this app context, if I am authenticated, I shouldn't be on Login unless I just logged in.
-          // If I just logged in, the Login page handles the redirection.
-
-          // CRITICAL FIX: If we are here because we just got authenticated (e.g. via listener),
-          // we might want to let the Login page's listener handle the navigation logic
-          // which knows about the 'from' parameter.
           if (state.uri.queryParameters.containsKey('from')) {
             return null;
           }
+          return '/Explore';
+        }
+
+        // 3. Guest users:
+        //    - Are allowed to be on Login/Signup (to upgrade account).
+        //    - Are allowed to be on Rest of App (Explore, etc).
+        //    - So if isGuest is true, we generally return null (allow access).
+        //    - BUT if they are on Login/Signup, we allow it.
+        //    - If they are on other pages, we allow it.
+        if (isGuest) {
           return null;
         }
 
-        // 3. Guest users are allowed to stay on Login/Signup
-        if (isGuest && isLoggingIn) {
-          return null;
-        }
-
-        // No redirect needed
+        // Default: Allow navigation
         return null;
       },
       routes: [
@@ -207,6 +157,20 @@ class GlobalRoutes {
           name: GlobalStrConsts.developerToolsScreen,
           builder: (context, state) => const GlobalBackdropWrapper(
             child: DeveloperToolsScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/share/playlist/:id',
+          parentNavigatorKey: globalRouterKey,
+          builder: (context, state) => SharedPlaylistHandler(
+            shareId: state.pathParameters['id']!,
+          ),
+        ),
+        GoRoute(
+          path: '/p/:id',
+          parentNavigatorKey: globalRouterKey,
+          builder: (context, state) => SharedPlaylistHandler(
+            shareId: state.pathParameters['id']!,
           ),
         ),
         GoRoute(

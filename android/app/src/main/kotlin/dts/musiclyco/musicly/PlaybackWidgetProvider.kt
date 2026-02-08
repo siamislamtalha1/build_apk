@@ -1,4 +1,4 @@
-package com.musiclyco.musicly.app
+package dts.musiclyco.musicly
 
 import android.app.PendingIntent
 import android.app.AlarmManager

@@ -114,9 +114,103 @@ class PlaylistView extends StatelessWidget {
                               ],
                             ),
                           ),
-                          backgroundColor: Theme.of(context).colorScheme.surface,
-                          surfaceTintColor:
-                              Theme.of(context).colorScheme.surface,
+                          actions: [
+                            Padding(
+                              padding: EdgeInsets.only(
+                                right: 8,
+                                top: headerPillTopSpacing(context),
+                              ),
+                              child: HeaderGlassIconPill(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 6),
+                                children: [
+                                  TextButton.icon(
+                                    icon: const Icon(
+                                      MingCute.download_2_line,
+                                      size: 18,
+                                    ),
+                                    label: const Text('Import'),
+                                    style: ButtonStyle(
+                                      foregroundColor: WidgetStatePropertyAll(
+                                          getFBColor(context)[0]),
+                                      overlayColor: WidgetStatePropertyAll(
+                                          getFBColor(context)[1]
+                                              .withValues(alpha: 0.2)),
+                                    ),
+                                    onPressed: () async {
+                                      await showCloudPlaylistImportDialog(
+                                          context);
+                                    },
+                                  ),
+                                  const SizedBox(width: 8),
+                                  TextButton.icon(
+                                    icon: const Icon(
+                                      MingCute.link_2_line,
+                                      size: 18,
+                                    ),
+                                    label: const Text('Share'),
+                                    style: ButtonStyle(
+                                      foregroundColor: WidgetStatePropertyAll(
+                                          getFBColor(context)[0]),
+                                      overlayColor: WidgetStatePropertyAll(
+                                          getFBColor(context)[1]
+                                              .withValues(alpha: 0.2)),
+                                    ),
+                                    onPressed: () async {
+                                      final auth = context.read<AuthCubit>();
+                                      final user = auth.currentUser;
+                                      if (user == null || user.isAnonymous) {
+                                        SnackbarService.showMessage(
+                                            'Login required to share playlists');
+                                        return;
+                                      }
+                                      final fs = FirestoreService();
+                                      try {
+                                        await fs.setPlaylistVisibility(
+                                          userId: user.uid,
+                                          playlistName:
+                                              state.mediaPlaylist.playlistName,
+                                          isPublic: true,
+                                        );
+                                        final shareId =
+                                            await fs.ensurePlaylistShareId(
+                                          userId: user.uid,
+                                          playlistName:
+                                              state.mediaPlaylist.playlistName,
+                                        );
+                                        final url =
+                                            fs.buildPlaylistShareUrl(shareId);
+                                        await Clipboard.setData(
+                                            ClipboardData(text: url));
+                                        SnackbarService.showMessage(
+                                            'Link copied to clipboard');
+                                      } catch (e) {
+                                        SnackbarService.showMessage(
+                                            'Failed: $e');
+                                      }
+                                    },
+                                  ),
+                                  const SizedBox(width: 8),
+                                  IconButton(
+                                    icon: const Icon(
+                                      MingCute.information_line,
+                                    ),
+                                    color: getFBColor(context)[0],
+                                    onPressed: () {
+                                      showPlaylistInfo(context, state,
+                                          fgColor: getFBColor(context)[0],
+                                          bgColor: getFBColor(context)[1]);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                          backgroundColor: Colors.transparent,
+                          surfaceTintColor: Colors.transparent,
+                          elevation: 0,
+                          scrolledUnderElevation: 0,
+                          forceMaterialTransparency: true,
                           expandedHeight: maxExtent,
                           floating: false,
                           pinned: true,
@@ -163,17 +257,32 @@ class PlaylistView extends StatelessWidget {
                               title: HeaderGlassPill(
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 14, vertical: 8),
-                                child: Text(
-                                  state.mediaPlaylist.playlistName,
-                                  maxLines: isCollapsed ? 1 : 3,
-                                  style: Default_Theme.secondoryTextStyleMedium
-                                      .merge(
-                                    TextStyle(
-                                      fontSize: titleFontSize,
-                                      overflow: TextOverflow.ellipsis,
-                                      color: getFBColor(context)[0],
-                                    ),
-                                  ),
+                                child: Builder(
+                                  builder: (context) {
+                                    const reservedRight = 260.0;
+                                    final maxTitleWidth =
+                                        (constraints.maxWidth -
+                                                horizontalPadding -
+                                                reservedRight)
+                                            .clamp(140.0, constraints.maxWidth);
+                                    return ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                          maxWidth: maxTitleWidth),
+                                      child: Text(
+                                        state.mediaPlaylist.playlistName,
+                                        maxLines: isCollapsed ? 1 : 3,
+                                        style: Default_Theme
+                                            .secondoryTextStyleMedium
+                                            .merge(
+                                          TextStyle(
+                                            fontSize: titleFontSize,
+                                            overflow: TextOverflow.ellipsis,
+                                            color: getFBColor(context)[0],
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 ),
                               ),
                               background: LayoutBuilder(
@@ -291,108 +400,7 @@ class PlaylistView extends StatelessWidget {
                                         ),
                                       ),
                                     ),
-                                    Positioned(
-                                      right: 8,
-                                      top: headerPillTopPadding(context),
-                                      child: HeaderGlassIconPill(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 10, vertical: 8),
-                                        children: [
-                                          TextButton.icon(
-                                            icon: const Icon(
-                                              MingCute.download_2_line,
-                                              size: 18,
-                                            ),
-                                            label: const Text('Import'),
-                                            style: ButtonStyle(
-                                              foregroundColor:
-                                                  WidgetStatePropertyAll(
-                                                      getFBColor(context)[0]),
-                                              overlayColor:
-                                                  WidgetStatePropertyAll(
-                                                      getFBColor(context)[1]
-                                                          .withValues(
-                                                              alpha: 0.2)),
-                                            ),
-                                            onPressed: () async {
-                                              await showCloudPlaylistImportDialog(
-                                                  context);
-                                            },
-                                          ),
-                                          const SizedBox(width: 8),
-                                          TextButton.icon(
-                                            icon: const Icon(
-                                              MingCute.link_2_line,
-                                              size: 18,
-                                            ),
-                                            label: const Text('Share'),
-                                            style: ButtonStyle(
-                                              foregroundColor:
-                                                  WidgetStatePropertyAll(
-                                                      getFBColor(context)[0]),
-                                              overlayColor:
-                                                  WidgetStatePropertyAll(
-                                                      getFBColor(context)[1]
-                                                          .withValues(
-                                                              alpha: 0.2)),
-                                            ),
-                                            onPressed: () async {
-                                              final auth =
-                                                  context.read<AuthCubit>();
-                                              final user = auth.currentUser;
-                                              if (user == null ||
-                                                  user.isAnonymous) {
-                                                SnackbarService.showMessage(
-                                                    'Login required to share playlists');
-                                                return;
-                                              }
-                                              final fs = FirestoreService();
-                                              try {
-                                                await fs.setPlaylistVisibility(
-                                                  userId: user.uid,
-                                                  playlistName: state
-                                                      .mediaPlaylist
-                                                      .playlistName,
-                                                  isPublic: true,
-                                                );
-                                                final shareId = await fs
-                                                    .ensurePlaylistShareId(
-                                                  userId: user.uid,
-                                                  playlistName: state
-                                                      .mediaPlaylist
-                                                      .playlistName,
-                                                );
-                                                final url =
-                                                    fs.buildPlaylistShareUrl(
-                                                        shareId);
-                                                await Clipboard.setData(
-                                                    ClipboardData(text: url));
-                                                SnackbarService.showMessage(
-                                                    'Link copied to clipboard');
-                                              } catch (e) {
-                                                SnackbarService.showMessage(
-                                                    'Failed: $e');
-                                              }
-                                            },
-                                          ),
-                                          const SizedBox(width: 8),
-                                          IconButton(
-                                            icon: const Icon(
-                                              MingCute.information_line,
-                                            ),
-                                            color: getFBColor(context)[0],
-                                            onPressed: () {
-                                              showPlaylistInfo(context, state,
-                                                  fgColor:
-                                                      getFBColor(context)[0],
-                                                  bgColor:
-                                                      getFBColor(context)[1]);
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    // blur fade effect bottom edge
+                                    // Action Pill removed from background stack to actions property
                                   ],
                                 );
                               }),
@@ -875,10 +883,14 @@ class PlaylistView extends StatelessWidget {
                   const SizedBox(height: 12),
                   LinearProgressIndicator(
                     value: progress,
-                    backgroundColor:
-                        Theme.of(sbCtx).colorScheme.primary.withValues(alpha: 0.12),
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                        Theme.of(sbCtx).colorScheme.primary.withValues(alpha: 0.95)),
+                    backgroundColor: Theme.of(sbCtx)
+                        .colorScheme
+                        .primary
+                        .withValues(alpha: 0.12),
+                    valueColor: AlwaysStoppedAnimation<Color>(Theme.of(sbCtx)
+                        .colorScheme
+                        .primary
+                        .withValues(alpha: 0.95)),
                     minHeight: 6,
                   ),
                   const SizedBox(height: 12),

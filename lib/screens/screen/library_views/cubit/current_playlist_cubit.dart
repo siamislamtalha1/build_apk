@@ -20,6 +20,27 @@ class CurrentPlaylistCubit extends Cubit<CurrentPlaylistState> {
     required this.bloomeeDBCubit,
   }) : super(const CurrentPlaylistInitial());
 
+  Future<void> setPlaylist(MediaPlaylist playlist) async {
+    if (isClosed) return;
+    emit(const CurrentPlaylistLoading());
+
+    mediaPlaylist = playlist;
+
+    if (playlist.mediaItems.isNotEmpty) {
+      paletteGenerator =
+          await getPalleteFromImage(playlist.mediaItems[0].artUri.toString());
+    } else {
+      paletteGenerator = null;
+    }
+
+    if (isClosed) return;
+
+    emit(state.copyWith(
+      isFetched: true,
+      mediaPlaylist: playlist,
+    ));
+  }
+
   Future<void> setupPlaylist(String playlistName) async {
     if (isClosed) return;
     emit(const CurrentPlaylistLoading());
@@ -36,8 +57,8 @@ class CurrentPlaylistCubit extends Cubit<CurrentPlaylistState> {
         MediaPlaylist(mediaItems: const [], playlistName: playlistName);
 
     if (resolved.mediaItems.isNotEmpty) {
-      paletteGenerator = await getPalleteFromImage(
-          resolved.mediaItems[0].artUri.toString());
+      paletteGenerator =
+          await getPalleteFromImage(resolved.mediaItems[0].artUri.toString());
     } else {
       paletteGenerator = null;
     }
@@ -51,7 +72,8 @@ class CurrentPlaylistCubit extends Cubit<CurrentPlaylistState> {
   }
 
   Future<List<int>> getItemOrder() async {
-    final name = mediaPlaylist?.playlistName ?? state.mediaPlaylist.playlistName;
+    final name =
+        mediaPlaylist?.playlistName ?? state.mediaPlaylist.playlistName;
     if (name.isEmpty) return [];
     return await BloomeeDBService.getPlaylistItemsRankByName(name);
   }

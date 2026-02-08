@@ -11,7 +11,12 @@ import 'package:Bloomee/services/firebase/firestore_service.dart';
 /// Authentication service handling email/password, Google Sign-In, and guest mode
 class AuthService {
   FirebaseAuth get _auth {
-    return FirebaseAuth.instance;
+    final auth = FirebaseAuth.instance;
+    // Ensure persistence is set to LOCAL (default, but explicit is safer)
+    try {
+      auth.setPersistence(Persistence.LOCAL);
+    } catch (_) {}
+    return auth;
   }
 
   static const String _googleServerClientId =
@@ -59,9 +64,11 @@ class AuthService {
   /// Initialize user profile and username after authentication
   /// This must be called immediately after successful authentication to prevent
   /// race conditions with the sync service
-  Future<void> _initializeUserProfile(User user) async {
+  Future<void> _initializeUserProfile(
+    User user, {
+    String? desiredUsername,
+  }) async {
     if (user.isAnonymous) return; // Skip for anonymous users
-    if (Platform.isWindows) return;
 
     try {
       final FirestoreService firestoreService = FirestoreService();
@@ -79,10 +86,18 @@ class AuthService {
       }
 
       // Ensure user has a username (generates random if needed)
-      await firestoreService.ensureUsername(
-        userId: user.uid,
-        displayName: user.displayName,
-      );
+      final desired = (desiredUsername ?? '').trim();
+      if (desired.isNotEmpty) {
+        await firestoreService.claimUsername(
+          userId: user.uid,
+          desiredUsername: desired,
+        );
+      } else {
+        await firestoreService.ensureUsername(
+          userId: user.uid,
+          displayName: user.displayName,
+        );
+      }
 
       debugPrint('✅ User profile initialized for ${user.email ?? user.uid}');
     } catch (e) {
@@ -98,6 +113,7 @@ class AuthService {
     required String email,
     required String password,
     String? displayName,
+    String? desiredUsername,
   }) async {
     try {
       if (!FirebaseService.isInitialized) {
@@ -115,14 +131,47 @@ class AuthService {
 
       // Initialize user profile asynchronously (non-blocking)
       if (credential.user != null) {
-        _initializeUserProfile(credential.user!); // No await - runs in background
+        _initializeUserProfile(
+          credential.user!,
+          desiredUsername: desiredUsername,
+        ); // No await - runs in background
       }
 
       debugPrint('✅ Sign up successful: ${credential.user?.email}');
       return credential;
     } on FirebaseAuthException catch (e) {
       debugPrint('❌ Sign up failed: ${e.message}');
+
+      // Some Windows/desktop builds occasionally throw 'internal-error' even
+      // when the account was created successfully server-side.
+      // In that case, attempt to sign in and continue.
+      if (e.code == 'internal-error' || e.code == 'unknown') {
+        try {
+          // Add a small delay before retry
+          await Future.delayed(const Duration(milliseconds: 500));
+          final signedIn = await _auth.signInWithEmailAndPassword(
+            email: email,
+            password: password,
+          );
+          if (signedIn.user != null) {
+            _initializeUserProfile(
+              signedIn.user!,
+              desiredUsername: desiredUsername,
+            );
+          }
+          debugPrint('✅ Recovered from ${e.code} by signing in after sign up');
+          return signedIn;
+        } catch (_) {
+          // fallthrough to normal error mapping
+        }
+      }
       throw _handleAuthException(e);
+    } catch (e) {
+      final initErr = FirebaseService.lastInitError;
+      if (initErr != null) {
+        throw Exception('Auth failed. Firebase init error: $initErr');
+      }
+      rethrow;
     }
   }
 
@@ -332,6 +381,31 @@ class AuthService {
       return credential;
     } on FirebaseAuthException catch (e) {
       debugPrint('❌ Guest sign-in failed: ${e.message}');
+
+      // Desktop can sporadically throw internal-error. Retry logic.
+      if (e.code == 'internal-error' || e.code == 'unknown') {
+        try {
+          await _auth.signOut();
+        } catch (_) {}
+        
+        // First Retry
+        try {
+          await Future.delayed(const Duration(milliseconds: 500));
+          final retry = await _auth.signInAnonymously();
+          debugPrint('✅ Guest sign-in recovered after ${e.code} retry');
+          return retry;
+        } catch (_) {
+          // Second Retry
+           try {
+            await Future.delayed(const Duration(milliseconds: 1000));
+            final retry2 = await _auth.signInAnonymously();
+            debugPrint('✅ Guest sign-in recovered after 2nd retry');
+            return retry2;
+          } catch (_) {
+            // fallthrough
+          }
+        }
+      }
       throw _handleAuthException(e);
     }
   }
@@ -340,6 +414,7 @@ class AuthService {
   Future<UserCredential?> linkAnonymousWithEmail({
     required String email,
     required String password,
+    String? desiredUsername,
   }) async {
     try {
       final user = _auth.currentUser;
@@ -347,7 +422,11 @@ class AuthService {
         // If not anonymous, just try to sign up/in normally
         // This handles edge cases where state might be desynced
         try {
-          return await signUpWithEmail(email: email, password: password);
+          return await signUpWithEmail(
+            email: email,
+            password: password,
+            desiredUsername: desiredUsername,
+          );
         } on FirebaseAuthException catch (e) {
           if (e.code == 'email-already-in-use') {
             return await signInWithEmail(email: email, password: password);
@@ -370,7 +449,9 @@ class AuthService {
           // Initialize user profile asynchronously (non-blocking)
           if (credential.user != null) {
             _initializeUserProfile(
-                credential.user!); // No await - runs in background
+              credential.user!,
+              desiredUsername: desiredUsername,
+            ); // No await - runs in background
           }
 
           debugPrint(
@@ -385,7 +466,9 @@ class AuthService {
             // Initialize user profile asynchronously (non-blocking)
             if (credential.user != null) {
               _initializeUserProfile(
-                  credential.user!); // No await - runs in background
+                credential.user!,
+                desiredUsername: desiredUsername,
+              ); // No await - runs in background
             }
             debugPrint(
                 '✅ (Windows) Signed into existing account: ${credential.user?.email}');
@@ -406,7 +489,9 @@ class AuthService {
       // Initialize user profile asynchronously (non-blocking)
       if (userCredential.user != null) {
         _initializeUserProfile(
-            userCredential.user!); // No await - runs in background
+          userCredential.user!,
+          desiredUsername: desiredUsername,
+        ); // No await - runs in background
       }
 
       debugPrint('✅ Anonymous account linked with email');
@@ -425,7 +510,9 @@ class AuthService {
           // Initialize user profile asynchronously (non-blocking)
           if (signedIn.user != null) {
             _initializeUserProfile(
-                signedIn.user!); // No await - runs in background
+              signedIn.user!,
+              desiredUsername: desiredUsername,
+            ); // No await - runs in background
           }
 
           debugPrint('✅ Existing account found; signed in with email/password');

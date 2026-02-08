@@ -6,7 +6,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 class FirestoreService {
   FirebaseFirestore get _firestore => FirebaseFirestore.instance;
 
-  static const String shareUrlPrefix = 'https://bloomee.app/p/';
+  // New canonical share domain
+  static const String shareUrlPrefix =
+      'https://siamislamtalha.asia/share/playlist/';
+  static const String _altShareUrlPrefix2 = 'https://siamislamtalha.asia/p/';
+
+  // Legacy domains/formats we still accept for parsing
+  static const String _legacyShareUrlPrefix = 'https://bloomee.app/p/';
+  static const String _legacyShareUrlPrefix2 =
+      'https://bloomee.app/share/playlist/';
 
   /// Get user document reference
   DocumentReference _userDoc(String userId) {
@@ -472,8 +480,20 @@ class FirestoreService {
   String? parseShareId(String input) {
     final s = input.trim();
     if (s.isEmpty) return null;
+    // Raw shareId pasted
+    if (!s.contains('://') && !s.contains('/')) return s;
     if (s.startsWith(shareUrlPrefix)) {
       return s.substring(shareUrlPrefix.length).trim();
+    }
+    if (s.startsWith(_altShareUrlPrefix2)) {
+      return s.substring(_altShareUrlPrefix2.length).trim();
+    }
+
+    if (s.startsWith(_legacyShareUrlPrefix)) {
+      return s.substring(_legacyShareUrlPrefix.length).trim();
+    }
+    if (s.startsWith(_legacyShareUrlPrefix2)) {
+      return s.substring(_legacyShareUrlPrefix2.length).trim();
     }
     try {
       final uri = Uri.parse(s);
@@ -481,6 +501,9 @@ class FirestoreService {
       final seg = uri.pathSegments;
       if (seg.isEmpty) return null;
       if (seg.length >= 2 && seg[0] == 'p') return seg[1];
+      if (seg.length >= 3 && seg[0] == 'share' && seg[1] == 'playlist') {
+        return seg[2];
+      }
       return seg.last;
     } catch (_) {
       return null;

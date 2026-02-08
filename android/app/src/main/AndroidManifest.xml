@@ -16,7 +16,7 @@
         android:usesCleartextTraffic="true"
         android:icon="@mipmap/ic_launcher">
         <activity
-            android:name="com.musiclyco.musicly.app.MainActivity"
+            android:name="dts.musiclyco.musicly.MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
             android:taskAffinity=""
@@ -61,6 +61,22 @@
 
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- New domain -->
+                <data android:scheme="https" android:host="siamislamtalha.asia" android:pathPrefix="/share/playlist/" />
+                <data android:scheme="http" android:host="siamislamtalha.asia" android:pathPrefix="/share/playlist/" />
+                <data android:scheme="https" android:host="siamislamtalha.asia" android:pathPrefix="/p/" />
+                <data android:scheme="http" android:host="siamislamtalha.asia" android:pathPrefix="/p/" />
+                <!-- Legacy domain -->
+                <data android:scheme="https" android:host="bloomee.app" android:pathPrefix="/share/playlist/" />
+                <data android:scheme="http" android:host="bloomee.app" android:pathPrefix="/share/playlist/" />
+                <data android:scheme="https" android:host="bloomee.app" android:pathPrefix="/p/" />
+                <data android:scheme="http" android:host="bloomee.app" android:pathPrefix="/p/" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.OPEN_DOCUMENT" />
                 <action android:name="android.intent.action.GET_CONTENT" />
 
@@ -100,7 +116,7 @@
         </receiver>
 
         <receiver
-            android:name="com.musiclyco.musicly.app.PlaybackWidgetProvider"
+            android:name="dts.musiclyco.musicly.PlaybackWidgetProvider"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -111,14 +127,14 @@
         </receiver>
 
         <receiver
-            android:name="com.musiclyco.musicly.app.PlaybackWidgetActionReceiver"
+            android:name="dts.musiclyco.musicly.PlaybackWidgetActionReceiver"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.musiclyco.musicly.app.widget.PREV" />
-                <action android:name="com.musiclyco.musicly.app.widget.PLAY_PAUSE" />
-                <action android:name="com.musiclyco.musicly.app.widget.NEXT" />
-                <action android:name="com.musiclyco.musicly.app.widget.LIKE" />
-                <action android:name="com.musiclyco.musicly.app.widget.REFRESH" />
+                <action android:name="dts.musiclyco.musicly.widget.PREV" />
+                <action android:name="dts.musiclyco.musicly.widget.PLAY_PAUSE" />
+                <action android:name="dts.musiclyco.musicly.widget.NEXT" />
+                <action android:name="dts.musiclyco.musicly.widget.LIKE" />
+                <action android:name="dts.musiclyco.musicly.widget.REFRESH" />
             </intent-filter>
         </receiver>
 

@@ -425,7 +425,8 @@ Future<void> showCloudPlaylistImportDialog(BuildContext context) async {
                 'Playlist "$targetName" already exists');
             return;
           }
-          final items = await fs.getPlaylistItemsFromCloud(ownerUid, playlistName);
+          final items =
+              await fs.getPlaylistItemsFromCloud(ownerUid, playlistName);
           await BloomeeDBService.createPlaylist(
             targetName,
             artURL: header['artURL'] as String?,
@@ -501,8 +502,9 @@ Future<void> showCloudPlaylistImportDialog(BuildContext context) async {
                             );
                           },
                           title: Text(name,
-                              style: Default_Theme.secondoryTextStyleMedium.merge(
-                                  TextStyle(color: Default_Theme.primaryColor1))),
+                              style: Default_Theme.secondoryTextStyleMedium
+                                  .merge(TextStyle(
+                                      color: Default_Theme.primaryColor1))),
                           subtitle: desc.isEmpty
                               ? null
                               : Text(desc,
@@ -541,4 +543,69 @@ Future<void> showCloudPlaylistImportDialog(BuildContext context) async {
       });
     },
   );
+}
+
+Future<void> showCloudPlaylistImportDialogForShareId(
+  BuildContext context, {
+  required String shareId,
+}) async {
+  final fs = FirestoreService();
+  try {
+    // Show loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => const Center(child: CircularProgressIndicator()),
+    );
+
+    final shared = await fs.resolveSharedPlaylist(shareId);
+    if (context.mounted) Navigator.pop(context); // hide loading
+
+    if (shared == null) {
+      if (context.mounted) {
+        SnackbarService.showMessage('Invalid playlist link');
+        Navigator.pop(context); // Close the processing screen
+      }
+      return;
+    }
+
+    final ownerUid = shared['ownerUid'] as String?;
+    final playlistName = shared['playlistName'] as String?;
+
+    if (ownerUid == null || playlistName == null) {
+      if (context.mounted) {
+        SnackbarService.showMessage('Invalid playlist data');
+        Navigator.pop(context);
+      }
+      return;
+    }
+
+    final header = await fs.getPlaylistHeaderFromCloud(ownerUid, playlistName);
+    if (header == null) {
+      if (context.mounted) {
+        SnackbarService.showMessage('Playlist not found');
+        Navigator.pop(context);
+      }
+      return;
+    }
+
+    if (!context.mounted) return;
+
+    // Show the import dialog directly
+    await _showRemotePlaylistDialog(
+      context,
+      fs: fs,
+      header: {
+        ...header,
+        'playlistName': playlistName,
+        'ownerUid': ownerUid,
+      },
+    );
+
+    if (context.mounted) Navigator.pop(context); // Close the processing screen
+  } catch (e) {
+    if (context.mounted) Navigator.pop(context); // hide loading
+    SnackbarService.showMessage('Error loading playlist: $e');
+    if (context.mounted) Navigator.pop(context); // Close the processing screen
+  }
 }

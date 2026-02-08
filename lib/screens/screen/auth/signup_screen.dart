@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:go_router/go_router.dart';
+import 'dart:async';
+import 'package:Bloomee/services/firebase/firestore_service.dart';
 
 /// Sign-up screen for email/password registration
 class SignupScreen extends StatefulWidget {
@@ -24,8 +26,79 @@ class _SignupScreenState extends State<SignupScreen> {
   bool _obscureConfirmPassword = true;
   bool _didSubmit = false;
 
+  Timer? _usernameDebounce;
+  bool _checkingUsername = false;
+  bool? _usernameAvailable;
+  String? _usernameError;
+
+  String _normalizedUsername(String raw) {
+    final v = raw.trim();
+    if (v.isEmpty) return '';
+    return v.startsWith('@') ? v.substring(1) : v;
+  }
+
+  Future<void> _checkUsernameAvailability(String raw) async {
+    final v = _normalizedUsername(raw);
+    if (v.isEmpty) {
+      if (!mounted) return;
+      setState(() {
+        _checkingUsername = false;
+        _usernameAvailable = null;
+        _usernameError = null;
+      });
+      return;
+    }
+
+    final re = RegExp(r'^[a-zA-Z0-9_]{3,20}$');
+    if (!re.hasMatch(v)) {
+      if (!mounted) return;
+      setState(() {
+        _checkingUsername = false;
+        _usernameAvailable = false;
+        _usernameError = 'Username must be 3-20 chars (letters, numbers, _)';
+      });
+      return;
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _checkingUsername = true;
+      _usernameError = null;
+    });
+
+    try {
+      final fs = FirestoreService();
+      final uid = await fs.getUserIdByUsername(v);
+      if (!mounted) return;
+      setState(() {
+        _checkingUsername = false;
+        _usernameAvailable = uid == null;
+        _usernameError = uid == null ? null : 'Username already taken';
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _checkingUsername = false;
+        _usernameAvailable = null;
+        _usernameError = null;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _usernameController.addListener(() {
+      _usernameDebounce?.cancel();
+      _usernameDebounce = Timer(const Duration(milliseconds: 350), () {
+        _checkUsernameAvailability(_usernameController.text);
+      });
+    });
+  }
+
   @override
   void dispose() {
+    _usernameDebounce?.cancel();
     _nameController.dispose();
     _usernameController.dispose();
     _emailController.dispose();
@@ -37,6 +110,8 @@ class _SignupScreenState extends State<SignupScreen> {
   void _signUp() {
     if (_didSubmit) return; // Prevent double submission
     if (_formKey.currentState!.validate()) {
+      if (_checkingUsername) return;
+      if (_usernameError != null) return;
       _didSubmit = true;
       context.read<AuthCubit>().signUpWithEmail(
             email: _emailController.text.trim(),
@@ -155,12 +230,34 @@ class _SignupScreenState extends State<SignupScreen> {
                               labelText: 'Username',
                               hintText: '@yourname',
                               prefixIcon: const Icon(MingCute.at_line),
+                              suffixIcon: _checkingUsername
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: Padding(
+                                        padding: EdgeInsets.all(12),
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      ),
+                                    )
+                                  : (_usernameAvailable == null
+                                      ? null
+                                      : Icon(
+                                          _usernameAvailable == true
+                                              ? MingCute.check_circle_line
+                                              : MingCute.close_circle_line,
+                                          color: _usernameAvailable == true
+                                              ? Colors.green
+                                              : Colors.red,
+                                        )),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               filled: true,
                               fillColor: Default_Theme.primaryColor1
                                   .withValues(alpha: 0.05),
+                              errorText: _usernameError,
                             ),
                             validator: (value) {
                               final v = (value ?? '').trim();
@@ -172,6 +269,9 @@ class _SignupScreenState extends State<SignupScreen> {
                               final re = RegExp(r'^[a-zA-Z0-9_]{3,20}$');
                               if (!re.hasMatch(raw)) {
                                 return 'Username must be 3-20 chars (letters, numbers, _)';
+                              }
+                              if (_usernameError != null) {
+                                return _usernameError;
                               }
                               return null;
                             },

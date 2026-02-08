@@ -19,7 +19,13 @@ class AuthCubit extends Cubit<AuthState> {
   AuthCubit({AuthService? authService})
       : _authService = authService ?? AuthService(),
         _firestoreService = FirestoreService(),
-        super(AuthInitial()) {
+        super(
+          authService?.currentUser != null
+              ? Authenticated(user: authService!.currentUser!)
+              : (AuthService().currentUser != null
+                  ? Authenticated(user: AuthService().currentUser!)
+                  : AuthInitial()),
+        ) {
     // Listen to auth state changes
     _authSubscription = _authService.authStateChanges.listen(
       (user) {
@@ -71,11 +77,13 @@ class AuthCubit extends Cubit<AuthState> {
           ? await _authService.linkAnonymousWithEmail(
               email: email,
               password: password,
+              desiredUsername: desiredUsername,
             )
           : await _authService.signUpWithEmail(
               email: email,
               password: password,
               displayName: displayName,
+              desiredUsername: desiredUsername,
             );
 
       if (displayName != null && displayName.trim().isNotEmpty) {
