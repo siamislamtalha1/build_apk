@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'dart:io';
 import 'package:Bloomee/blocs/auth/auth_cubit.dart';
 import 'package:Bloomee/services/sync/sync_service.dart';
 import 'package:Bloomee/services/firebase/firestore_service.dart';
@@ -118,8 +119,8 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildProfileHeader(BuildContext context, dynamic user, bool isGuest) {
-    final firestore = FirestoreService();
     final scheme = Theme.of(context).colorScheme;
+    final firestore = Platform.isWindows ? null : FirestoreService();
     return Container(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -231,49 +232,58 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     if (!isGuest)
-                      StreamBuilder<Map<String, dynamic>?>(
-                        stream: firestore.watchUserProfile(user.uid),
-                        builder: (context, snap) {
-                          final username = snap.data?['username'] as String?;
-                          return Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                (username == null || username.trim().isEmpty)
-                                    ? 'Set username'
-                                    : username,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: scheme.primary.withValues(alpha: 0.95),
-                                  fontWeight: FontWeight.w700,
-                                ),
+                      Platform.isWindows
+                          ? Text(
+                              'Username',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: scheme.primary.withValues(alpha: 0.95),
+                                fontWeight: FontWeight.w700,
                               ),
-                              const SizedBox(width: 6),
-                              InkWell(
-                                onTap: () async {
-                                  await _showUsernameDialog(
-                                    context,
-                                    title: (username == null ||
-                                            username.trim().isEmpty)
-                                        ? 'Set username'
-                                        : 'Change username',
-                                    initial: username,
-                                  );
-                                },
-                                borderRadius: BorderRadius.circular(12),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(4),
-                                  child: Icon(
-                                    MingCute.edit_line,
-                                    size: 16,
-                                    color: scheme.onSurface
-                                        .withValues(alpha: 0.6),
-                                  ),
-                                ),
-                              )
-                            ],
-                          );
-                        },
+                            )
+                          : StreamBuilder<Map<String, dynamic>?>(
+                              stream: firestore!.watchUserProfile(user.uid),
+                              builder: (context, snap) {
+                                final username =
+                                    snap.data?['username'] as String?;
+                                return Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      (username == null ||
+                                              username.trim().isEmpty)
+                                          ? 'Set username'
+                                          : username,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: scheme.primary
+                                            .withValues(alpha: 0.95),
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    InkWell(
+                                      onTap: () async {
+                                        await _showUsernameDialog(
+                                          context,
+                                          title: (username == null ||
+                                                  username.trim().isEmpty)
+                                              ? 'Set username'
+                                              : 'Change username',
+                                          initial: username,
+                                        );
+                                      },
+                                      child: Icon(
+                                        MingCute.edit_2_line,
+                                        size: 16,
+                                        color: scheme.primary
+                                            .withValues(alpha: 0.85),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
                       ),
                     const SizedBox(height: 8),
                     // Email or guest badge

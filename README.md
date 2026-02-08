@@ -96,7 +96,7 @@ Musicly is not just a music player; it's a gateway to limitless ad-free music. B
     <img alt="Download Musicly" src="https://a.fsdn.com/con/app/sf-download-button" height="50" srcset="https://a.fsdn.com/con/app/sf-download-button?button_size=2x 2x">
   </a>
   &nbsp;&nbsp;
-  <a href="https://apt.izzysoft.de/fdroid/index/apk/com.musiclyco.musicly">
+  <a href="https://apt.izzysoft.de/fdroid/index/apk/com.musiclyco.musicly.app">
     <img alt="Get it on IzzyOnDroid" src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButtonGreyBorder.svg" height="50"/>
   </a>
   

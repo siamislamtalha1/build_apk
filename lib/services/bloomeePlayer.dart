@@ -25,10 +25,10 @@ class BloomeeMusicPlayer extends BaseAudioHandler
   late AudioPlayer audioPlayer;
 
   static const MethodChannel _audioEffectsChannel =
-      MethodChannel('com.musiclyco.musicly/audio_effects');
+      MethodChannel('com.musiclyco.musicly.app/audio_effects');
 
   static const EventChannel _visualizerChannel =
-      EventChannel('com.musiclyco.musicly/visualizer');
+      EventChannel('com.musiclyco.musicly.app/visualizer');
 
   // Modular components
   late AudioSourceManager _audioSourceManager;
@@ -107,8 +107,8 @@ class BloomeeMusicPlayer extends BaseAudioHandler
 
         bool isLiked = false;
         try {
-          isLiked = await BloomeeDBService.isMediaLiked(
-              MediaItem2MediaItemDB(item ?? const MediaItem(id: '', title: '')));
+          isLiked = await BloomeeDBService.isMediaLiked(MediaItem2MediaItemDB(
+              item ?? const MediaItem(id: '', title: '')));
         } catch (_) {
           isLiked = false;
         }
@@ -429,7 +429,8 @@ class BloomeeMusicPlayer extends BaseAudioHandler
 
     try {
       final dynamic p = audioPlayer;
-      final Stream<dynamic> s = p.androidAudioSessionIdStream as Stream<dynamic>;
+      final Stream<dynamic> s =
+          p.androidAudioSessionIdStream as Stream<dynamic>;
       final dynamic id = await s.where((e) => e != null).first;
       if (id is int) return id;
     } catch (_) {}

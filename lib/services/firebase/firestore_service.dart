@@ -13,6 +13,20 @@ class FirestoreService {
     return _firestore.collection('users').doc(userId);
   }
 
+  static String _playlistIdFromName(String playlistName) {
+    final normalized = playlistName.trim().toLowerCase();
+    final h = fastHash(normalized);
+    return 'pl_${h.toRadixString(36)}';
+  }
+
+  DocumentReference<Map<String, dynamic>> _playlistDoc(
+    String userId,
+    String playlistName,
+  ) {
+    final id = _playlistIdFromName(playlistName);
+    return _userDoc(userId).collection('playlists').doc(id);
+  }
+
   Stream<List<Map<String, dynamic>>> watchDownloads(String userId) {
     if (FirebaseAuth.instance.currentUser?.isAnonymous ?? true) {
       return Stream.value(<Map<String, dynamic>>[]);
@@ -405,10 +419,11 @@ class FirestoreService {
     required String playlistName,
     required bool isPublic,
   }) async {
-    final playlistRef =
-        _userDoc(userId).collection('playlists').doc(playlistName);
+    final playlistRef = _playlistDoc(userId, playlistName);
     await playlistRef.set(
       {
+        'playlistId': playlistRef.id,
+        'playlistName': playlistName,
         'isPublic': isPublic,
         'updatedAt': FieldValue.serverTimestamp(),
       },
@@ -420,8 +435,7 @@ class FirestoreService {
     required String userId,
     required String playlistName,
   }) async {
-    final playlistRef =
-        _userDoc(userId).collection('playlists').doc(playlistName);
+    final playlistRef = _playlistDoc(userId, playlistName);
     final snap = await playlistRef.get();
     final data = snap.data();
     final existing = data?['shareId'] as String?;
@@ -484,7 +498,12 @@ class FirestoreService {
         .collection('playlists')
         .where('isPublic', isEqualTo: true)
         .get();
-    return snap.docs.map((d) => d.data()).toList();
+    return snap.docs
+        .map((d) => {
+              ...d.data(),
+              'playlistId': d.id,
+            })
+        .toList();
   }
 
   Future<List<Map<String, dynamic>>> getPublicPlaylistsByUsername(
@@ -547,10 +566,11 @@ class FirestoreService {
       final playlistsRef = _userDoc(userId).collection('playlists');
 
       for (var playlist in playlists) {
-        final docRef = playlistsRef.doc(playlist.playlistName);
+        final docRef = playlistsRef.doc(_playlistIdFromName(playlist.playlistName));
         batch.set(
             docRef,
             {
+              'playlistId': docRef.id,
               'playlistName': playlist.playlistName,
               'lastUpdated': playlist.lastUpdated?.millisecondsSinceEpoch,
               'mediaRanks': playlist.mediaRanks,
@@ -577,13 +597,12 @@ class FirestoreService {
   }) async {
     if (FirebaseAuth.instance.currentUser?.isAnonymous ?? true) return;
     try {
-      final playlistRef = _userDoc(userId).collection('playlists').doc(
-            playlistName,
-          );
+      final playlistRef = _playlistDoc(userId, playlistName);
 
       await playlistRef.set(
         {
           ...playlistDoc,
+          'playlistId': playlistRef.id,
           'playlistName': playlistName,
           'updatedAt': FieldValue.serverTimestamp(),
         },
@@ -612,12 +631,19 @@ class FirestoreService {
     String playlistName,
   ) async {
     try {
-      final snapshot = await _userDoc(userId)
+      final newRef = _playlistDoc(userId, playlistName);
+      final snapshot = await newRef.collection('items').get();
+      if (snapshot.docs.isNotEmpty) {
+        return snapshot.docs.map((doc) => doc.data()).toList();
+      }
+
+      // Backward compatibility: older builds used playlistName as doc id.
+      final legacySnapshot = await _userDoc(userId)
           .collection('playlists')
           .doc(playlistName)
           .collection('items')
           .get();
-      return snapshot.docs.map((doc) => doc.data()).toList();
+      return legacySnapshot.docs.map((doc) => doc.data()).toList();
     } catch (e) {
       print('❌ Failed to get playlist items from cloud: $e');
       return [];
@@ -629,7 +655,12 @@ class FirestoreService {
       String userId) async {
     try {
       final snapshot = await _userDoc(userId).collection('playlists').get();
-      return snapshot.docs.map((doc) => doc.data()).toList();
+      return snapshot.docs
+          .map((doc) => {
+                ...doc.data(),
+                'playlistId': doc.id,
+              })
+          .toList();
     } catch (e) {
       print('❌ Failed to get playlists from cloud: $e');
       return [];
@@ -641,11 +672,27 @@ class FirestoreService {
     String playlistName,
   ) async {
     try {
-      final doc = await _userDoc(userId)
+      final newRef = _playlistDoc(userId, playlistName);
+      final doc = await newRef.get();
+      final data = doc.data();
+      if (data != null) {
+        return {
+          ...data,
+          'playlistId': doc.id,
+        };
+      }
+
+      // Backward compatibility: older builds used playlistName as doc id.
+      final legacyDoc = await _userDoc(userId)
           .collection('playlists')
           .doc(playlistName)
           .get();
-      return doc.data();
+      final legacyData = legacyDoc.data();
+      if (legacyData == null) return null;
+      return {
+        ...legacyData,
+        'playlistId': legacyDoc.id,
+      };
     } catch (e) {
       print('❌ Failed to get playlist header from cloud: $e');
       return null;

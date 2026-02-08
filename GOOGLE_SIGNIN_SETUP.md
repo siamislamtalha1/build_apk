@@ -24,7 +24,7 @@ If Google Sign-In shows **“Access blocked: Authorization Error”** with **`Er
 1. Firebase Console → **Project settings** → **Your apps**.
 2. Add an **Android app** (or confirm it exists).
 3. **Package name** must match your `applicationId`:
-   - From `android/app/build.gradle`: `com.musiclyco.musicly`
+   - From `android/app/build.gradle`: `com.musiclyco.musicly.app`
 
 ### 2.2 Download and place `google-services.json`
 

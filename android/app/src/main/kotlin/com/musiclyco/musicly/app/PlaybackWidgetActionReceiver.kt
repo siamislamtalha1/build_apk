@@ -1,4 +1,4 @@
-package com.musiclyco.musicly
+package com.musiclyco.musicly.app
 
 import android.content.BroadcastReceiver
 import android.content.ComponentName
@@ -71,10 +71,10 @@ class PlaybackWidgetActionReceiver : BroadcastReceiver() {
     }
 
     companion object {
-        const val ACTION_PREV = "com.musiclyco.musicly.widget.PREV"
-        const val ACTION_PLAY_PAUSE = "com.musiclyco.musicly.widget.PLAY_PAUSE"
-        const val ACTION_NEXT = "com.musiclyco.musicly.widget.NEXT"
-        const val ACTION_LIKE = "com.musiclyco.musicly.widget.LIKE"
-        const val ACTION_REFRESH = "com.musiclyco.musicly.widget.REFRESH"
+        const val ACTION_PREV = "com.musiclyco.musicly.app.widget.PREV"
+        const val ACTION_PLAY_PAUSE = "com.musiclyco.musicly.app.widget.PLAY_PAUSE"
+        const val ACTION_NEXT = "com.musiclyco.musicly.app.widget.NEXT"
+        const val ACTION_LIKE = "com.musiclyco.musicly.app.widget.LIKE"
+        const val ACTION_REFRESH = "com.musiclyco.musicly.app.widget.REFRESH"
     }
 }

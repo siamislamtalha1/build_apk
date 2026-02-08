@@ -63,12 +63,15 @@ class _SignupScreenState extends State<SignupScreen> {
       body: BlocConsumer<AuthCubit, AuthState>(
         listener: (context, state) {
           if (state is AuthError) {
+            _didSubmit = false;
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
                 backgroundColor: Colors.red,
               ),
             );
+          } else if (state is Unauthenticated) {
+            _didSubmit = false;
           } else if (state is Authenticated) {
             if (_didSubmit) {
               _didSubmit = false;

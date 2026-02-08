@@ -16,7 +16,7 @@
         android:usesCleartextTraffic="true"
         android:icon="@mipmap/ic_launcher">
         <activity
-            android:name="com.musiclyco.musicly.MainActivity"
+            android:name="com.musiclyco.musicly.app.MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
             android:taskAffinity=""
@@ -100,7 +100,7 @@
         </receiver>
 
         <receiver
-            android:name="com.musiclyco.musicly.PlaybackWidgetProvider"
+            android:name="com.musiclyco.musicly.app.PlaybackWidgetProvider"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -111,14 +111,14 @@
         </receiver>
 
         <receiver
-            android:name="com.musiclyco.musicly.PlaybackWidgetActionReceiver"
+            android:name="com.musiclyco.musicly.app.PlaybackWidgetActionReceiver"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.musiclyco.musicly.widget.PREV" />
-                <action android:name="com.musiclyco.musicly.widget.PLAY_PAUSE" />
-                <action android:name="com.musiclyco.musicly.widget.NEXT" />
-                <action android:name="com.musiclyco.musicly.widget.LIKE" />
-                <action android:name="com.musiclyco.musicly.widget.REFRESH" />
+                <action android:name="com.musiclyco.musicly.app.widget.PREV" />
+                <action android:name="com.musiclyco.musicly.app.widget.PLAY_PAUSE" />
+                <action android:name="com.musiclyco.musicly.app.widget.NEXT" />
+                <action android:name="com.musiclyco.musicly.app.widget.LIKE" />
+                <action android:name="com.musiclyco.musicly.app.widget.REFRESH" />
             </intent-filter>
         </receiver>
 

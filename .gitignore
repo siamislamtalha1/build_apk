@@ -151,3 +151,12 @@ app.*.symbols
 *.cer
 *.crt
 *.pem
+
+# Sensitive Files (Broad Checks)
+*.env
+.env*
+*.key
+key.properties
+secret.properties
+google-services.json
+GoogleService-Info.plist
