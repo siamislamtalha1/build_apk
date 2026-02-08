@@ -140,17 +140,21 @@ app.*.symbols
 !/dev/ci/**/Gemfile.lock
 !.vscode/settings.json
 
-
 /assets/*.env
 **/google-services.json
 **/GoogleService-Info.plist
 **/firebase_app_id_file.json
+**/firebase_options.dart
+firebase.json
+.firebaserc
 *.keystore
 *.p12
 *.mobileprovision
 *.cer
 *.crt
 *.pem
+**/serviceAccount*.json
+**/*firebase-adminsdk*.json
 
 # Sensitive Files (Broad Checks)
 *.env

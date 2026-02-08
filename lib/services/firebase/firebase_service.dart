@@ -9,6 +9,17 @@ class FirebaseService {
   static Object? _lastInitError;
   static StackTrace? _lastInitStack;
 
+  static const String _windowsApiKey =
+      String.fromEnvironment('FIREBASE_API_KEY_WINDOWS');
+  static const String _windowsAppId =
+      String.fromEnvironment('FIREBASE_APP_ID_WINDOWS');
+  static const String _windowsMessagingSenderId =
+      String.fromEnvironment('FIREBASE_MESSAGING_SENDER_ID_WINDOWS');
+  static const String _windowsProjectId =
+      String.fromEnvironment('FIREBASE_PROJECT_ID_WINDOWS');
+  static const String _windowsStorageBucket =
+      String.fromEnvironment('FIREBASE_STORAGE_BUCKET_WINDOWS');
+
   static Object? get lastInitError => _lastInitError;
   static StackTrace? get lastInitStack => _lastInitStack;
 
@@ -20,13 +31,32 @@ class FirebaseService {
       } else if (Platform.isAndroid || Platform.isIOS) {
         await Firebase.initializeApp();
       } else if (Platform.isWindows) {
+        if (_windowsApiKey.trim().isEmpty ||
+            _windowsAppId.trim().isEmpty ||
+            _windowsMessagingSenderId.trim().isEmpty ||
+            _windowsProjectId.trim().isEmpty) {
+          throw Exception(
+            'Missing Windows Firebase config. Provide these at build time using --dart-define:\n'
+            'FIREBASE_API_KEY_WINDOWS, FIREBASE_APP_ID_WINDOWS, FIREBASE_MESSAGING_SENDER_ID_WINDOWS, FIREBASE_PROJECT_ID_WINDOWS\n'
+            'Optional: FIREBASE_STORAGE_BUCKET_WINDOWS',
+          );
+        }
+
+        if (_windowsAppId.contains(':android:')) {
+          throw Exception(
+            'Windows FirebaseOptions misconfigured: appId looks like an Android appId ($_windowsAppId). '
+            'For Windows you must use the Web/Desktop appId from Firebase Console (Project settings -> Your apps -> Web app).',
+          );
+        }
+
         await Firebase.initializeApp(
-          options: const FirebaseOptions(
-            apiKey: 'AIzaSyBagOn_faUl6cDVdrXL77qWJMkSGAdfI6A',
-            appId: '1:612505906312:android:806ef94d1737bffaa1833d',
-            messagingSenderId: '612505906312',
-            projectId: 'musicly-6bcc1',
-            storageBucket: 'musicly-6bcc1.firebasestorage.app',
+          options: FirebaseOptions(
+            apiKey: _windowsApiKey,
+            appId: _windowsAppId,
+            messagingSenderId: _windowsMessagingSenderId,
+            projectId: _windowsProjectId,
+            storageBucket:
+                _windowsStorageBucket.trim().isEmpty ? null : _windowsStorageBucket,
           ),
         );
       } else {
