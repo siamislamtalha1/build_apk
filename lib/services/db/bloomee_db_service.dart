@@ -17,7 +17,8 @@ import 'package:Bloomee/services/db/GlobalDB.dart';
 import 'package:path_provider/path_provider.dart';
 
 class BloomeeDBService {
-  static late Future<Isar> db;
+  static Future<Isar>? _db;
+  static Future<Isar> get db => _db ??= openDB();
   static late String appSuppDir;
   static late String appDocDir;
   static bool _dirsInitialized = false;
@@ -69,7 +70,7 @@ class BloomeeDBService {
   }
 
   BloomeeDBService._internal() {
-    db = openDB();
+    _db ??= openDB();
     Future.delayed(const Duration(seconds: 30), () async {
       await refreshRecentlyPlayed();
       await purgeUnassociatedMediaItems();

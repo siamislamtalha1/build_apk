@@ -21,12 +21,14 @@ class SettingsCubit extends Cubit<SettingsState> {
     BloomeeDBService.getSettingBool(GlobalStrConsts.autoUpdateNotify).then((
       value,
     ) {
+      if (isClosed) return;
       emit(state.copyWith(autoUpdateNotify: value ?? false));
     });
 
     BloomeeDBService.getSettingBool(GlobalStrConsts.autoSlideCharts).then((
       value,
     ) {
+      if (isClosed) return;
       emit(state.copyWith(autoSlideCharts: value ?? true));
     });
 
@@ -49,6 +51,7 @@ class SettingsCubit extends Cubit<SettingsState> {
         setDownPath(path);
         log("Download path set to: $path", name: 'SettingsCubit');
       }
+      if (isClosed) return;
       emit(state.copyWith(downPath: path));
     });
 
@@ -56,22 +59,27 @@ class SettingsCubit extends Cubit<SettingsState> {
       GlobalStrConsts.downQuality,
       defaultValue: '320 kbps',
     ).then((value) {
+      if (isClosed) return;
       emit(state.copyWith(downQuality: value ?? "320 kbps"));
     });
 
     BloomeeDBService.getSettingStr(GlobalStrConsts.ytDownQuality).then((value) {
+      if (isClosed) return;
       emit(state.copyWith(ytDownQuality: value ?? "High"));
     });
 
     BloomeeDBService.getSettingStr(GlobalStrConsts.strmQuality).then((value) {
+      if (isClosed) return;
       emit(state.copyWith(strmQuality: value ?? "96 kbps"));
     });
 
     BloomeeDBService.getSettingStr(GlobalStrConsts.ytStrmQuality).then((value) {
       if (value == "High" || value == "Low") {
+        if (isClosed) return;
         emit(state.copyWith(ytStrmQuality: value ?? "Low"));
       } else {
         BloomeeDBService.putSettingStr(GlobalStrConsts.ytStrmQuality, "Low");
+        if (isClosed) return;
         emit(state.copyWith(ytStrmQuality: "Low"));
       }
     });
@@ -79,20 +87,24 @@ class SettingsCubit extends Cubit<SettingsState> {
     BloomeeDBService.getSettingStr(GlobalStrConsts.historyClearTime).then((
       value,
     ) {
+      if (isClosed) return;
       emit(state.copyWith(historyClearTime: value ?? "30"));
     });
 
     BloomeeDBService.getSettingBool(GlobalStrConsts.lFMScrobbleSetting).then((
       value,
     ) {
+      if (isClosed) return;
       emit(state.copyWith(lastFMScrobble: value ?? false));
     });
 
     BloomeeDBService.getSettingBool(GlobalStrConsts.autoPlay).then((value) {
+      if (isClosed) return;
       emit(state.copyWith(autoPlay: value ?? true));
     });
 
     BloomeeDBService.getSettingBool(GlobalStrConsts.lFMUIPicks).then((value) {
+      if (isClosed) return;
       emit(state.copyWith(lFMPicks: value ?? false));
     });
 
@@ -105,37 +117,45 @@ class SettingsCubit extends Cubit<SettingsState> {
         GlobalStrConsts.backupPath,
         defaultBackUpDir,
       );
+      if (isClosed) return;
       emit(state.copyWith(backupPath: defaultBackUpDir));
     });
 
     BloomeeDBService.getSettingBool(GlobalStrConsts.autoBackup).then((value) {
+      if (isClosed) return;
       emit(state.copyWith(autoBackup: value ?? false));
     });
 
     BloomeeDBService.getSettingBool(GlobalStrConsts.autoGetCountry).then((
       value,
     ) {
+      if (isClosed) return;
       emit(state.copyWith(autoGetCountry: value ?? false));
     });
 
     BloomeeDBService.getSettingStr(GlobalStrConsts.countryCode).then((value) {
+      if (isClosed) return;
       emit(state.copyWith(countryCode: value ?? "IN"));
     });
 
     BloomeeDBService.getSettingStr('app_locale').then((value) {
+      if (isClosed) return;
       emit(state.copyWith(locale: value ?? "en"));
     });
 
     BloomeeDBService.getSettingBool(GlobalStrConsts.autoSaveLyrics).then((
       value,
     ) {
+      if (isClosed) return;
       emit(state.copyWith(autoSaveLyrics: value ?? false));
     });
 
     for (var eg in SourceEngine.values) {
       BloomeeDBService.getSettingBool(eg.value).then((value) {
+        if (isClosed) return;
         List<bool> switches = List.from(state.sourceEngineSwitches);
         switches[SourceEngine.values.indexOf(eg)] = value ?? true;
+        if (isClosed) return;
         emit(state.copyWith(sourceEngineSwitches: switches));
         log(switches.toString(), name: 'SettingsCubit');
       });
@@ -146,6 +166,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       if (value != null) {
         chartMap = jsonDecode(value);
       }
+      if (isClosed) return;
       emit(state.copyWith(chartMap: Map.from(chartMap)));
     });
 
@@ -153,15 +174,18 @@ class SettingsCubit extends Cubit<SettingsState> {
     BloomeeDBService.getSettingStr(GlobalStrConsts.audioDecoderMode).then((
       value,
     ) {
+      if (isClosed) return;
       emit(state.copyWith(audioDecoderMode: value ?? "system"));
     });
     BloomeeDBService.getSettingBool(
       GlobalStrConsts.hardwareOffloadEnabled,
     ).then((value) {
+      if (isClosed) return;
       emit(state.copyWith(hardwareOffloadEnabled: value ?? false));
     });
     BloomeeDBService.getSettingBool(GlobalStrConsts.gaplessOffloadEnabled).then(
       (value) {
+        if (isClosed) return;
         emit(state.copyWith(gaplessOffloadEnabled: value ?? false));
       },
     );
@@ -171,6 +195,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       defaultValue: '1.0',
     ).then((value) {
       final parsed = double.tryParse(value ?? '1.0') ?? 1.0;
+      if (isClosed) return;
       emit(state.copyWith(playbackSpeed: parsed.clamp(0.5, 2.0)));
     });
 
@@ -179,6 +204,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       defaultValue: '1.0',
     ).then((value) {
       final parsed = double.tryParse(value ?? '1.0') ?? 1.0;
+      if (isClosed) return;
       emit(state.copyWith(playbackPitch: parsed.clamp(0.5, 2.0)));
     });
 
@@ -186,6 +212,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       GlobalStrConsts.skipSilenceEnabled,
       defaultValue: false,
     ).then((value) {
+      if (isClosed) return;
       emit(state.copyWith(skipSilenceEnabled: value ?? false));
     });
 
@@ -193,6 +220,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       GlobalStrConsts.equalizerEnabled,
       defaultValue: false,
     ).then((value) {
+      if (isClosed) return;
       emit(state.copyWith(equalizerEnabled: value ?? false));
     });
 
@@ -200,6 +228,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       GlobalStrConsts.normalizationEnabled,
       defaultValue: false,
     ).then((value) {
+      if (isClosed) return;
       emit(state.copyWith(normalizationEnabled: value ?? false));
     });
 
@@ -207,6 +236,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       GlobalStrConsts.normalizationGainMb,
       defaultValue: '0',
     ).then((value) {
+      if (isClosed) return;
       emit(
         state.copyWith(normalizationGainMb: int.tryParse(value ?? '0') ?? 0),
       );
@@ -214,26 +244,31 @@ class SettingsCubit extends Cubit<SettingsState> {
     BloomeeDBService.getSettingBool(GlobalStrConsts.tabletUiEnabled).then((
       value,
     ) {
+      if (isClosed) return;
       emit(state.copyWith(tabletUiEnabled: value ?? false));
     });
     BloomeeDBService.getSettingBool(
       GlobalStrConsts.persistentQueueEnabled,
     ).then((value) {
+      if (isClosed) return;
       emit(state.copyWith(persistentQueueEnabled: value ?? false));
     });
     BloomeeDBService.getSettingStr(GlobalStrConsts.maxSavedQueues).then((
       value,
     ) {
+      if (isClosed) return;
       emit(state.copyWith(maxSavedQueues: int.tryParse(value ?? "19") ?? 19));
     });
     BloomeeDBService.getSettingBool(GlobalStrConsts.keepAliveEnabled).then((
       value,
     ) {
+      if (isClosed) return;
       emit(state.copyWith(keepAliveEnabled: value ?? false));
     });
     BloomeeDBService.getSettingBool(GlobalStrConsts.stopOnTaskClear).then((
       value,
     ) {
+      if (isClosed) return;
       emit(state.copyWith(stopOnTaskClear: value ?? false));
     });
 
@@ -256,6 +291,7 @@ class SettingsCubit extends Cubit<SettingsState> {
           themeMode = ThemeMode.system;
           await BloomeeDBService.putSettingStr('theme_mode', 'system');
       }
+      if (isClosed) return;
       emit(state.copyWith(themeMode: themeMode));
     });
   }
