@@ -1,5 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'dart:async';
+import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:Bloomee/services/firebase/auth_service.dart';
 import 'package:Bloomee/services/firebase/firestore_service.dart';
@@ -11,21 +13,44 @@ part 'auth_state.dart';
 class AuthCubit extends Cubit<AuthState> {
   final AuthService _authService;
   final FirestoreService _firestoreService;
+  StreamSubscription<User?>? _authSubscription;
+  int _opToken = 0;
 
   AuthCubit({AuthService? authService})
       : _authService = authService ?? AuthService(),
         _firestoreService = FirestoreService(),
         super(AuthInitial()) {
     // Listen to auth state changes
-    _authService.authStateChanges.listen((user) {
-      if (user != null) {
-        emit(Authenticated(user: user));
-        // Profile saving and username allocation is handled by SyncService
-        // to avoid race conditions and database transaction conflicts
-      } else {
-        emit(Unauthenticated());
-      }
-    });
+    _authSubscription = _authService.authStateChanges.listen(
+      (user) {
+        if (isClosed) return;
+        if (user != null) {
+          emit(Authenticated(user: user));
+          // Profile saving and username allocation is handled by SyncService
+          // to avoid race conditions and database transaction conflicts
+        } else {
+          emit(Unauthenticated());
+        }
+      },
+      onError: (Object e, StackTrace st) {
+        CrashReporter.record(e, st, source: 'AuthCubit.authStateChanges');
+        if (isClosed) return;
+        emit(AuthError(message: _messageFromError(e)));
+      },
+    );
+  }
+
+  void _armLoadingTimeout(String opName, int token,
+      {Duration timeout = const Duration(seconds: 12)}) {
+    unawaited(
+      Future.delayed(timeout).then((_) {
+        if (isClosed) return;
+        if (token != _opToken) return;
+        if (state is AuthLoading) {
+          emit(AuthError(message: '$opName timed out. Please try again.'));
+        }
+      }),
+    );
   }
 
   /// Sign up with email and password
@@ -37,7 +62,10 @@ class AuthCubit extends Cubit<AuthState> {
   }) async {
     try {
       if (isClosed) return;
+      _opToken++;
+      final token = _opToken;
       emit(AuthLoading());
+      _armLoadingTimeout('Sign up', token);
       final current = _authService.currentUser;
       final cred = (current != null && current.isAnonymous)
           ? await _authService.linkAnonymousWithEmail(
@@ -80,32 +108,37 @@ class AuthCubit extends Cubit<AuthState> {
   }) async {
     try {
       if (isClosed) return;
+      _opToken++;
+      final token = _opToken;
       emit(AuthLoading());
+      _armLoadingTimeout('Login', token);
       final cred = await _authService.signInWithEmail(
         email: email,
         password: password,
       );
       final user = cred?.user;
       if (user != null && !user.isAnonymous) {
-        try {
-          await _firestoreService.saveUserProfile(
-            user.uid,
-            displayName: user.displayName,
-            photoURL: user.photoURL,
-            email: user.email,
-          );
-          await _firestoreService.ensureUsername(
-            userId: user.uid,
-            displayName: user.displayName,
-          );
-        } catch (e, st) {
-          CrashReporter.record(
-            e,
-            st,
-            source: 'AuthCubit.signInWithEmail failed to save user profile',
-          );
-          if (isClosed) return;
-          emit(AuthError(message: _messageFromError(e)));
+        if (!Platform.isWindows) {
+          try {
+            await _firestoreService.saveUserProfile(
+              user.uid,
+              displayName: user.displayName,
+              photoURL: user.photoURL,
+              email: user.email,
+            );
+            await _firestoreService.ensureUsername(
+              userId: user.uid,
+              displayName: user.displayName,
+            );
+          } catch (e, st) {
+            CrashReporter.record(
+              e,
+              st,
+              source: 'AuthCubit.signInWithEmail failed to save user profile',
+            );
+            if (isClosed) return;
+            emit(AuthError(message: _messageFromError(e)));
+          }
         }
       }
       // State will be updated by authStateChanges listener
@@ -120,7 +153,10 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> signInWithGoogle() async {
     try {
       if (isClosed) return;
+      _opToken++;
+      final token = _opToken;
       emit(AuthLoading());
+      _armLoadingTimeout('Google sign-in', token);
       final result = await _authService.signInWithGoogle();
       if (result == null) {
         // User canceled
@@ -139,7 +175,10 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> signInAsGuest() async {
     try {
       if (isClosed) return;
+      _opToken++;
+      final token = _opToken;
       emit(AuthLoading());
+      _armLoadingTimeout('Guest sign-in', token);
       await _authService.signInAsGuest();
       // State will be updated by authStateChanges listener
     } catch (e, st) {
@@ -153,7 +192,10 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> signOut() async {
     try {
       if (isClosed) return;
+      _opToken++;
+      final token = _opToken;
       emit(AuthLoading());
+      _armLoadingTimeout('Sign out', token);
       await _authService.signOut();
       // State will be updated by authStateChanges listener
     } catch (e, st) {
@@ -167,7 +209,10 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> sendPasswordResetEmail(String email) async {
     try {
       if (isClosed) return;
+      _opToken++;
+      final token = _opToken;
       emit(AuthLoading());
+      _armLoadingTimeout('Password reset', token);
       await _authService.sendPasswordResetEmail(email);
       if (isClosed) return;
       emit(AuthPasswordResetEmailSent(email: email));
@@ -186,7 +231,10 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> deleteAccount() async {
     try {
       if (isClosed) return;
+      _opToken++;
+      final token = _opToken;
       emit(AuthLoading());
+      _armLoadingTimeout('Delete account', token);
       final user = _authService.currentUser;
       final uid = user?.uid;
       if (uid != null && !(user?.isAnonymous ?? true)) {
@@ -241,4 +289,10 @@ class AuthCubit extends Cubit<AuthState> {
 
   /// Check if user is guest
   bool get isGuest => _authService.isGuest;
+
+  @override
+  Future<void> close() {
+    _authSubscription?.cancel();
+    return super.close();
+  }
 }

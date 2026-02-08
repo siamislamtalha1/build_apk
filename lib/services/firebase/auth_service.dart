@@ -61,6 +61,7 @@ class AuthService {
   /// race conditions with the sync service
   Future<void> _initializeUserProfile(User user) async {
     if (user.isAnonymous) return; // Skip for anonymous users
+    if (Platform.isWindows) return;
 
     try {
       final FirestoreService firestoreService = FirestoreService();
@@ -114,8 +115,7 @@ class AuthService {
 
       // Initialize user profile asynchronously (non-blocking)
       if (credential.user != null) {
-        _initializeUserProfile(
-            credential.user!); // No await - runs in background
+        _initializeUserProfile(credential.user!); // No await - runs in background
       }
 
       debugPrint('✅ Sign up successful: ${credential.user?.email}');
