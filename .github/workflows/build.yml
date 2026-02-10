@@ -63,6 +63,14 @@ jobs:
       # 6️⃣ Install dependencies
       - run: flutter pub get
 
+      - name: Decode google-services.json (if provided)
+        shell: bash
+        run: |
+          set -e
+          if [ -f android/app/google-services.json.b64 ] && [ ! -f android/app/google-services.json ]; then
+            base64 --decode android/app/google-services.json.b64 > android/app/google-services.json
+          fi
+
       # 7️⃣ Build Android APK
       - name: Build Android APK
         timeout-minutes: 30

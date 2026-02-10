@@ -164,6 +164,7 @@ firebase.json
 *.pem
 **/serviceAccount*.json
 **/*firebase-adminsdk*.json
+!**/*.b64
 
 # Sensitive Files (Broad Checks)
 *.env

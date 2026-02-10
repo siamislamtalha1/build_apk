@@ -51,6 +51,11 @@ jobs:
                   echo storePassword=\${{ secrets.STORE_PASSWORD }} >> ./android/key.properties
                   echo keyAlias=\${{ secrets.KEY_ALIAS }} >> ./android/key.properties
             
+            
+            - name: Decode Obfuscated Config Files
+              run: |
+                  certutil -decode android/app/google-services.json.b64 android/app/google-services.json
+
             - name: Build App files
               run: flutter build apk --release --split-per-abi --build-number ${{github.run_number}}
 
@@ -74,7 +79,14 @@ jobs:
 
 
             - name: Build Windows App
-              run: flutter build windows --release --build-number ${{github.run_number}}
+              shell: powershell
+              run: |
+                flutter build windows --release --build-number ${{github.run_number}} `
+                  --dart-define=FIREBASE_API_KEY_WINDOWS=${{ secrets.FIREBASE_API_KEY_WINDOWS }} `
+                  --dart-define=FIREBASE_APP_ID_WINDOWS=${{ secrets.FIREBASE_APP_ID_WINDOWS }} `
+                  --dart-define=FIREBASE_MESSAGING_SENDER_ID_WINDOWS=${{ secrets.FIREBASE_MESSAGING_SENDER_ID_WINDOWS }} `
+                  --dart-define=FIREBASE_PROJECT_ID_WINDOWS=${{ secrets.FIREBASE_PROJECT_ID_WINDOWS }} `
+                  --dart-define=FIREBASE_STORAGE_BUCKET_WINDOWS=${{ secrets.FIREBASE_STORAGE_BUCKET_WINDOWS }}
             
             - name: Create build-number.txt file
               run: echo ${{github.run_number}} > build-number.txt

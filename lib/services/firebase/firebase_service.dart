@@ -3,8 +3,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:Bloomee/services/crash_reporter.dart';
 
-import 'package:Bloomee/firebase_config.dart';
-
 /// Firebase initialization service for Android, iOS, and Windows
 class FirebaseService {
   static bool _initialized = false;
@@ -33,33 +31,20 @@ class FirebaseService {
       } else if (Platform.isAndroid || Platform.isIOS) {
         await Firebase.initializeApp();
       } else if (Platform.isWindows) {
-        // Fallback to local config if env vars are missing
-        String apiKey = _windowsApiKey;
-        if (apiKey.isEmpty) apiKey = FirebaseConfig.windowsApiKey;
-
-        String appId = _windowsAppId;
-        if (appId.isEmpty) appId = FirebaseConfig.windowsAppId;
-
-        String messagingSenderId = _windowsMessagingSenderId;
-        if (messagingSenderId.isEmpty) {
-          messagingSenderId = FirebaseConfig.windowsMessagingSenderId;
-        }
-
-        String projectId = _windowsProjectId;
-        if (projectId.isEmpty) projectId = FirebaseConfig.windowsProjectId;
-
-        String storageBucket = _windowsStorageBucket;
-        if (storageBucket.isEmpty) {
-          storageBucket = FirebaseConfig.windowsStorageBucket;
-        }
+        final apiKey = _windowsApiKey;
+        final appId = _windowsAppId;
+        final messagingSenderId = _windowsMessagingSenderId;
+        final projectId = _windowsProjectId;
+        final storageBucket = _windowsStorageBucket;
 
         if (apiKey.trim().isEmpty ||
             appId.trim().isEmpty ||
             messagingSenderId.trim().isEmpty ||
             projectId.trim().isEmpty) {
           throw Exception(
-            'Missing Windows Firebase config. Provide these at build time using --dart-define or update lib/firebase_config.dart:\n'
-            'FIREBASE_API_KEY_WINDOWS, FIREBASE_APP_ID_WINDOWS, FIREBASE_MESSAGING_SENDER_ID_WINDOWS, FIREBASE_PROJECT_ID_WINDOWS',
+            'Missing Windows Firebase config. Provide these at build time using --dart-define:\n'
+            'FIREBASE_API_KEY_WINDOWS, FIREBASE_APP_ID_WINDOWS, FIREBASE_MESSAGING_SENDER_ID_WINDOWS, FIREBASE_PROJECT_ID_WINDOWS\n'
+            'Optional: FIREBASE_STORAGE_BUCKET_WINDOWS',
           );
         }
 

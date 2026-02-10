@@ -55,6 +55,12 @@ dependencies {
 
 // Firebase (Google Services) plugin is only needed when google-services.json is present.
 // Keep the file out of git for public repos; inject it in CI/local builds when required.
-if (file('google-services.json').exists()) {
+def hasGoogleServicesJson =
+        file('google-services.json').exists() ||
+        file('src/google-services.json').exists() ||
+        file('src/release/google-services.json').exists() ||
+        file('src/debug/google-services.json').exists()
+
+if (hasGoogleServicesJson) {
     apply plugin: 'com.google.gms.google-services'
 }
