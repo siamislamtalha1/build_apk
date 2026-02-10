@@ -6,6 +6,19 @@ import 'package:firebase_auth/firebase_auth.dart';
 class FirestoreService {
   FirebaseFirestore get _firestore => FirebaseFirestore.instance;
 
+  void _requireNonAnonymousUser(String userId, String action) {
+    final u = FirebaseAuth.instance.currentUser;
+    if (u == null) {
+      throw Exception('Login required to $action');
+    }
+    if (u.isAnonymous) {
+      throw Exception('Login required to $action');
+    }
+    if (u.uid != userId) {
+      throw Exception('Permission denied');
+    }
+  }
+
   // New canonical share domain
   static const String shareUrlPrefix =
       'https://siamislamtalha.asia/share/playlist/';
@@ -427,6 +440,7 @@ class FirestoreService {
     required String playlistName,
     required bool isPublic,
   }) async {
+    _requireNonAnonymousUser(userId, 'change playlist visibility');
     final playlistRef = _playlistDoc(userId, playlistName);
     await playlistRef.set(
       {
@@ -443,6 +457,7 @@ class FirestoreService {
     required String userId,
     required String playlistName,
   }) async {
+    _requireNonAnonymousUser(userId, 'create share link');
     final playlistRef = _playlistDoc(userId, playlistName);
     final snap = await playlistRef.get();
     final data = snap.data();

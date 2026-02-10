@@ -1,11 +1,11 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'dart:async';
-import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:Bloomee/services/firebase/auth_service.dart';
 import 'package:Bloomee/services/firebase/firestore_service.dart';
 import 'package:Bloomee/services/crash_reporter.dart';
+import 'package:Bloomee/services/platform/platform_info.dart';
 
 part 'auth_state.dart';
 
@@ -126,7 +126,7 @@ class AuthCubit extends Cubit<AuthState> {
       );
       final user = cred?.user;
       if (user != null && !user.isAnonymous) {
-        if (!Platform.isWindows) {
+        if (!PlatformInfo.isWindows) {
           try {
             await _firestoreService.saveUserProfile(
               user.uid,

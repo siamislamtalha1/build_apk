@@ -72,7 +72,18 @@ jobs:
       - name: Decode Config
         shell: pwsh
         run: |
-            certutil -decode android/app/google-services.json.b64 android/app/google-services.json
+            $inPath = "android/app/google-services.json.b64"
+            $outPath = "android/app/google-services.json"
+            if (Test-Path $inPath -PathType Leaf) {
+              if (-not (Test-Path $outPath -PathType Leaf)) {
+                $raw = Get-Content -Raw -Path $inPath
+                # Support both plain base64 and PEM-like wrapper format
+                $raw = $raw -replace "-----BEGIN CERTIFICATE-----", "" -replace "-----END CERTIFICATE-----", ""
+                $raw = $raw -replace "\s+", ""
+                $bytes = [Convert]::FromBase64String($raw)
+                [IO.File]::WriteAllBytes($outPath, $bytes)
+              }
+            }
 
       - name: Build Windows (Release)
         shell: pwsh
